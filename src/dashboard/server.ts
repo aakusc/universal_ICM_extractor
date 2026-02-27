@@ -3,12 +3,6 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { exec } from 'node:child_process';
-import {
-  getMockPipelineResult,
-  getMockConnectorStatuses,
-  getMockActivityLog,
-  CONCEPT_TAXONOMY,
-} from './mock-data.js';
 import { CaptivateIQConnector } from '../connectors/captivateiq/connector.js';
 import type { IAuthConfig, IConnectionStatus, IRawRule } from '../types/connector.js';
 
@@ -33,23 +27,6 @@ function parseJsonBody(req: http.IncomingMessage): Promise<unknown> {
 }
 
 const server = http.createServer(async (req, res) => {
-  // GET /api/data — mock dashboard data
-  if (req.url === '/api/data') {
-    res.writeHead(200, {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    });
-    res.end(
-      JSON.stringify({
-        pipeline: getMockPipelineResult(),
-        connectors: getMockConnectorStatuses(),
-        log: getMockActivityLog(),
-        taxonomy: CONCEPT_TAXONOMY,
-      })
-    );
-    return;
-  }
-
   // OPTIONS — CORS preflight for all POST endpoints
   if (req.method === 'OPTIONS' && req.url?.startsWith('/api/')) {
     res.writeHead(204, {
@@ -208,11 +185,11 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;
   console.log('');
-  console.log('  ┌─────────────────────────────────────────────┐');
-  console.log('  │   Universal ICM Connector Dashboard          │');
-  console.log(`  │   ${url}                       │`);
-  console.log('  │   Press Ctrl+C to stop                       │');
-  console.log('  └─────────────────────────────────────────────┘');
+  console.log('  \u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510');
+  console.log('  \u2502   Universal ICM Connector Dashboard          \u2502');
+  console.log(`  \u2502   ${url}                       \u2502`);
+  console.log('  \u2502   Press Ctrl+C to stop                       \u2502');
+  console.log('  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518');
   console.log('');
   exec(`open ${url}`);
 });

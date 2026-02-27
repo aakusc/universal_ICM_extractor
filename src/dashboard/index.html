@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Universal ICM Connector — Dashboard</title>
+  <title>Universal ICM Connector</title>
   <style>
     :root {
       --bg: #f0f4f8;
@@ -22,7 +22,6 @@
       --warning-dim: rgba(245,158,11,0.12);
       --error: #ef4444;
       --error-dim: rgba(239,68,68,0.12);
-      --info-dim: rgba(14,165,233,0.12);
       --radius: 12px;
       --radius-sm: 8px;
       --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -54,23 +53,9 @@
       font-size: 14px;
       margin-top: 4px;
     }
-    .header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .plan-badge {
-      background: rgba(14,165,233,0.15);
-      color: var(--primary);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: 1px solid rgba(14,165,233,0.3);
-    }
 
     /* ── Layout ────────────────────────────────── */
-    .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .container { max-width: 960px; margin: 0 auto; padding: 24px; }
     .section { margin-bottom: 24px; }
     .section-title {
       font-size: 13px;
@@ -92,97 +77,6 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    /* ── Pipeline Flow ─────────────────────────── */
-    .pipeline-flow {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-    }
-    .pipeline-stage {
-      flex: 1;
-      text-align: center;
-      padding: 20px 16px;
-      position: relative;
-      background: var(--surface-glass);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-    }
-    .pipeline-stage:first-child {
-      border-radius: var(--radius) 0 0 var(--radius);
-    }
-    .pipeline-stage:last-child {
-      border-radius: 0 var(--radius) var(--radius) 0;
-    }
-    .pipeline-stage:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      right: -12px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 0; height: 0;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-      border-left: 12px solid var(--border);
-      z-index: 2;
-    }
-    .pipeline-stage:not(:last-child)::before {
-      content: '';
-      position: absolute;
-      right: -10px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 0; height: 0;
-      border-top: 8px solid transparent;
-      border-bottom: 8px solid transparent;
-      border-left: 10px solid var(--surface-glass);
-      z-index: 3;
-    }
-    .stage-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .stage-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-    .stage-detail { font-size: 12px; color: var(--muted); }
-    .stage-complete .stage-num { background: var(--success-dim); color: var(--success); }
-    .stage-active .stage-num { background: var(--primary-dim); color: var(--primary); }
-    .stage-error .stage-num { background: var(--error-dim); color: var(--error); }
-
-    /* ── Stats Bar ─────────────────────────────── */
-    .stats-bar {
-      display: flex;
-      gap: 16px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-    .stat-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 13px;
-    }
-    .stat-value { font-weight: 700; }
-    .stat-label { color: var(--muted); }
-
-    /* ── Two-Column Grid ───────────────────────── */
-    .two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-    @media (max-width: 768px) {
-      .two-col { grid-template-columns: 1fr; }
-    }
-
     /* ── Vendor Connectors ─────────────────────── */
     .connector-list { display: flex; flex-direction: column; gap: 10px; }
     .connector-row {
@@ -200,15 +94,9 @@
       flex-shrink: 0;
     }
     .conn-dot.on { background: var(--success); box-shadow: 0 0 6px rgba(16,185,129,0.5); }
-    .conn-dot.off { background: var(--error); }
+    .conn-dot.off { background: #cbd5e1; }
     .conn-name { font-weight: 600; font-size: 14px; min-width: 130px; }
     .conn-detail { font-size: 12px; color: var(--muted); flex: 1; }
-    .conn-latency {
-      font-size: 11px;
-      font-weight: 600;
-      font-family: var(--mono);
-      color: var(--muted);
-    }
     .conn-configure-btn {
       padding: 5px 14px;
       font-size: 12px;
@@ -244,7 +132,7 @@
       margin-bottom: 0;
     }
     .conn-setup-panel.open {
-      max-height: 1200px;
+      max-height: 4000px;
       opacity: 1;
       padding: 16px;
     }
@@ -440,10 +328,7 @@
     }
     .plan-item:last-child { border-bottom: none; }
     .plan-item:hover { background: var(--primary-dim); }
-    .plan-item.selected {
-      background: var(--primary-dim);
-      font-weight: 600;
-    }
+    .plan-item.selected { background: var(--primary-dim); font-weight: 600; }
     .plan-item .plan-radio {
       width: 14px; height: 14px;
       border: 2px solid var(--border);
@@ -451,9 +336,7 @@
       flex-shrink: 0;
       position: relative;
     }
-    .plan-item.selected .plan-radio {
-      border-color: var(--primary);
-    }
+    .plan-item.selected .plan-radio { border-color: var(--primary); }
     .plan-item.selected .plan-radio::after {
       content: '';
       position: absolute;
@@ -497,7 +380,7 @@
       font-size: 11px;
     }
     .extracted-rules-list {
-      max-height: 300px;
+      max-height: 500px;
       overflow-y: auto;
       padding: 0;
       margin: 0;
@@ -550,9 +433,7 @@
     .extracted-rule-item .rule-data-preview::after {
       content: 'Click to expand';
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       height: 28px;
       background: linear-gradient(transparent, var(--surface));
       display: flex;
@@ -578,8 +459,7 @@
     .extracted-rules-actions {
       display: flex;
       gap: 8px;
-      margin-top: 8px;
-      padding-top: 8px;
+      padding: 10px 14px;
       border-top: 1px solid var(--border-light);
     }
     .btn-export {
@@ -617,509 +497,46 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 14px;
+      padding: 6px 12px;
       border-radius: 20px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       border: 1px solid;
-      transition: transform 0.15s;
-    }
-    .concept-chip:hover { transform: translateY(-1px); }
-    .concept-count {
-      font-size: 11px;
-      font-weight: 700;
-      min-width: 18px; height: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 9px;
-    }
-    .concept-chip.active { opacity: 1; }
-    .concept-chip.inactive { opacity: 0.4; }
-
-    /* ── Rules Table ───────────────────────────── */
-    .rules-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      font-size: 13px;
-    }
-    .rules-table thead th {
-      text-align: left;
-      padding: 10px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-      border-bottom: 2px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--surface);
-    }
-    .rules-table tbody tr {
-      transition: background 0.12s;
-    }
-    .rules-table tbody tr:hover {
-      background: var(--primary-dim);
-    }
-    .rules-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border-light);
-      vertical-align: top;
-    }
-    .concept-badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .confidence-bar-bg {
-      width: 60px; height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    .confidence-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.6s ease;
-    }
-    .source-id {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
     }
 
-    /* ── Activity Log ──────────────────────────── */
-    .log-container {
-      background: #0f172a;
-      border-radius: var(--radius);
-      padding: 16px;
-      max-height: 400px;
-      overflow-y: auto;
-      font-family: var(--mono);
-      font-size: 12.5px;
-      line-height: 1.8;
-    }
-    .log-container::-webkit-scrollbar { width: 6px; }
-    .log-container::-webkit-scrollbar-track { background: transparent; }
-    .log-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-
-    .log-entry {
-      opacity: 0;
-      transform: translateY(4px);
-      transition: opacity 0.3s, transform 0.3s;
-      display: flex;
-      gap: 8px;
-      align-items: baseline;
-      padding: 2px 0;
-    }
-    .log-entry.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .log-ts {
-      color: #475569;
-      flex-shrink: 0;
-      min-width: 85px;
-    }
-    .log-stage {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1px 7px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      flex-shrink: 0;
-      min-width: 78px;
-      text-align: center;
-    }
-    .log-stage.connect   { background: #164e63; color: #67e8f9; }
-    .log-stage.extract   { background: #1e3a5f; color: #7dd3fc; }
-    .log-stage.interpret { background: #3b1f6e; color: #c4b5fd; }
-    .log-stage.normalize { background: #14532d; color: #86efac; }
-    .log-stage.system    { background: #334155; color: #94a3b8; }
-
-    .log-msg { color: #e2e8f0; }
-    .log-entry[data-level="success"] .log-msg { color: #34d399; }
-    .log-entry[data-level="warn"] .log-msg    { color: #fbbf24; }
-    .log-entry[data-level="error"] .log-msg   { color: #f87171; }
-    .log-entry[data-level="info"] .log-msg    { color: #e2e8f0; }
-
-    /* ── Loading ───────────────────────────────── */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 200px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .loading::before {
-      content: '';
-      width: 20px; height: 20px;
-      border: 2px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-right: 10px;
-    }
+    /* ── Loading / Spinner ────────────────────── */
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── How It Works Modal ───────────────────── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,0.55);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.25s;
-      pointer-events: none;
-    }
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .modal {
-      background: var(--surface);
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      width: 560px;
-      max-width: calc(100vw - 40px);
-      max-height: calc(100vh - 80px);
-      overflow-y: auto;
-      transform: translateY(12px) scale(0.97);
-      transition: transform 0.25s;
-    }
-    .modal-overlay.open .modal {
-      transform: translateY(0) scale(1);
-    }
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 24px 0;
-    }
-    .modal-header h2 {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--fg);
-    }
-    .modal-close {
-      width: 32px; height: 32px;
-      border: none;
-      background: var(--border-light);
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 18px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s;
-    }
-    .modal-close:hover { background: var(--border); }
-    .modal-body { padding: 16px 24px 8px; }
-    .modal-body p {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 16px;
-      line-height: 1.6;
-    }
-    .step-list { list-style: none; padding: 0; margin: 0 0 16px; }
-    .step-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border-light);
-    }
-    .step-list li:last-child { border-bottom: none; }
-    .step-num {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .step-content { flex: 1; }
-    .step-content strong {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--fg);
-      margin-bottom: 2px;
-    }
-    .step-content span {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-    .modal-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 24px 20px;
-    }
-    .dont-show {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--muted);
-      user-select: none;
-    }
-    .dont-show input[type="checkbox"] {
-      width: 16px; height: 16px;
-      accent-color: var(--primary);
-      cursor: pointer;
-    }
-    .modal-got-it {
-      padding: 8px 22px;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .modal-got-it:hover { background: #0284c7; }
-    .help-btn {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      font-size: 20px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(14,165,233,0.4);
-      transition: transform 0.15s, box-shadow 0.15s;
-      z-index: 999;
-    }
-    .help-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(14,165,233,0.5); }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-row">
-    <div>
-      <h1>Universal <span>ICM</span> Connector</h1>
-      <p>Pipeline Visualization &amp; Activity Monitor</p>
-    </div>
-    <div class="plan-badge" id="planBadge">Loading...</div>
+  <div>
+    <h1>Universal <span>ICM</span> Connector</h1>
+    <p>Connect, extract, and export compensation plan data</p>
   </div>
 </div>
 
 <div class="container">
-  <!-- Pipeline Flow -->
+  <!-- Vendor Connectors -->
   <div class="section">
-    <div class="section-title">Pipeline Status</div>
-    <div id="pipelineFlow" class="pipeline-flow"><div class="loading">Loading pipeline data...</div></div>
-    <div id="statsBar" class="stats-bar"></div>
-  </div>
-
-  <!-- Connectors + Taxonomy -->
-  <div class="section two-col">
-    <div>
-      <div class="section-title">Vendor Connectors</div>
-      <div class="card">
-        <div id="connectors" class="connector-list"><div class="loading">Loading connectors...</div></div>
-      </div>
-    </div>
-    <div>
-      <div class="section-title">Rule Concept Taxonomy</div>
-      <div class="card">
-        <div id="taxonomy" class="concept-grid"></div>
-      </div>
+    <div class="section-title">Vendor Connectors</div>
+    <div class="card">
+      <div id="connectors" class="connector-list"></div>
     </div>
   </div>
 
-  <!-- Rules Table -->
+  <!-- Concept Taxonomy Reference -->
   <div class="section">
-    <div class="section-title">Extracted &amp; Normalized Rules</div>
-    <div class="card" style="padding: 0; overflow: hidden;">
-      <div style="overflow-x: auto;">
-        <table class="rules-table" id="rulesTable">
-          <thead><tr><th>ID</th><th>Concept</th><th>Description</th><th>Confidence</th><th>Source</th></tr></thead>
-          <tbody id="rulesBody"><tr><td colspan="5"><div class="loading">Loading rules...</div></td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Activity Log -->
-  <div class="section">
-    <div class="section-title">Activity Log</div>
-    <div class="log-container" id="logContainer"></div>
-  </div>
-</div>
-
-<!-- How It Works Modal -->
-<div class="modal-overlay" id="howItWorksOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>How It Works</h2>
-      <button class="modal-close" id="modalClose">&times;</button>
-    </div>
-    <div class="modal-body">
-      <p>The Universal ICM Connector extracts compensation rule <strong>concepts</strong> from any ICM vendor system and normalizes them into a single schema that downstream tools can consume.</p>
-      <ol class="step-list">
-        <li>
-          <div class="step-num" style="background: var(--info-dim); color: var(--primary);">1</div>
-          <div class="step-content">
-            <strong>Connect</strong>
-            <span>Authenticate against the target ICM system (Varicent, Xactly, SAP, CaptivateIQ, Salesforce) via OAuth, API key, or SAML.</span>
-          </div>
-        </li>
-        <li>
-          <div class="step-num" style="background: rgba(59,130,246,0.12); color: #3b82f6;">2</div>
-          <div class="step-content">
-            <strong>Extract Rules</strong>
-            <span>Pull raw compensation plan rules from the vendor API &mdash; rate tables, accelerators, qualifiers, splits, territories, and more.</span>
-          </div>
-        </li>
-        <li>
-          <div class="step-num" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">3</div>
-          <div class="step-content">
-            <strong>Interpret Concepts</strong>
-            <span>AI analyzes each raw rule and identifies the business intent (e.g. &ldquo;accelerator above 100% quota&rdquo;) rather than copying vendor-specific objects. Each rule is classified into one of 12 concept types with a confidence score.</span>
-          </div>
-        </li>
-        <li>
-          <div class="step-num" style="background: var(--success-dim); color: var(--success);">4</div>
-          <div class="step-content">
-            <strong>Normalize</strong>
-            <span>Output to a vendor-agnostic JSON schema (validated with Zod) consumable by the Commission Calculator, Pay Curves, Modeling &amp; Simulation, and SGM/SPARCC.</span>
-          </div>
-        </li>
-      </ol>
-    </div>
-    <div class="modal-footer">
-      <label class="dont-show">
-        <input type="checkbox" id="dontShowAgain">
-        Don't show again
-      </label>
-      <button class="modal-got-it" id="modalGotIt">Got it</button>
+    <div class="section-title">Rule Concept Taxonomy</div>
+    <div class="card">
+      <div id="taxonomy" class="concept-grid"></div>
     </div>
   </div>
 </div>
-
-<!-- Floating help button -->
-<button class="help-btn" id="helpBtn" title="How it works">?</button>
 
 <script>
-// ── How It Works Modal ──────────────────────────
-(function setupModal() {
-  var STORAGE_KEY = 'icm-dash-hide-how-it-works';
-  var overlay = document.getElementById('howItWorksOverlay');
-  var closeBtn = document.getElementById('modalClose');
-  var gotItBtn = document.getElementById('modalGotIt');
-  var dontShowCheckbox = document.getElementById('dontShowAgain');
-  var helpBtn = document.getElementById('helpBtn');
-
-  function openModal() { overlay.classList.add('open'); }
-  function closeModal() {
-    if (dontShowCheckbox.checked) {
-      localStorage.setItem(STORAGE_KEY, '1');
-    }
-    overlay.classList.remove('open');
-  }
-
-  closeBtn.addEventListener('click', closeModal);
-  gotItBtn.addEventListener('click', closeModal);
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeModal();
-  });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
-  });
-  helpBtn.addEventListener('click', openModal);
-
-  // Show on first load unless dismissed
-  if (!localStorage.getItem(STORAGE_KEY)) {
-    setTimeout(openModal, 600);
-  }
-})();
-
-(async function init() {
-  try {
-    const res = await fetch('/api/data');
-    const data = await res.json();
-    renderPlanBadge(data.pipeline);
-    renderPipeline(data.pipeline);
-    renderStats(data.pipeline);
-    renderConnectors(data.connectors);
-    renderTaxonomy(data.taxonomy, data.pipeline.plan.rules);
-    renderRules(data.pipeline.plan.rules, data.taxonomy);
-    renderLog(data.log);
-  } catch (err) {
-    document.body.innerHTML = '<div style="padding:40px;color:#ef4444;">Failed to load dashboard data: ' + err.message + '</div>';
-  }
-})();
-
-function renderPlanBadge(pipeline) {
-  document.getElementById('planBadge').textContent = pipeline.plan.planName;
-}
-
-function renderPipeline(pipeline) {
-  const stages = [
-    { num: 1, name: 'Connect',   detail: '142ms · OAuth2',       status: 'complete' },
-    { num: 2, name: 'Extract',   detail: `${pipeline.stats.rawRulesExtracted} raw rules · 3.2s`, status: 'complete' },
-    { num: 3, name: 'Interpret', detail: `AI · avg ${pipeline.stats.avgConfidence} confidence`, status: 'complete' },
-    { num: 4, name: 'Normalize', detail: pipeline.valid ? 'Schema valid' : 'Validation errors', status: pipeline.valid ? 'complete' : 'error' },
-  ];
-  document.getElementById('pipelineFlow').innerHTML = stages.map(s => `
-    <div class="pipeline-stage stage-${s.status}">
-      <div class="stage-num">${s.status === 'complete' ? '&#10003;' : s.num}</div>
-      <div class="stage-name">${s.name}</div>
-      <div class="stage-detail">${s.detail}</div>
-    </div>
-  `).join('');
-}
-
-function renderStats(pipeline) {
-  const s = pipeline.stats;
-  const pills = [
-    { label: 'Raw Rules', value: s.rawRulesExtracted },
-    { label: 'Normalized', value: s.rulesNormalized },
-    { label: 'Avg Confidence', value: (s.avgConfidence * 100).toFixed(0) + '%' },
-    { label: 'Duration', value: (s.duration / 1000).toFixed(2) + 's' },
-    { label: 'Vendor', value: pipeline.plan.sourceVendor },
-    { label: 'Schema', value: pipeline.valid ? 'Valid' : 'Errors' },
-  ];
-  document.getElementById('statsBar').innerHTML = pills.map(p => `
-    <div class="stat-pill">
-      <span class="stat-value">${p.value}</span>
-      <span class="stat-label">${p.label}</span>
-    </div>
-  `).join('');
-}
-
-// ── Connector Setup ──────────────────────────────
-// Stores active credentials after successful connection test
-var activeConnections = {};
-
+// ── Vendor Config ─────────────────────────────────
 var VENDOR_CONFIG = {
   captivateiq: {
     label: 'CaptivateIQ',
@@ -1148,7 +565,7 @@ var VENDOR_CONFIG = {
     ],
   },
   'sap-successfactors': {
-    label: 'SAP SF',
+    label: 'SAP SuccessFactors',
     available: false,
     fields: [
       { name: 'baseUrl', label: 'Base URL', type: 'url', required: true, placeholder: 'https://your-instance.successfactors.com' },
@@ -1167,52 +584,73 @@ var VENDOR_CONFIG = {
   },
 };
 
-function renderConnectors(connectors) {
-  var container = document.getElementById('connectors');
-  container.innerHTML = connectors.map(function(c) {
-    var config = VENDOR_CONFIG[c.vendor];
-    var vendorLabel = config ? config.label : c.vendor;
+var TAXONOMY = [
+  { id: 'rate-table',   label: 'Rate Table',   color: '#0ea5e9' },
+  { id: 'accelerator',  label: 'Accelerator',  color: '#10b981' },
+  { id: 'decelerator',  label: 'Decelerator',  color: '#f59e0b' },
+  { id: 'qualifier',    label: 'Qualifier',     color: '#6366f1' },
+  { id: 'split',        label: 'Split',         color: '#8b5cf6' },
+  { id: 'territory',    label: 'Territory',     color: '#06b6d4' },
+  { id: 'quota-target', label: 'Quota Target',  color: '#3b82f6' },
+  { id: 'draw',         label: 'Draw',          color: '#ec4899' },
+  { id: 'spif',         label: 'SPIF',          color: '#f97316' },
+  { id: 'cap',          label: 'Cap',           color: '#ef4444' },
+  { id: 'floor',        label: 'Floor',         color: '#14b8a6' },
+  { id: 'clawback',     label: 'Clawback',      color: '#dc2626' },
+];
 
-    // Connector status row
-    var row = '<div class="connector-row" id="conn-row-' + c.vendor + '" data-vendor="' + c.vendor + '">' +
-      '<div class="conn-dot ' + (c.connected ? 'on' : 'off') + '"></div>' +
-      '<div class="conn-name">' + vendorLabel + '</div>' +
-      '<div class="conn-detail">' + (c.connected ? c.authenticatedAs + ' &middot; ' + c.apiVersion : c.error) + '</div>' +
-      (c.connected ? '<div class="conn-latency">' + c.latencyMs + 'ms</div>' : '') +
-      '<button class="conn-configure-btn" data-vendor="' + c.vendor + '">Configure</button>' +
+var activeConnections = {};
+
+// ── Init ──────────────────────────────────────────
+(function init() {
+  renderConnectors();
+  renderTaxonomy();
+})();
+
+// ── Render Connectors ─────────────────────────────
+function renderConnectors() {
+  var container = document.getElementById('connectors');
+  var vendors = Object.keys(VENDOR_CONFIG);
+  container.innerHTML = vendors.map(function(vendor) {
+    var config = VENDOR_CONFIG[vendor];
+
+    var row = '<div class="connector-row" id="conn-row-' + vendor + '" data-vendor="' + vendor + '">' +
+      '<div class="conn-dot off"></div>' +
+      '<div class="conn-name">' + config.label + '</div>' +
+      '<div class="conn-detail">' + (config.available ? 'Not connected' : 'Coming soon') + '</div>' +
+      '<button class="conn-configure-btn" data-vendor="' + vendor + '">Configure</button>' +
     '</div>';
 
-    // Accordion setup panel
     var panel;
-    if (config && config.available) {
+    if (config.available) {
       var fieldsHtml = config.fields.map(function(f) {
         var val = f.defaultValue ? ' value="' + f.defaultValue + '"' : '';
         return '<div class="form-field">' +
-          '<label for="' + c.vendor + '-' + f.name + '">' + f.label +
+          '<label for="' + vendor + '-' + f.name + '">' + f.label +
           (f.required ? ' <span class="required">*</span>' : '') + '</label>' +
-          '<input type="' + f.type + '" id="' + c.vendor + '-' + f.name + '" name="' + f.name + '"' +
+          '<input type="' + f.type + '" id="' + vendor + '-' + f.name + '" name="' + f.name + '"' +
           ' placeholder="' + f.placeholder + '"' + val + (f.required ? ' required' : '') + '>' +
         '</div>';
       }).join('');
 
-      panel = '<div class="conn-setup-panel" id="setup-' + c.vendor + '">' +
-        '<form class="conn-setup-form" data-vendor="' + c.vendor + '">' +
+      panel = '<div class="conn-setup-panel" id="setup-' + vendor + '">' +
+        '<form class="conn-setup-form" data-vendor="' + vendor + '">' +
         fieldsHtml +
         '<div class="form-actions">' +
-          '<button type="submit" class="btn-test-connection" data-vendor="' + c.vendor + '">' +
+          '<button type="submit" class="btn-test-connection" data-vendor="' + vendor + '">' +
             '<span class="btn-label">Test Connection</span>' +
             '<span class="btn-spinner" style="display:none;"></span>' +
           '</button>' +
-          '<button type="button" class="btn-cancel" data-vendor="' + c.vendor + '">Cancel</button>' +
+          '<button type="button" class="btn-cancel" data-vendor="' + vendor + '">Cancel</button>' +
         '</div>' +
-        '<div class="conn-test-result" id="result-' + c.vendor + '" style="display:none;"></div>' +
+        '<div class="conn-test-result" id="result-' + vendor + '" style="display:none;"></div>' +
         '</form>' +
       '</div>';
     } else {
-      panel = '<div class="conn-setup-panel" id="setup-' + c.vendor + '">' +
+      panel = '<div class="conn-setup-panel" id="setup-' + vendor + '">' +
         '<div class="conn-coming-soon">' +
           '<span class="coming-soon-icon">&#128679;</span>' +
-          '<div><strong>' + vendorLabel + ' connector coming soon</strong>' +
+          '<div><strong>' + config.label + ' connector coming soon</strong>' +
           '<span>Integration is planned. Contact the team for early access.</span></div>' +
         '</div>' +
       '</div>';
@@ -1250,7 +688,6 @@ function toggleSetupPanel(vendor, forceState) {
 
   var shouldOpen = forceState !== undefined ? forceState : !panel.classList.contains('open');
 
-  // Close all other panels
   document.querySelectorAll('.conn-setup-panel.open').forEach(function(p) { p.classList.remove('open'); });
   document.querySelectorAll('.connector-row.expanded').forEach(function(r) { r.classList.remove('expanded'); });
 
@@ -1262,6 +699,7 @@ function toggleSetupPanel(vendor, forceState) {
   }
 }
 
+// ── Test Connection ───────────────────────────────
 async function testConnection(vendor, form) {
   var formData = new FormData(form);
   var auth = {};
@@ -1272,7 +710,6 @@ async function testConnection(vendor, form) {
   var btnSpinner = btn.querySelector('.btn-spinner');
   var resultDiv = document.getElementById('result-' + vendor);
 
-  // Loading state
   btn.disabled = true;
   btnLabel.textContent = 'Testing...';
   btnSpinner.style.display = 'inline-block';
@@ -1293,42 +730,39 @@ async function testConnection(vendor, form) {
     var data = await res.json();
 
     if (data.connected) {
-      // Store credentials for subsequent API calls
       activeConnections[vendor] = auth;
 
       resultDiv.className = 'conn-test-result result-success';
-      resultDiv.className = 'conn-test-result result-success';
       resultDiv.textContent = '';
-      var successIcon = document.createElement('span');
-      successIcon.className = 'result-icon';
-      successIcon.textContent = '\u2713';
-      var successDetails = document.createElement('div');
-      successDetails.className = 'result-details';
-      var successTitle = document.createElement('strong');
-      successTitle.textContent = 'Connected successfully';
-      successDetails.appendChild(successTitle);
-      successDetails.appendChild(document.createTextNode(
-        'Authenticated as: ' + (data.authenticatedAs || 'unknown') +
-        (data.apiVersion ? ' \u00B7 API ' + data.apiVersion : '')
+      var si = document.createElement('span');
+      si.className = 'result-icon';
+      si.textContent = '\u2713';
+      var sd = document.createElement('div');
+      sd.className = 'result-details';
+      var st = document.createElement('strong');
+      st.textContent = 'Connected';
+      sd.appendChild(st);
+      sd.appendChild(document.createTextNode(
+        (data.authenticatedAs || '') + (data.apiVersion ? ' \u00B7 API ' + data.apiVersion : '')
       ));
-      resultDiv.appendChild(successIcon);
-      resultDiv.appendChild(successDetails);
+      resultDiv.appendChild(si);
+      resultDiv.appendChild(sd);
       updateConnectorRowStatus(vendor, data);
       showPostConnectionActions(vendor, form);
     } else {
       resultDiv.className = 'conn-test-result result-error';
       resultDiv.textContent = '';
-      var errorIcon = document.createElement('span');
-      errorIcon.className = 'result-icon';
-      errorIcon.textContent = '\u2717';
-      var errorDetails = document.createElement('div');
-      errorDetails.className = 'result-details';
-      var errorTitle = document.createElement('strong');
-      errorTitle.textContent = 'Connection failed';
-      errorDetails.appendChild(errorTitle);
-      errorDetails.appendChild(document.createTextNode(data.error || 'Unknown error'));
-      resultDiv.appendChild(errorIcon);
-      resultDiv.appendChild(errorDetails);
+      var ei = document.createElement('span');
+      ei.className = 'result-icon';
+      ei.textContent = '\u2717';
+      var ed = document.createElement('div');
+      ed.className = 'result-details';
+      var et = document.createElement('strong');
+      et.textContent = 'Connection failed';
+      ed.appendChild(et);
+      ed.appendChild(document.createTextNode(data.error || 'Unknown error'));
+      resultDiv.appendChild(ei);
+      resultDiv.appendChild(ed);
     }
     resultDiv.style.display = 'flex';
 
@@ -1336,18 +770,17 @@ async function testConnection(vendor, form) {
     clearTimeout(timeout);
     resultDiv.className = 'conn-test-result result-error';
     resultDiv.textContent = '';
-    var catchMsg = err.name === 'AbortError' ? 'Connection timed out (15s)' : err.message;
-    var catchIcon = document.createElement('span');
-    catchIcon.className = 'result-icon';
-    catchIcon.textContent = '\u2717';
-    var catchDetails = document.createElement('div');
-    catchDetails.className = 'result-details';
-    var catchTitle = document.createElement('strong');
-    catchTitle.textContent = 'Request failed';
-    catchDetails.appendChild(catchTitle);
-    catchDetails.appendChild(document.createTextNode(catchMsg));
-    resultDiv.appendChild(catchIcon);
-    resultDiv.appendChild(catchDetails);
+    var ci = document.createElement('span');
+    ci.className = 'result-icon';
+    ci.textContent = '\u2717';
+    var cd = document.createElement('div');
+    cd.className = 'result-details';
+    var ct = document.createElement('strong');
+    ct.textContent = 'Request failed';
+    cd.appendChild(ct);
+    cd.appendChild(document.createTextNode(err.name === 'AbortError' ? 'Connection timed out (15s)' : err.message));
+    resultDiv.appendChild(ci);
+    resultDiv.appendChild(cd);
     resultDiv.style.display = 'flex';
   } finally {
     btn.disabled = false;
@@ -1362,48 +795,43 @@ function updateConnectorRowStatus(vendor, status) {
   var dot = row.querySelector('.conn-dot');
   var detail = row.querySelector('.conn-detail');
   dot.className = 'conn-dot ' + (status.connected ? 'on' : 'off');
-  if (status.connected) {
-    detail.textContent = (status.authenticatedAs || '') +
-      (status.apiVersion ? ' \u00B7 ' + status.apiVersion : '');
-  } else {
-    detail.textContent = status.error || 'Disconnected';
-  }
+  detail.textContent = status.connected
+    ? (status.authenticatedAs || '') + (status.apiVersion ? ' \u00B7 ' + status.apiVersion : '')
+    : (status.error || 'Disconnected');
 }
 
+// ── Post-Connection Actions ───────────────────────
 function showPostConnectionActions(vendor, form) {
-  // Remove existing actions container if re-testing
   var existing = form.querySelector('.conn-actions');
   if (existing) existing.remove();
-  var existingPlans = form.querySelector('.plans-list-container');
-  if (existingPlans) existingPlans.remove();
-  var existingRules = form.querySelector('.extracted-rules-container');
-  if (existingRules) existingRules.remove();
+  var ep = form.querySelector('.plans-list-container');
+  if (ep) ep.remove();
+  var er = form.querySelector('.extracted-rules-container');
+  if (er) er.remove();
 
-  var actionsHtml =
-    '<div class="conn-actions">' +
-      '<button type="button" class="conn-action-btn btn-list-plans" data-vendor="' + vendor + '">' +
-        '<span class="btn-label">List Plans</span>' +
-        '<span class="btn-spinner" style="display:none;"></span>' +
-      '</button>' +
-      '<button type="button" class="conn-action-btn btn-extract-rules" data-vendor="' + vendor + '">' +
-        '<span class="btn-label">Extract Rules</span>' +
-        '<span class="btn-spinner" style="display:none;"></span>' +
-      '</button>' +
-    '</div>';
-  form.insertAdjacentHTML('beforeend', actionsHtml);
+  var actionsDiv = document.createElement('div');
+  actionsDiv.className = 'conn-actions';
+  actionsDiv.innerHTML =
+    '<button type="button" class="conn-action-btn btn-list-plans" data-vendor="' + vendor + '">' +
+      '<span class="btn-label">List Plans</span>' +
+      '<span class="btn-spinner" style="display:none;"></span>' +
+    '</button>' +
+    '<button type="button" class="conn-action-btn btn-extract-rules" data-vendor="' + vendor + '">' +
+      '<span class="btn-label">Extract Rules</span>' +
+      '<span class="btn-spinner" style="display:none;"></span>' +
+    '</button>';
+  form.appendChild(actionsDiv);
 
-  // Wire up action buttons
   form.querySelector('.btn-list-plans').addEventListener('click', function() {
     fetchPlans(vendor, form);
   });
   form.querySelector('.btn-extract-rules').addEventListener('click', function() {
-    var selectedPlanId = null;
-    var selected = form.querySelector('.plan-item.selected');
-    if (selected) selectedPlanId = selected.getAttribute('data-plan-id');
-    fetchExtractRules(vendor, form, selectedPlanId);
+    var sel = form.querySelector('.plan-item.selected');
+    fetchExtractRules(vendor, form, sel ? sel.getAttribute('data-plan-id') : null);
   });
 }
 
+// ── List Plans ────────────────────────────────────
 async function fetchPlans(vendor, form) {
   var btn = form.querySelector('.btn-list-plans');
   var btnLabel = btn.querySelector('.btn-label');
@@ -1415,7 +843,6 @@ async function fetchPlans(vendor, form) {
   btnLabel.textContent = 'Loading...';
   btnSpinner.style.display = 'inline-block';
 
-  // Remove previous plans list
   var existing = form.querySelector('.plans-list-container');
   if (existing) existing.remove();
 
@@ -1427,10 +854,7 @@ async function fetchPlans(vendor, form) {
     });
     var data = await res.json();
 
-    if (data.error) {
-      showActionError(form, data.error);
-      return;
-    }
+    if (data.error) { showActionError(form, data.error); return; }
 
     var plans = data.plans || [];
     var listHtml =
@@ -1445,17 +869,14 @@ async function fetchPlans(vendor, form) {
           : plans.map(function(p) {
               return '<li class="plan-item" data-plan-id="' + p.id + '">' +
                 '<div class="plan-radio"></div>' +
-                '<div>' +
-                  '<div>' + (p.name || 'Unnamed Plan') + '</div>' +
-                  '<div class="plan-id">' + p.id + '</div>' +
-                '</div>' +
+                '<div><div>' + (p.name || 'Unnamed Plan') + '</div>' +
+                '<div class="plan-id">' + p.id + '</div></div>' +
               '</li>';
             }).join('')) +
         '</ul>' +
       '</div>';
     form.insertAdjacentHTML('beforeend', listHtml);
 
-    // Wire up plan selection (single-select)
     form.querySelectorAll('.plan-item[data-plan-id]').forEach(function(item) {
       item.addEventListener('click', function() {
         form.querySelectorAll('.plan-item.selected').forEach(function(s) { s.classList.remove('selected'); });
@@ -1472,6 +893,7 @@ async function fetchPlans(vendor, form) {
   }
 }
 
+// ── Extract Rules ─────────────────────────────────
 async function fetchExtractRules(vendor, form, planId) {
   var btn = form.querySelector('.btn-extract-rules');
   var btnLabel = btn.querySelector('.btn-label');
@@ -1483,7 +905,6 @@ async function fetchExtractRules(vendor, form, planId) {
   btnLabel.textContent = 'Extracting...';
   btnSpinner.style.display = 'inline-block';
 
-  // Remove previous rules display
   var existing = form.querySelector('.extracted-rules-container');
   if (existing) existing.remove();
 
@@ -1498,41 +919,35 @@ async function fetchExtractRules(vendor, form, planId) {
     });
     var data = await res.json();
 
-    if (data.error) {
-      showActionError(form, data.error);
-      return;
-    }
+    if (data.error) { showActionError(form, data.error); return; }
 
     var rules = data.rules || [];
-
-    // Store full data globally for copy/download
     window._lastExtractedRules = rules;
     window._lastExtractedPlanId = planId;
 
-    // Build rules container via DOM (avoid ByteString issues)
     var container = document.createElement('div');
     container.className = 'extracted-rules-container';
 
     var header = document.createElement('div');
     header.className = 'extracted-rules-header';
-    var headerLabel = document.createElement('span');
-    headerLabel.textContent = 'Extracted Raw Rules' + (planId ? ' (Plan: ' + planId + ')' : ' (All Plans)');
-    var headerCount = document.createElement('span');
-    headerCount.className = 'rule-count';
-    headerCount.textContent = rules.length + ' rules';
-    header.appendChild(headerLabel);
-    header.appendChild(headerCount);
+    var hl = document.createElement('span');
+    hl.textContent = 'Extracted Rules' + (planId ? ' (Plan: ' + planId + ')' : ' (All Plans)');
+    var hc = document.createElement('span');
+    hc.className = 'rule-count';
+    hc.textContent = rules.length + ' rules';
+    header.appendChild(hl);
+    header.appendChild(hc);
     container.appendChild(header);
 
     var list = document.createElement('ul');
     list.className = 'extracted-rules-list';
 
     if (rules.length === 0) {
-      var emptyLi = document.createElement('li');
-      emptyLi.className = 'extracted-rule-item';
-      emptyLi.style.color = 'var(--muted)';
-      emptyLi.textContent = 'No rules extracted';
-      list.appendChild(emptyLi);
+      var empty = document.createElement('li');
+      empty.className = 'extracted-rule-item';
+      empty.style.color = 'var(--muted)';
+      empty.textContent = 'No rules extracted';
+      list.appendChild(empty);
     } else {
       rules.forEach(function(r) {
         var li = document.createElement('li');
@@ -1543,17 +958,15 @@ async function fetchExtractRules(vendor, form, planId) {
         badge.textContent = r.vendorRuleType;
         li.appendChild(badge);
 
-        var planInfo = document.createElement('div');
-        planInfo.className = 'rule-plan-id';
-        planInfo.textContent = 'Plan: ' + (r.planId || 'N/A') + ' \u00B7 Rule: ' + r.vendorRuleId;
-        li.appendChild(planInfo);
+        var info = document.createElement('div');
+        info.className = 'rule-plan-id';
+        info.textContent = 'Plan: ' + (r.planId || 'N/A') + ' \u00B7 Rule: ' + r.vendorRuleId;
+        li.appendChild(info);
 
         var preview = document.createElement('div');
         preview.className = 'rule-data-preview';
         preview.textContent = JSON.stringify(r.data, null, 2);
-        preview.addEventListener('click', function() {
-          preview.classList.toggle('expanded');
-        });
+        preview.addEventListener('click', function() { preview.classList.toggle('expanded'); });
         li.appendChild(preview);
 
         list.appendChild(li);
@@ -1561,33 +974,30 @@ async function fetchExtractRules(vendor, form, planId) {
     }
     container.appendChild(list);
 
-    // Export action buttons
     if (rules.length > 0) {
       var actions = document.createElement('div');
       actions.className = 'extracted-rules-actions';
 
       var copyBtn = document.createElement('button');
       copyBtn.className = 'btn-export';
-      copyBtn.textContent = '\uD83D\uDCCB Copy Full JSON';
+      copyBtn.textContent = 'Copy Full JSON';
       copyBtn.addEventListener('click', function() {
-        var fullJson = JSON.stringify(window._lastExtractedRules, null, 2);
-        navigator.clipboard.writeText(fullJson).then(function() {
+        navigator.clipboard.writeText(JSON.stringify(window._lastExtractedRules, null, 2)).then(function() {
           copyBtn.classList.add('copied');
           copyBtn.textContent = '\u2713 Copied!';
           setTimeout(function() {
             copyBtn.classList.remove('copied');
-            copyBtn.textContent = '\uD83D\uDCCB Copy Full JSON';
+            copyBtn.textContent = 'Copy Full JSON';
           }, 2000);
         });
       });
       actions.appendChild(copyBtn);
 
-      var downloadBtn = document.createElement('button');
-      downloadBtn.className = 'btn-export';
-      downloadBtn.textContent = '\uD83D\uDCE5 Download JSON';
-      downloadBtn.addEventListener('click', function() {
-        var fullJson = JSON.stringify(window._lastExtractedRules, null, 2);
-        var blob = new Blob([fullJson], { type: 'application/json' });
+      var dlBtn = document.createElement('button');
+      dlBtn.className = 'btn-export';
+      dlBtn.textContent = 'Download JSON';
+      dlBtn.addEventListener('click', function() {
+        var blob = new Blob([JSON.stringify(window._lastExtractedRules, null, 2)], { type: 'application/json' });
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
@@ -1597,7 +1007,7 @@ async function fetchExtractRules(vendor, form, planId) {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       });
-      actions.appendChild(downloadBtn);
+      actions.appendChild(dlBtn);
 
       container.appendChild(actions);
     }
@@ -1613,97 +1023,35 @@ async function fetchExtractRules(vendor, form, planId) {
   }
 }
 
+// ── Helpers ───────────────────────────────────────
 function showActionError(form, message) {
   var existing = form.querySelector('.conn-action-error');
   if (existing) existing.remove();
-  var errContainer = document.createElement('div');
-  errContainer.className = 'conn-test-result result-error conn-action-error';
-  errContainer.style.marginTop = '12px';
-  var errIcon = document.createElement('span');
-  errIcon.className = 'result-icon';
-  errIcon.textContent = '\u2717';
-  var errDetails = document.createElement('div');
-  errDetails.className = 'result-details';
-  var errTitle = document.createElement('strong');
-  errTitle.textContent = 'Error';
-  errDetails.appendChild(errTitle);
-  errDetails.appendChild(document.createTextNode(message));
-  errContainer.appendChild(errIcon);
-  errContainer.appendChild(errDetails);
-  form.appendChild(errContainer);
+  var c = document.createElement('div');
+  c.className = 'conn-test-result result-error conn-action-error';
+  c.style.marginTop = '12px';
+  var i = document.createElement('span');
+  i.className = 'result-icon';
+  i.textContent = '\u2717';
+  var d = document.createElement('div');
+  d.className = 'result-details';
+  var t = document.createElement('strong');
+  t.textContent = 'Error';
+  d.appendChild(t);
+  d.appendChild(document.createTextNode(message));
+  c.appendChild(i);
+  c.appendChild(d);
+  form.appendChild(c);
   setTimeout(function() {
     var el = form.querySelector('.conn-action-error');
     if (el) el.remove();
   }, 8000);
 }
 
-function escapeHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function renderTaxonomy(taxonomy, rules) {
-  const counts = {};
-  rules.forEach(r => { counts[r.concept] = (counts[r.concept] || 0) + 1; });
-  document.getElementById('taxonomy').innerHTML = taxonomy.map(t => {
-    const count = counts[t.id] || 0;
-    const active = count > 0;
-    return `
-      <div class="concept-chip ${active ? 'active' : 'inactive'}"
-           style="background: ${t.color}15; border-color: ${t.color}40; color: ${t.color};">
-        ${t.label}
-        <span class="concept-count" style="background: ${active ? t.color + '25' : 'transparent'};">${count}</span>
-      </div>
-    `;
+function renderTaxonomy() {
+  document.getElementById('taxonomy').innerHTML = TAXONOMY.map(function(t) {
+    return '<div class="concept-chip" style="background:' + t.color + '15;border-color:' + t.color + '40;color:' + t.color + ';">' + t.label + '</div>';
   }).join('');
-}
-
-function renderRules(rules, taxonomy) {
-  const colorMap = {};
-  taxonomy.forEach(t => { colorMap[t.id] = t.color; });
-  document.getElementById('rulesBody').innerHTML = rules.map(r => {
-    const color = colorMap[r.concept] || '#64748b';
-    const confPct = (r.confidence * 100).toFixed(0);
-    const barColor = r.confidence >= 0.93 ? 'var(--success)' : r.confidence >= 0.85 ? 'var(--warning)' : 'var(--error)';
-    return `
-      <tr>
-        <td><code style="font-size:11px; color:var(--muted);">${r.id}</code></td>
-        <td><span class="concept-badge" style="background:${color}18; color:${color}; border:1px solid ${color}35;">${r.concept}</span></td>
-        <td>${r.description}</td>
-        <td style="white-space:nowrap;">
-          <span class="confidence-bar-bg"><span class="confidence-bar-fill" style="width:${confPct}%; background:${barColor};"></span></span>
-          <span style="font-weight:600; font-size:12px;">${confPct}%</span>
-        </td>
-        <td><span class="source-id">${r.sourceRef.vendorRuleId}</span></td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function renderLog(log) {
-  const container = document.getElementById('logContainer');
-  // Sort log entries chronologically (earliest first)
-  const sorted = [...log].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-  container.innerHTML = sorted.map(entry => {
-    const ts = new Date(entry.timestamp).toLocaleTimeString('en-US', { hour12: false, fractionalSecondDigits: 1 });
-    return `
-      <div class="log-entry" data-level="${entry.level}">
-        <span class="log-ts">${ts}</span>
-        <span class="log-stage ${entry.stage}">${entry.stage}</span>
-        <span class="log-msg">${entry.message}</span>
-      </div>
-    `;
-  }).join('');
-
-  // Animate entries in progressively
-  const entries = container.querySelectorAll('.log-entry');
-  entries.forEach((el, i) => {
-    setTimeout(() => {
-      el.classList.add('visible');
-      if (i === entries.length - 1) {
-        container.scrollTop = container.scrollHeight;
-      }
-    }, 100 + i * 120);
-  });
 }
 </script>
 </body>
