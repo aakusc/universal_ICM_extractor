@@ -1,0 +1,35 @@
+{
+  "name": "universal-icm-connector",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Generic connector that extracts compensation rule concepts from any ICM system and normalizes them into a vendor-agnostic schema",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit",
+    "extract": "tsx src/cli.ts extract",
+    "normalize": "tsx src/cli.ts normalize",
+    "dashboard": "tsx src/dashboard/server.ts"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "zod": "^3.23.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
