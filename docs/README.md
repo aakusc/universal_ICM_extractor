@@ -2,261 +2,229 @@
 
 ## Overview
 
-The Universal ICM Connector is a generic extraction and normalization engine that pulls compensation plan rules from any Incentive Compensation Management (ICM) system and converts them into a vendor-agnostic schema. The key differentiator: it extracts **rule concepts** (the business intent behind a rule) rather than copying raw vendor-specific rule objects.
+The Universal ICM Connector extracts compensation plan data from any Incentive Compensation Management (ICM) system and exports it as structured JSON. Connect to a vendor API, pull plans and rules, then copy the raw output for external interpretation.
 
-### Why Concepts, Not Objects?
+### How It Works
 
-Every ICM vendor stores compensation rules differently:
-- **Varicent** uses hierarchical rule trees with position-based inheritance
-- **Xactly** uses flat incentive components with formula expressions
-- **SAP SuccessFactors** uses XML-based rule definitions with deep nesting
-- **Salesforce/Spiff** uses object-based rules with Apex/formula syntax
+1. **Connect** — Authenticate against a vendor's API (token, OAuth, etc.)
+2. **Extract** — Pull raw plan data: rate tables, quotas, territories, employee assumptions, payout schedules
+3. **Export** — Copy or download the full JSON for external analysis
 
-But they all express the same underlying **business concepts**: "pay 5% on revenue above quota", "split credit 60/40 between overlay and territory rep", "claw back if deal churns within 90 days."
+The extracted data is vendor-specific but structurally consistent — plans, periods, worksheets, records, and attributes come through in a predictable format regardless of source.
 
-The Universal ICM Connector uses AI interpretation to recognize these concepts regardless of vendor syntax, producing a normalized output any downstream tool can consume.
+## Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Launch the dashboard (opens http://localhost:3847)
+npm run dashboard
+
+# Or use the CLI
+npx tsx src/cli.ts extract --vendor captivateiq
+npx tsx src/cli.ts list-plans --vendor captivateiq
+```
+
+### Dashboard
+
+The dashboard is a zero-dependency web UI served by a Node HTTP server on port 3847. It provides:
+
+- **Vendor connector setup** — Accordion panels for each ICM vendor with credential input
+- **Test connection** — Verify API credentials before extracting
+- **List plans** — Browse available compensation plans
+- **Extract rules** — Pull all plan data from a vendor (or filter by plan)
+- **Export** — Copy Full JSON to clipboard or Download JSON file
+- **Concept taxonomy reference** — Quick reference of rule concept categories
+
+Currently supported: **CaptivateIQ** (live). Varicent, Xactly, SAP SuccessFactors, and Salesforce show "coming soon."
+
+### API Endpoints
+
+The dashboard server exposes these endpoints:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/test-connection` | Test vendor API credentials |
+| `POST` | `/api/list-plans` | List compensation plans |
+| `POST` | `/api/extract-rules` | Extract rules (optionally filtered by planId) |
+
+All endpoints accept `{ vendor, auth, planId? }` JSON bodies and return JSON responses.
+
+## Supported ICM Systems
+
+| Vendor | Auth | Status |
+|--------|------|--------|
+| **CaptivateIQ** | Token (API key) | **Implemented** |
+| **Varicent** | OAuth2 | Planned |
+| **Xactly** | API key/secret | Planned |
+| **SAP SuccessFactors** | OAuth2 | Planned |
+| **Salesforce/Spiff** | OAuth2 | Planned |
+
+## CaptivateIQ Connector
+
+### Authentication
+
+Generate an API token in CaptivateIQ: **User Profile → API Tokens**. The token authenticates via `Authorization: Token <token>` header.
+
+Base URL: `https://api.captivateiq.com/ciq/v1/`
+
+### What Gets Extracted
+
+The connector uses a 5-source extraction strategy:
+
+| Source | Data | Rule Type |
+|--------|------|-----------|
+| Plans + Period Groups | Plan structure, payout dates, effective periods | `COMMISSION_PLAN`, `PERIOD_GROUP` |
+| Employee Assumptions | Quotas, variable amounts, targets per employee | `EMPLOYEE_ASSUMPTIONS` |
+| Data Worksheets | Raw tables (rate data, quota tables, deal data) | `DATA_WORKSHEET` |
+| Attribute Worksheets | Roles, territories, team assignments | `ATTRIBUTE_WORKSHEET` |
+| Payout Worksheets + Report Models | Calculation outputs, commission structures | `PAYOUT_WORKSHEET`, `REPORT_MODEL` |
+
+### Example Extraction Output
+
+```json
+{
+  "rules": [
+    {
+      "id": "plan-abc123",
+      "type": "COMMISSION_PLAN",
+      "source": "plan",
+      "data": {
+        "planId": "abc123",
+        "planName": "FY2026 Sales Comp",
+        "payoutDates": ["2026-01-31", "2026-02-28", ...],
+        "employeeCount": 7
+      }
+    },
+    {
+      "id": "ea-plan-abc123",
+      "type": "EMPLOYEE_ASSUMPTIONS",
+      "source": "employee-assumptions",
+      "data": {
+        "planId": "abc123",
+        "employees": [
+          { "name": "Jane Smith", "role": "RSD", "variableAmount": 50000, "territory": "West" }
+        ]
+      }
+    }
+  ],
+  "count": 7
+}
+```
+
+### Rate Limits
+
+- **Burst**: 5 requests/second
+- **Hourly**: 1,500 requests/hour (Standard tier)
+
+### Important Notes
+
+- CaptivateIQ's API does **not** expose SmartGrid formula definitions, calculation component logic, or rate table bindings
+- The API is a data I/O layer — rule concepts must be inferred from data patterns (quotas, territories, payout schedules, role attributes)
+- Endpoint paths use hyphens: `/period-groups/`, `/data-workbooks/`, `/employee-assumptions/`, etc.
 
 ## Architecture
+
+```
+src/
+├── index.ts                  # Main entry point
+├── cli.ts                    # CLI (extract, list-plans, normalize, pipeline)
+├── types/
+│   ├── connector.ts          # IConnector interface
+│   ├── normalized-schema.ts  # Vendor-agnostic output schema (Zod)
+│   └── rule-concepts.ts      # Rule concept taxonomy
+├── connectors/
+│   ├── base-connector.ts     # Abstract base class
+│   └── captivateiq/
+│       ├── client.ts         # REST API client (Token auth, paginated)
+│       └── connector.ts      # BaseConnector implementation
+├── interpreter/
+│   └── concept-extractor.ts  # AI interpretation (stubbed)
+├── normalizer/
+│   └── pipeline.ts           # Extract → Interpret → Normalize pipeline
+├── config/
+│   └── index.ts              # Environment and runtime config
+└── dashboard/
+    ├── server.ts             # HTTP server (API endpoints)
+    └── index.html            # Self-contained SPA
+```
 
 ### Pipeline: Connect → Extract → Interpret → Normalize
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        Universal ICM Connector                              │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌──────────┐   ┌──────────┐   ┌──────────────┐   ┌──────────────┐        │
-│  │ Connect  │──▶│ Extract  │──▶│  Interpret    │──▶│  Normalize   │        │
-│  │          │   │          │   │  (AI Layer)   │   │              │        │
-│  └──────────┘   └──────────┘   └──────────────┘   └──────────────┘        │
-│       │              │                │                    │                │
-│   Auth/API      Raw vendor        Concept            Vendor-agnostic       │
-│   credentials   rule objects      extraction         normalized JSON       │
-│                                                                             │
-│  Vendor Connectors:                                                         │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐ ┌──────────┐      │
-│  │ Varicent │ │  Xactly  │ │   SAP    │ │CaptivateIQ │ │Salesforce│      │
-│  └──────────┘ └──────────┘ └──────────┘ └────────────┘ └──────────┘      │
-│                                                                             │
-│  Downstream Consumers:                                                      │
-│  ┌──────────────────┐ ┌──────────────┐ ┌──────────────────────┐           │
-│  │ Commission Calc  │ │  Pay Curves  │ │ Modeling/Simulation  │           │
-│  └──────────────────┘ └──────────────┘ └──────────────────────┘           │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Connect    │────▶│   Extract    │────▶│  Interpret   │────▶│  Normalize   │
+│  (Auth/API)  │     │ (Raw Rules)  │     │  (External)  │     │  (Schema)    │
+└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+     │                     │                     │                     │
+  Vendor API          Plans, quotas,        User copies raw       Unified JSON
+  credentials         territories,          JSON to their own     consumable by
+                      assumptions,          AI for concept        downstream
+                      worksheets            interpretation        tools
 ```
 
-### Stage 1: Connect
+The **Interpret** stage is currently external — the connector focuses on getting full, untruncated data through the API. Users copy the raw JSON output and use their own AI to identify rule concepts.
 
-Each vendor connector implements the `IConnector` interface and handles authentication against the target ICM system. Supported auth methods vary by vendor (OAuth2, API key, SAML, basic auth).
+## Rule Concept Taxonomy
 
-### Stage 2: Extract
+These are the compensation concepts the extracted data may contain:
 
-Connectors pull raw compensation plan rules from the vendor API. This includes:
-- Rate tables and commission schedules
-- Accelerator/decelerator definitions
-- Qualifier and gate conditions
-- Credit and split rules
-- Territory assignments
-- Quota targets and allocation rules
-- Draw, cap, floor, SPIF, and clawback rules
+| Concept | Description |
+|---------|-------------|
+| **rate-table** | Commission rate lookup (flat, tiered, matrix) |
+| **accelerator** | Rate increase above quota threshold |
+| **decelerator** | Rate decrease below quota threshold |
+| **qualifier** | Gate condition (e.g. must hit 80% to earn) |
+| **split** | Credit splitting between reps/roles |
+| **territory** | Geographic or account assignment rules |
+| **quota-target** | Quota/target definition and allocation |
+| **draw** | Guaranteed minimum / recoverable draw |
+| **spif** | Special incentive (bonus, contest) |
+| **cap** | Maximum earning limit |
+| **floor** | Minimum earning guarantee |
+| **clawback** | Recovery of previously paid commissions |
 
-### Stage 3: Interpret (AI Layer)
-
-The AI interpreter analyzes raw vendor rules and identifies the underlying business concept. This is the core innovation — instead of building brittle vendor-specific field mappings, the interpreter uses LLM reasoning to understand rule intent.
-
-**Example:**
-```
-Varicent raw rule:
-  { ruleType: "COMM_TABLE", tiers: [{min: 0, max: 100, rate: 0.05}, {min: 100, max: null, rate: 0.08}] }
-
-Interpreted concept:
-  "Tiered rate table: 5% base commission up to 100% quota, accelerator to 8% above quota"
-
-Classified as:
-  [RateTable, Accelerator]
-```
-
-### Stage 4: Normalize
-
-Interpreted concepts are transformed into the vendor-agnostic normalized schema — a standardized JSON format that any downstream SPM tool can consume without knowing which ICM system the rules came from.
-
-## Normalized Schema
-
-The output schema is defined using Zod and covers all rule concept types:
-
-### NormalizedPlan
-Top-level container for a compensation plan's extracted rules.
-
-```typescript
-{
-  id: string;                    // Unique plan identifier
-  sourceVendor: VendorId;        // Origin ICM system
-  sourcePlanId: string;          // Original plan ID in vendor system
-  extractedAt: string;           // ISO timestamp
-  planName: string;              // Human-readable plan name
-  effectivePeriod: {
-    start: string;               // ISO date
-    end: string;                 // ISO date
-  };
-  rules: NormalizedRule[];       // Extracted and normalized rules
-  metadata: Record<string, unknown>;
-}
-```
-
-### NormalizedRule
-Individual rule concept with classification and parameters.
-
-```typescript
-{
-  id: string;                    // Rule identifier
-  concept: RuleConcept;          // Concept category (see taxonomy)
-  description: string;           // AI-generated plain-english description
-  parameters: Record<string, unknown>; // Concept-specific parameters
-  confidence: number;            // AI interpretation confidence (0-1)
-  sourceRef: {                   // Traceability back to vendor
-    vendorRuleId: string;
-    vendorRuleType: string;
-    rawSnapshot: unknown;        // Original vendor data
-  };
-}
-```
-
-### Rule Concept Taxonomy
-
-| Concept | Parameters | Description |
-|---------|-----------|-------------|
-| `rate-table` | tiers, method (flat/tiered/matrix), measure | Commission rate lookup |
-| `accelerator` | threshold, multiplier, tiers | Rate increase above quota |
-| `decelerator` | threshold, multiplier, tiers | Rate decrease below quota |
-| `qualifier` | metric, operator, value, gate | Gate condition for eligibility |
-| `split` | participants, ratios, method | Credit splitting rules |
-| `territory` | assignments, hierarchy, rules | Geographic/account assignment |
-| `quota-target` | amount, period, allocation | Quota definition and allocation |
-| `draw` | amount, type (recoverable/non), period | Guaranteed minimum |
-| `spif` | criteria, reward, duration | Special incentive/bonus/contest |
-| `cap` | maxAmount, period, scope | Maximum earning limit |
-| `floor` | minAmount, period, scope | Minimum earning guarantee |
-| `clawback` | triggerEvent, lookbackPeriod, method | Commission recovery rule |
-
-## Vendor Connector Details
-
-### Varicent (formerly Verisent)
-
-- **API**: REST API with OAuth2
-- **Rule format**: Hierarchical rule trees, position-based inheritance
-- **Key entities**: Plans, Components, Rules, RateTables, Positions
-- **Notes**: Rules inherit through position hierarchy; must resolve inheritance before interpretation
-
-### Xactly (Exactly)
-
-- **API**: REST/SOAP hybrid
-- **Rule format**: Flat incentive components with formula expressions
-- **Key entities**: Plans, IncentiveComponents, Formulas, Quotas, Credits
-- **Notes**: Formula expressions need parsing; Xactly uses its own expression language
-
-### SAP SuccessFactors ICM
-
-- **API**: OData v4
-- **Rule format**: XML-based rule definitions, deeply nested
-- **Key entities**: CompensationPlans, RuleDefinitions, PayoutStructures
-- **Notes**: Complex XML schema; rule nesting can be 5+ levels deep
-
-### CaptivateIQ
-
-- **API**: REST API with Token auth (`Authorization: Token <token>`)
-- **Base URL**: `https://api.captivateiq.com/ciq/v1/`
-- **Status**: **Implemented** — first working connector
-- **Docs**: https://developers.captivateiq.com/docs
-- **Rate limits**: 5 req/s burst, 1500 req/hr (Standard tier)
-- **Key entities**: CommissionPlans, PeriodGroups, DataWorkbooks, DataWorksheets, WorksheetRecords, Employees, ReportModels
-- **Extraction strategy**:
-  1. List commission plans → plan structure (COMMISSION_PLAN rules)
-  2. Fetch period groups per plan → period definitions (PERIOD_GROUP rules)
-  3. List data workbooks/worksheets → rate tables, quotas (DATA_WORKSHEET rules)
-  4. Fetch worksheet records → raw rule data for AI interpretation
-  5. List report models → calculated commission structures (REPORT_MODEL rules)
-- **Auth setup**: Generate token in CaptivateIQ → User Profile → API Tokens
-- **Notes**: 80+ API endpoints across 18 resource categories. Paginated responses with next/previous cursors. Forrester Wave Leader in ICM.
-
-### Salesforce (Spiff / ICM)
-
-- **API**: Salesforce REST API / Spiff API
-- **Rule format**: Object-based with Apex formula syntax
-- **Key entities**: IncentivePlans, CommissionRules, Quotas, Territories
-- **Notes**: Salesforce ecosystem; may require Apex formula parsing
-
-## Usage
-
-### As a Library
-
-```typescript
-import { createConnector, extractAndNormalize } from 'universal-icm-connector';
-
-// Create a vendor connector
-const connector = createConnector('varicent', {
-  baseUrl: 'https://api.varicent.com',
-  clientId: process.env.VARICENT_CLIENT_ID,
-  clientSecret: process.env.VARICENT_CLIENT_SECRET,
-});
-
-// Extract and normalize in one step
-const normalizedPlan = await extractAndNormalize(connector, {
-  planId: 'FY2026-SALES-PLAN',
-  aiProvider: 'claude',
-});
-
-console.log(normalizedPlan.rules);
-// [
-//   { concept: 'rate-table', description: 'Tiered commission: 5% base, 8% above quota', ... },
-//   { concept: 'accelerator', description: 'Accelerator above 100% quota to 8%', ... },
-//   { concept: 'qualifier', description: 'Must achieve 80% quota to qualify', ... },
-// ]
-```
-
-### CLI
+## CLI Reference
 
 ```bash
-# Extract raw rules from a vendor
-npx universal-icm-connector extract --vendor varicent --plan FY2026-SALES
+# Extract raw rules from CaptivateIQ
+npm run extract -- --vendor captivateiq --plan <planId>
+npm run extract -- --vendor captivateiq --output ./extracted.json
 
-# Normalize previously extracted rules
-npx universal-icm-connector normalize --input ./raw-rules.json --output ./normalized.json
+# List plans
+npx tsx src/cli.ts list-plans --vendor captivateiq
 
-# Full pipeline: extract + interpret + normalize
-npx universal-icm-connector pipeline --vendor varicent --plan FY2026-SALES --output ./output.json
+# Normalize extracted rules (requires AI interpretation)
+npm run normalize -- --input ./extracted-rules.json --output ./normalized.json
+
+# Launch dashboard
+npm run dashboard
 ```
 
 ## Configuration
 
-Configuration is loaded from environment variables and/or a JSON config file.
-
 ### Environment Variables
 
 ```bash
-# AI Provider (for rule interpretation)
-ANTHROPIC_API_KEY=         # Claude API key (preferred)
-AICR_GATEWAY_URL=          # AICR Gateway URL (if using gateway)
-AICR_API_KEY=              # AICR Gateway API key
+# CaptivateIQ (generate in User Profile → API Tokens)
+CAPTIVATEIQ_API_TOKEN=
 
-# Varicent
+# AI Provider (for future rule interpretation)
+ANTHROPIC_API_KEY=
+AICR_GATEWAY_URL=
+AICR_API_KEY=
+
+# Other vendors (planned)
 VARICENT_BASE_URL=
 VARICENT_CLIENT_ID=
 VARICENT_CLIENT_SECRET=
-
-# Xactly
 XACTLY_BASE_URL=
 XACTLY_API_KEY=
 XACTLY_API_SECRET=
-
-# SAP SuccessFactors
 SAP_SF_BASE_URL=
 SAP_SF_CLIENT_ID=
 SAP_SF_CLIENT_SECRET=
-
-# CaptivateIQ (generate in CaptivateIQ → User Profile → API Tokens)
-CAPTIVATEIQ_API_TOKEN=
-
-# Salesforce
 SALESFORCE_BASE_URL=
 SALESFORCE_CLIENT_ID=
 SALESFORCE_CLIENT_SECRET=
@@ -268,16 +236,26 @@ SALESFORCE_CLIENT_SECRET=
 npm install          # Install dependencies
 npm run dev          # Run in watch mode
 npm run build        # Compile TypeScript
-npm test             # Run test suite
+npm test             # Run test suite (Vitest)
 npm run type-check   # Type-check without emitting
+npm run dashboard    # Launch dashboard UI
 ```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Language | TypeScript (strict) |
+| Validation | Zod |
+| Runtime | Node.js 20+ |
+| Testing | Vitest |
+| Dashboard | Zero-dependency (Node HTTP + vanilla HTML/CSS/JS) |
 
 ## Related Projects
 
 | Project | Relationship |
 |---------|-------------|
-| **Commission Calculator** | Primary consumer — displays real-time commissions from normalized rules |
-| **SGM/SPARCC** | Governance consumer — runs gap analysis against normalized rules |
-| **IntelligentSPM** | Knowledge base — 929 SPM domain cards inform AI interpretation |
-| **Pay Curves** | Analytics consumer — builds pay curve visualizations from normalized data |
-| **Modeling & Simulation** | Uses normalized rules for Monte Carlo and what-if analysis |
+| **Commission Calculator** | Primary consumer — real-time commissions from normalized rules |
+| **SGM/SPARCC** | Governance consumer — gap analysis against normalized rules |
+| **IntelligentSPM** | Knowledge base — 929 SPM domain cards |
+| **Pay Curves** | Analytics — pay curve visualizations from normalized data |

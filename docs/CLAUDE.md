@@ -27,47 +27,40 @@
 | **Project memory & decisions** | `docs/MEMORY.md` |
 | **Normalized schema** | `src/types/normalized-schema.ts` |
 | **Connector interface** | `src/types/connector.ts` |
-| **Vendor connectors** | `src/connectors/<vendor>/` |
-| **AI interpreter** | `src/interpreter/` |
-| **Normalizer pipeline** | `src/normalizer/` |
+| **CaptivateIQ connector** | `src/connectors/captivateiq/` |
+| **Dashboard server** | `src/dashboard/server.ts` |
+| **Dashboard UI** | `src/dashboard/index.html` |
+| **Normalizer pipeline** | `src/normalizer/pipeline.ts` |
 
 ## Project Structure
 
 ```
 src/
 ├── index.ts                  # Main entry point
-├── cli.ts                    # CLI for extract/normalize commands
+├── cli.ts                    # CLI (extract, list-plans, normalize, pipeline)
 ├── types/
 │   ├── connector.ts          # IConnector interface
 │   ├── normalized-schema.ts  # Vendor-agnostic output schema (Zod)
-│   ├── rule-concepts.ts      # Rule concept taxonomy
-│   └── vendor-schemas/       # Per-vendor raw schemas
+│   └── rule-concepts.ts      # Rule concept taxonomy
 ├── connectors/
 │   ├── base-connector.ts     # Abstract base class
-│   ├── varicent/             # Varicent connector (planned)
-│   ├── xactly/               # Xactly connector (planned)
-│   ├── sap/                  # SAP SuccessFactors connector (planned)
-│   ├── captivateiq/          # CaptivateIQ connector (implemented)
-│   │   ├── client.ts         # REST API client (Token auth, paginated)
-│   │   └── connector.ts      # BaseConnector implementation
-│   └── salesforce/           # Salesforce connector (planned)
+│   └── captivateiq/          # CaptivateIQ connector (implemented)
+│       ├── client.ts         # REST API client (Token auth, paginated)
+│       └── connector.ts      # BaseConnector implementation
 ├── interpreter/
-│   ├── concept-extractor.ts  # AI-powered rule interpretation
-│   └── prompts/              # LLM prompts for rule interpretation
+│   └── concept-extractor.ts  # AI interpretation (stubbed — user interprets externally)
 ├── normalizer/
-│   ├── pipeline.ts           # Extract → Interpret → Normalize pipeline
-│   └── transforms/           # Per-concept normalization transforms
-└── config/
-    └── index.ts              # Environment and runtime config
+│   └── pipeline.ts           # Extract → Interpret → Normalize pipeline
+├── config/
+│   └── index.ts              # Environment and runtime config
+└── dashboard/
+    ├── server.ts             # HTTP server (real API endpoints, no mock data)
+    └── index.html            # Self-contained SPA (connector-first UI)
 
 docs/
+├── CLAUDE.md                 # This file (AI agent instructions)
 ├── README.md                 # Full project documentation
 └── MEMORY.md                 # Persistent project memory (maintained by Claude)
-
-tests/
-├── connectors/               # Per-connector tests
-├── interpreter/              # Concept extraction tests
-└── normalizer/               # Pipeline tests
 ```
 
 ## Tech Stack
@@ -80,19 +73,21 @@ tests/
 | **Testing** | Vitest |
 | **AI** | Claude API (via AICR Gateway or direct) for rule interpretation |
 
-## Architecture: Extract → Interpret → Normalize
+## Architecture: Connect → Extract → Export
 
 ```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Connect    │────▶│   Extract    │────▶│  Interpret   │────▶│  Normalize   │
-│  (Auth/API)  │     │ (Raw Rules)  │     │ (AI Concepts)│     │  (Schema)    │
-└──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
-     │                     │                     │                     │
-  Vendor API          Rate tables,          "Accelerator           Unified JSON
-  credentials         accelerators,          above 100%            consumable by
-                      qualifiers,            quota with            Commission
-                      splits, etc.           tiered rates"         Calculator
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Connect    │────▶│   Extract    │────▶│   Export     │
+│  (Auth/API)  │     │ (Raw Rules)  │     │  (JSON)      │
+└──────────────┘     └──────────────┘     └──────────────┘
+     │                     │                     │
+  Vendor API          Plans, quotas,        Copy/Download
+  credentials         territories,          full JSON for
+                      assumptions,          external AI
+                      worksheets            interpretation
 ```
+
+**Note:** AI interpretation is external — the connector focuses on getting full, untruncated data through the API. Users copy the raw JSON and interpret with their own AI.
 
 ## Key Conventions
 
@@ -151,7 +146,7 @@ npx tsx src/cli.ts list-plans --vendor captivateiq
 # CLI: Normalize extracted rules
 npm run normalize -- --input ./extracted-rules.json --output ./normalized.json
 
-# Dashboard (visual pipeline demo with mock data)
+# Dashboard (connector-first UI, real API endpoints)
 npm run dashboard
 ```
 

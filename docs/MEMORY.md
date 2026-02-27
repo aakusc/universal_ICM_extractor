@@ -95,10 +95,31 @@
 
 ### 2026-02-26 — Dashboard & CaptivateIQ Connector
 - Built zero-dependency dashboard (Node HTTP server + self-contained HTML SPA, port 3847)
-- Mock data with Mattress Firm FY2026 scenario, 8 normalized rules, 5 vendor statuses
-- Added "How It Works" modal with localStorage "don't show again" toggle
 - Researched all 5 vendor APIs in detail — discovered "CapIQ" in meeting notes means CaptivateIQ (ICM platform), NOT S&P Capital IQ (financial data)
 - Swapped `capiq` → `captivateiq` across entire codebase
 - Implemented CaptivateIQ connector: full API client (client.ts) + BaseConnector implementation (connector.ts)
 - Wired CaptivateIQ into CLI (extract, list-plans, pipeline commands work for captivateiq vendor)
 - CaptivateIQ is the first fully implemented vendor connector
+
+### 2026-02-26 — Interactive Connector Setup & Real API Integration
+- Added accordion-style connector setup panels in dashboard (Configure button per vendor)
+- CaptivateIQ: test connection, list plans, extract rules — all calling real API endpoints
+- Server endpoints: POST /api/test-connection, POST /api/list-plans, POST /api/extract-rules
+- 5-source extraction strategy: plans+periods, employee assumptions, data worksheets, attribute worksheets, payouts+report models
+- Fixed ByteString errors (switched to DOM-based rendering instead of innerHTML)
+- Fixed 404 errors on CaptivateIQ API paths (hyphens not underscores)
+- Verified real extraction: 7 rules from CaptivateIQ "test" plan (COMMISSION_PLAN, PERIOD_GROUP, EMPLOYEE_ASSUMPTIONS, 4x ATTRIBUTE_WORKSHEET)
+
+### 2026-02-26 — Dashboard Cleanup
+- Removed all mock data (deleted mock-data.ts, removed /api/data endpoint)
+- Stripped mock pipeline flow, stats bar, rules table, activity log, "How It Works" modal
+- Dashboard is now connector-first: vendor setup is the primary UI
+- Added Copy Full JSON + Download JSON export buttons for raw extraction output
+- Concept taxonomy reference card kept inline
+- Moved CLAUDE.md from project root to docs/
+- Pushed to GitHub: https://github.com/aakusc/universal_ICM_extractor
+
+### Design Decision: External AI Interpretation
+- The concept-extractor.ts `interpretSingleRule()` remains stubbed (returns empty concepts, confidence 0)
+- User copies raw extraction JSON output and interprets with their own AI externally
+- CaptivateIQ API does NOT expose SmartGrid formula definitions — AI must infer rule concepts from data patterns (quotas, territories, payout schedules, role attributes)
