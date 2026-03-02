@@ -4,6 +4,7 @@ import { vendorIdSchema, type VendorId } from './types/normalized-schema.js';
 import type { IConnector } from './types/connector.js';
 import { CaptivateIQConnector } from './connectors/captivateiq/connector.js';
 import * as fs from 'node:fs';
+import { runBuilderCli } from './builder-cli.js';
 
 /**
  * CLI entry point for the Universal ICM Connector.
@@ -12,6 +13,7 @@ import * as fs from 'node:fs';
  *   npx tsx src/cli.ts extract --vendor varicent --plan FY2026
  *   npx tsx src/cli.ts normalize --input raw.json --output normalized.json
  *   npx tsx src/cli.ts pipeline --vendor varicent --plan FY2026 --output result.json
+ *   npx tsx src/cli.ts builder <command> [options]   ← ICM Rule Builder
  */
 
 const args = process.argv.slice(2);
@@ -107,6 +109,11 @@ async function main(): Promise<void> {
       break;
     }
 
+    case 'builder': {
+      await runBuilderCli(args.slice(1));
+      break;
+    }
+
     case 'list-plans': {
       const vendorRaw = requireArg('vendor');
       const vendor = vendorIdSchema.parse(vendorRaw) as VendorId;
@@ -132,11 +139,14 @@ async function main(): Promise<void> {
     default:
       console.log('Universal ICM Connector CLI');
       console.log('');
-      console.log('Commands:');
+      console.log('Connector Commands:');
       console.log('  extract    --vendor <id> [--plan <id>] [--output <path>]');
       console.log('  list-plans --vendor <id>');
       console.log('  normalize  --input <path> [--output <path>]');
       console.log('  pipeline   --vendor <id> [--plan <id>] [--output <path>]');
+      console.log('');
+      console.log('Builder Commands (Excel → CaptivateIQ):');
+      console.log('  builder    <command> [options]   (run "builder help" for details)');
       console.log('');
       console.log('Vendors: varicent, xactly, sap-successfactors, captivateiq, salesforce');
       break;
