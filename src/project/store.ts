@@ -33,13 +33,17 @@ function ensureDirs(): void {
   }
 }
 
+function emptyStore(): StoreData {
+  return { projects: [], files: [], requirements: [], notes: [], extractionMeta: [] };
+}
+
 function readStore(): StoreData {
   ensureDirs();
-  if (!fs.existsSync(STORE_FILE)) return { ...EMPTY_STORE };
+  if (!fs.existsSync(STORE_FILE)) return emptyStore();
   try {
     return JSON.parse(fs.readFileSync(STORE_FILE, 'utf-8')) as StoreData;
   } catch {
-    return { ...EMPTY_STORE };
+    return emptyStore();
   }
 }
 
