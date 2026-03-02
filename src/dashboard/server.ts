@@ -10,6 +10,7 @@ import type { Requirement } from '../project/types.js';
 import { parseExcelBuffer } from '../excel/parser.js';
 import { extractRulesFromWorkbook } from '../excel/extractor.js';
 import { generatePayloads } from '../generators/index.js';
+import { aggregateExtractions } from '../generators/aggregator.js';
 
 const PORT = 3847;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -287,6 +288,38 @@ const server = http.createServer(async (req, res) => {
       const generation = store.getGeneration(params.projectId, params.fileId);
       if (!generation) { json(res, 404, { error: 'No generation found for this file' }); return; }
       json(res, 200, { payloads: generation });
+      return;
+    }
+
+    // POST /api/builder/projects/:projectId/aggregate — merge all extracted files
+    params = matchRoute(url, method, '/api/builder/projects/:projectId/aggregate', 'POST');
+    if (params) {
+      const { projectId } = params;
+      if (!store.getProject(projectId)) { json(res, 404, { error: 'Project not found' }); return; }
+
+      const extractions = store.getProjectExtractions(projectId);
+      if (extractions.length < 2) {
+        json(res, 400, {
+          error: `Need at least 2 extracted files to aggregate (found ${extractions.length})`,
+        });
+        return;
+      }
+
+      console.log(`[builder] Aggregating ${extractions.length} extractions for project=${projectId}`);
+      const aggregatedConfig = aggregateExtractions(projectId, extractions);
+      const payloads = generatePayloads(aggregatedConfig.mergedConfig);
+      store.saveAggregatedGeneration(projectId, aggregatedConfig, payloads);
+
+      json(res, 200, { aggregatedConfig, payloads });
+      return;
+    }
+
+    // GET /api/builder/projects/:projectId/aggregate — retrieve saved aggregation
+    params = matchRoute(url, method, '/api/builder/projects/:projectId/aggregate', 'GET');
+    if (params) {
+      const saved = store.getAggregatedGeneration(params.projectId);
+      if (!saved) { json(res, 404, { error: 'No aggregation found — run POST /aggregate first' }); return; }
+      json(res, 200, saved);
       return;
     }
 

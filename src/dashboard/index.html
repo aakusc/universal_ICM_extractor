@@ -3,29 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Universal ICM Connector</title>
+  <title>ICM Rule Builder</title>
   <style>
     :root {
-      --bg: #f0f4f8;
-      --surface: #ffffff;
-      --surface-glass: rgba(255,255,255,0.72);
-      --border: #e2e8f0;
-      --border-light: #f1f5f9;
-      --fg: #0f172a;
-      --muted: #64748b;
-      --primary: #0ea5e9;
-      --primary-dim: rgba(14,165,233,0.12);
-      --secondary: #6366f1;
-      --success: #10b981;
-      --success-dim: rgba(16,185,129,0.12);
-      --warning: #f59e0b;
-      --warning-dim: rgba(245,158,11,0.12);
-      --error: #ef4444;
-      --error-dim: rgba(239,68,68,0.12);
-      --radius: 12px;
-      --radius-sm: 8px;
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --bg3: #21262d;
+      --bg4: #2d333b;
+      --border: #30363d;
+      --border-muted: #21262d;
+      --fg: #e6edf3;
+      --fg2: #c9d1d9;
+      --muted: #8b949e;
+      --primary: #58a6ff;
+      --primary-dim: rgba(88,166,255,0.12);
+      --success: #3fb950;
+      --success-dim: rgba(63,185,80,0.12);
+      --warning: #d29922;
+      --warning-dim: rgba(210,153,34,0.12);
+      --error: #f85149;
+      --error-dim: rgba(248,81,73,0.12);
+      --purple: #bc8cff;
+      --cyan: #39d353;
+      --orange: #e3b341;
+      --radius: 8px;
+      --radius-sm: 6px;
       --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', monospace;
+      --sidebar-w: 260px;
+      --header-h: 52px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -33,1026 +39,968 @@
       background: var(--bg);
       color: var(--fg);
       line-height: 1.5;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* ── Header ────────────────────────────────── */
+    /* ── Header ─────────────────────────────────── */
     .header {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      color: #fff;
-      padding: 28px 32px 24px;
-    }
-    .header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-    .header h1 span { color: var(--primary); }
-    .header p {
-      color: #94a3b8;
-      font-size: 14px;
-      margin-top: 4px;
-    }
-
-    /* ── Layout ────────────────────────────────── */
-    .container { max-width: 960px; margin: 0 auto; padding: 24px; }
-    .section { margin-bottom: 24px; }
-    .section-title {
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    /* ── Cards ─────────────────────────────────── */
-    .card {
-      background: var(--surface-glass);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-
-    /* ── Vendor Connectors ─────────────────────── */
-    .connector-list { display: flex; flex-direction: column; gap: 10px; }
-    .connector-row {
+      height: var(--header-h);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      background: var(--surface);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-sm);
-    }
-    .conn-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
+      padding: 0 20px;
+      gap: 24px;
       flex-shrink: 0;
     }
-    .conn-dot.on { background: var(--success); box-shadow: 0 0 6px rgba(16,185,129,0.5); }
-    .conn-dot.off { background: #cbd5e1; }
-    .conn-name { font-weight: 600; font-size: 14px; min-width: 130px; }
-    .conn-detail { font-size: 12px; color: var(--muted); flex: 1; }
-    .conn-configure-btn {
-      padding: 5px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      background: var(--primary-dim);
-      color: var(--primary);
-      border: 1px solid rgba(14,165,233,0.3);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-      flex-shrink: 0;
+    .header-logo { font-size: 15px; font-weight: 700; color: var(--fg); letter-spacing: -0.02em; }
+    .header-logo span { color: var(--primary); }
+    .header-tabs { display: flex; gap: 2px; }
+    .tab-btn {
+      background: none; border: none; color: var(--muted);
+      font: inherit; font-size: 13px; font-weight: 500;
+      padding: 6px 14px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: all 0.12s;
     }
-    .conn-configure-btn:hover {
-      background: rgba(14,165,233,0.2);
-      border-color: rgba(14,165,233,0.5);
-    }
-    .connector-row.expanded {
-      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      border-bottom-color: transparent;
+    .tab-btn:hover { color: var(--fg2); background: var(--bg3); }
+    .tab-btn.active { color: var(--fg); background: var(--bg3); }
+    .live-dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--success);
+      margin-left: 6px; vertical-align: middle;
     }
 
-    /* ── Connector Setup Panel ────────────────── */
-    .conn-setup-panel {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease, opacity 0.25s ease;
-      opacity: 0;
-      background: var(--surface);
-      border: 1px solid var(--border-light);
-      border-top: none;
-      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-      margin-top: -10px;
-      margin-bottom: 0;
-    }
-    .conn-setup-panel.open {
-      max-height: 4000px;
-      opacity: 1;
-      padding: 16px;
-    }
-    .conn-setup-panel .form-field { margin-bottom: 12px; }
-    .conn-setup-panel label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 4px;
-    }
-    .conn-setup-panel label .required { color: var(--error); }
-    .conn-setup-panel input {
-      width: 100%;
-      padding: 8px 12px;
-      font-size: 13px;
-      font-family: var(--mono);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--fg);
-      transition: border-color 0.15s;
-    }
-    .conn-setup-panel input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-dim);
-    }
-    .conn-setup-panel input::placeholder { color: #94a3b8; }
-    .form-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
-    .btn-test-connection {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 20px;
-      font-size: 13px;
-      font-weight: 600;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .btn-test-connection:hover { background: #0284c7; }
-    .btn-test-connection:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-test-connection .btn-spinner {
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    .btn-cancel {
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 500;
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .btn-cancel:hover { background: var(--border-light); }
-    .conn-test-result {
-      margin-top: 14px;
-      padding: 10px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      line-height: 1.5;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .conn-test-result.result-success {
-      background: var(--success-dim);
-      border: 1px solid rgba(16,185,129,0.3);
-      color: #065f46;
-    }
-    .conn-test-result.result-error {
-      background: var(--error-dim);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #991b1b;
-    }
-    .conn-test-result .result-icon { font-size: 16px; flex-shrink: 0; line-height: 1; }
-    .conn-test-result .result-details { flex: 1; }
-    .conn-test-result .result-details strong { display: block; margin-bottom: 2px; }
-    .conn-coming-soon {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 4px 0;
-      color: var(--muted);
-    }
-    .conn-coming-soon .coming-soon-icon { font-size: 20px; }
-    .conn-coming-soon strong { display: block; font-size: 13px; color: var(--fg); margin-bottom: 2px; }
-    .conn-coming-soon span { font-size: 12px; line-height: 1.5; }
+    /* ── Layout ─────────────────────────────────── */
+    .app-body { display: flex; flex: 1; overflow: hidden; }
+    .tab-panel { display: none; flex: 1; overflow: hidden; }
+    .tab-panel.active { display: flex; }
 
-    /* ── Post-Connection Actions ─────────────────── */
-    .conn-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border-light);
+    /* ── Sidebar ─────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
     }
-    .conn-action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 7px 16px;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-      border: 1px solid;
+    .sidebar-hdr {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .conn-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .conn-action-btn .btn-spinner {
-      width: 12px; height: 12px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: currentColor;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .sidebar-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .btn-new {
+      background: var(--primary); color: #fff; border: none;
+      font: inherit; font-size: 12px; font-weight: 600;
+      padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer;
     }
-    .btn-list-plans {
-      background: rgba(99,102,241,0.1);
-      color: var(--secondary);
-      border-color: rgba(99,102,241,0.3);
+    .btn-new:hover { opacity: 0.85; }
+    .project-list { flex: 1; overflow-y: auto; padding: 6px; }
+    .project-item {
+      padding: 8px 10px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background 0.1s; margin-bottom: 2px;
     }
-    .btn-list-plans:hover:not(:disabled) { background: rgba(99,102,241,0.18); }
-    .btn-extract-rules {
-      background: rgba(16,185,129,0.1);
-      color: var(--success);
-      border-color: rgba(16,185,129,0.3);
-    }
-    .btn-extract-rules:hover:not(:disabled) { background: rgba(16,185,129,0.18); }
+    .project-item:hover { background: var(--bg3); }
+    .project-item.active { background: var(--primary-dim); border-left: 2px solid var(--primary); padding-left: 8px; }
+    .project-name { font-size: 13px; font-weight: 500; color: var(--fg2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .project-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .empty-state { text-align: center; padding: 28px 12px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 
-    /* ── Plans List ──────────────────────────────── */
-    .plans-list-container {
-      margin-top: 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
+    /* ── Main ─────────────────────────────────────── */
+    .main-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+    .no-project {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 10px; color: var(--muted);
     }
-    .plans-list-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      border-bottom: 1px solid var(--border-light);
-    }
-    .plans-list-header .plan-count {
-      font-family: var(--mono);
-      background: var(--primary-dim);
-      color: var(--primary);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 11px;
-    }
-    .plans-list {
-      max-height: 200px;
-      overflow-y: auto;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .plans-list::-webkit-scrollbar { width: 5px; }
-    .plans-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    .plan-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 14px;
-      font-size: 13px;
-      cursor: pointer;
-      border-bottom: 1px solid var(--border-light);
-      transition: background 0.12s;
-    }
-    .plan-item:last-child { border-bottom: none; }
-    .plan-item:hover { background: var(--primary-dim); }
-    .plan-item.selected { background: var(--primary-dim); font-weight: 600; }
-    .plan-item .plan-radio {
-      width: 14px; height: 14px;
-      border: 2px solid var(--border);
-      border-radius: 50%;
-      flex-shrink: 0;
-      position: relative;
-    }
-    .plan-item.selected .plan-radio { border-color: var(--primary); }
-    .plan-item.selected .plan-radio::after {
-      content: '';
-      position: absolute;
-      width: 8px; height: 8px;
-      background: var(--primary);
-      border-radius: 50%;
-      top: 1px; left: 1px;
-    }
-    .plan-item .plan-id {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-    }
+    .no-project-icon { font-size: 44px; opacity: 0.25; }
+    .no-project p { font-size: 13px; }
+    .project-detail { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
 
-    /* ── Extracted Rules Panel ───────────────────── */
-    .extracted-rules-container {
-      margin-top: 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
+    /* ── Section Cards ─────────────────────────────── */
+    .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .card-hdr {
+      padding: 10px 14px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg3);
     }
-    .extracted-rules-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      border-bottom: 1px solid var(--border-light);
-    }
-    .extracted-rules-header .rule-count {
-      font-family: var(--mono);
-      background: var(--success-dim);
-      color: var(--success);
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 11px;
-    }
-    .extracted-rules-list {
-      max-height: 500px;
-      overflow-y: auto;
-      padding: 0;
-      margin: 0;
-      list-style: none;
-    }
-    .extracted-rules-list::-webkit-scrollbar { width: 5px; }
-    .extracted-rules-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    .extracted-rule-item {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border-light);
-      font-size: 12px;
-    }
-    .extracted-rule-item:last-child { border-bottom: none; }
-    .extracted-rule-item .rule-type-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 700;
-      font-family: var(--mono);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-      background: var(--secondary);
-      color: #fff;
-      letter-spacing: 0.03em;
-    }
-    .extracted-rule-item .rule-plan-id {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-    .extracted-rule-item .rule-data-preview {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 120px;
-      overflow: hidden;
-      background: var(--surface);
-      padding: 6px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border-light);
-      margin-top: 4px;
-      cursor: pointer;
-      position: relative;
-    }
-    .extracted-rule-item .rule-data-preview::after {
-      content: 'Click to expand';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 28px;
-      background: linear-gradient(transparent, var(--surface));
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      font-size: 10px;
-      color: var(--primary);
-      padding-bottom: 4px;
-    }
-    .extracted-rule-item .rule-data-preview.expanded {
-      max-height: none;
-      overflow: visible;
-    }
-    .extracted-rule-item .rule-data-preview.expanded::after {
-      content: 'Click to collapse';
-      position: static;
-      height: auto;
-      background: none;
-      text-align: center;
-      display: block;
-      padding-top: 4px;
-    }
-    .extracted-rules-actions {
-      display: flex;
-      gap: 8px;
-      padding: 10px 14px;
-      border-top: 1px solid var(--border-light);
-    }
-    .btn-export {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--surface);
-      color: var(--fg);
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn-export:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--primary-dim);
-    }
-    .btn-export.copied {
-      border-color: var(--success);
-      color: var(--success);
-      background: var(--success-dim);
-    }
+    .card-title { font-size: 12px; font-weight: 600; color: var(--fg2); display: flex; align-items: center; gap: 8px; }
+    .badge { background: var(--bg4); color: var(--muted); font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+    .card-body { padding: 12px 14px; }
 
-    /* ── Concept Taxonomy ──────────────────────── */
-    .concept-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .concept-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      border: 1px solid;
-    }
+    /* ── Project Header ─────────────────────────────── */
+    .proj-hdr { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .proj-hdr h2 { font-size: 19px; font-weight: 700; color: var(--fg); }
+    .proj-hdr p { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
-    /* ── Loading / Spinner ────────────────────── */
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Buttons ─────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      border: none; font: inherit; font-size: 12px; font-weight: 500;
+      padding: 5px 11px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.12s;
+    }
+    .btn-ghost { background: var(--bg3); color: var(--fg2); }
+    .btn-ghost:hover { background: var(--bg4); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-danger { background: var(--error-dim); color: var(--error); }
+    .btn-danger:hover { background: rgba(248,81,73,0.2); }
+    .btn-success { background: var(--success-dim); color: var(--success); }
+    .btn-success:hover { background: rgba(63,185,80,0.2); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── Drop Zone ─────────────────────────────────── */
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 20px; text-align: center; cursor: pointer;
+      transition: all 0.15s; color: var(--muted); font-size: 13px; display: block;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--primary); background: var(--primary-dim); color: var(--primary); }
+    .drop-zone input[type=file] { display: none; }
+    .drop-icon { font-size: 26px; margin-bottom: 6px; }
+
+    .file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .file-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; background: var(--bg3);
+      border-radius: var(--radius-sm); border: 1px solid var(--border-muted);
+    }
+    .file-icon { font-size: 16px; flex-shrink: 0; }
+    .file-info { flex: 1; min-width: 0; }
+    .file-name { font-size: 12px; font-weight: 500; color: var(--fg2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-meta { font-size: 11px; color: var(--muted); }
+    .fstatus { font-size: 11px; padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }
+    .fstatus.ok { background: var(--success-dim); color: var(--success); }
+    .fstatus.err { background: var(--error-dim); color: var(--error); }
+    .fstatus.pend { background: var(--bg4); color: var(--muted); }
+
+    /* ── Forms ─────────────────────────────────────── */
+    .add-row { display: flex; gap: 7px; margin-bottom: 10px; }
+    .add-row input, .add-row select {
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--fg); font: inherit; font-size: 13px;
+      padding: 5px 9px; border-radius: var(--radius-sm); outline: none;
+    }
+    .add-row input:focus { border-color: var(--primary); }
+    .add-row input { flex: 1; }
+    .item-list { display: flex; flex-direction: column; gap: 5px; }
+    .item-row {
+      display: flex; align-items: flex-start; gap: 7px;
+      padding: 7px 9px; background: var(--bg3);
+      border-radius: var(--radius-sm); font-size: 13px; color: var(--fg2);
+    }
+    .item-row .itext { flex: 1; }
+    .pdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .ph .pdot { background: var(--error); }
+    .pm .pdot { background: var(--warning); }
+    .pl .pdot { background: var(--success); }
+    .idel { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 0 2px; flex-shrink: 0; }
+    .idel:hover { color: var(--error); }
+
+    /* ── Extraction ─────────────────────────────────── */
+    .insights-box {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-left: 3px solid var(--primary); border-radius: var(--radius-sm);
+      padding: 12px 14px; font-size: 13px; color: var(--fg2);
+      line-height: 1.7; margin-bottom: 14px; white-space: pre-wrap;
+    }
+    .rules-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(270px,1fr)); gap: 8px; margin-bottom: 14px; }
+    .rule-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; }
+    .rule-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .ctag {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 2px 6px; border-radius: 4px; font-family: var(--mono); flex-shrink: 0;
+    }
+    .ct-rate-table    { background:rgba(88,166,255,.15); color:var(--primary); }
+    .ct-accelerator   { background:rgba(63,185,80,.15);  color:var(--success); }
+    .ct-decelerator   { background:rgba(248,81,73,.15);  color:var(--error); }
+    .ct-qualifier     { background:rgba(210,153,34,.15); color:var(--warning); }
+    .ct-split         { background:rgba(188,140,255,.15);color:var(--purple); }
+    .ct-territory     { background:rgba(57,211,83,.15);  color:var(--cyan); }
+    .ct-quota-target  { background:rgba(88,166,255,.15); color:var(--primary); }
+    .ct-draw          { background:rgba(227,179,65,.15); color:var(--orange); }
+    .ct-spif          { background:rgba(188,140,255,.15);color:var(--purple); }
+    .ct-cap           { background:rgba(248,81,73,.15);  color:var(--error); }
+    .ct-floor         { background:rgba(63,185,80,.15);  color:var(--success); }
+    .ct-clawback      { background:rgba(248,81,73,.15);  color:var(--error); }
+    .conf-bar { flex:1; height:3px; background:var(--bg4); border-radius:2px; overflow:hidden; }
+    .conf-fill { height:100%; border-radius:2px; }
+    .c-hi { background:var(--success); } .c-md { background:var(--warning); } .c-lo { background:var(--error); }
+    .rule-desc { font-size:12px; color:var(--fg2); margin-bottom:4px; }
+    .rule-src { font-size:11px; color:var(--muted); font-family:var(--mono); }
+
+    /* ── CaptivateIQ Config Tabs ─────────────────── */
+    .cfg-tabs { display:flex; gap:2px; margin-bottom:10px; border-bottom:1px solid var(--border); }
+    .cfg-tab {
+      background:none; border:none; color:var(--muted); font:inherit;
+      font-size:12px; font-weight:500; padding:5px 10px; cursor:pointer;
+      border-bottom:2px solid transparent; margin-bottom:-1px;
+    }
+    .cfg-tab:hover { color:var(--fg2); }
+    .cfg-tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .cfg-panel { display:none; }
+    .cfg-panel.active { display:block; }
+    .cfg-tbl { width:100%; border-collapse:collapse; font-size:12px; }
+    .cfg-tbl th { text-align:left; padding:5px 7px; color:var(--muted); border-bottom:1px solid var(--border); font-size:10px; text-transform:uppercase; letter-spacing:.05em; }
+    .cfg-tbl td { padding:5px 7px; color:var(--fg2); border-bottom:1px solid var(--border-muted); vertical-align:top; }
+    .cfg-tbl tr:last-child td { border-bottom:none; }
+    .cfg-tbl td:first-child { font-family:var(--mono); color:var(--primary); white-space:nowrap; }
+    .subcard { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px; margin-bottom:7px; }
+    .subcard-title { font-size:12px; font-weight:600; color:var(--fg); margin-bottom:3px; }
+    .pseudo { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:7px 10px; font-family:var(--mono); font-size:12px; color:var(--success); white-space:pre-wrap; margin-top:4px; }
+    .ciq-note { background:var(--primary-dim); border:1px solid rgba(88,166,255,.2); border-radius:var(--radius-sm); padding:6px 10px; font-size:12px; color:var(--primary); margin-top:5px; }
+    .dl-row { display:flex; gap:7px; margin-top:10px; justify-content:flex-end; }
+
+    /* ── Connector Tab ─────────────────────────────── */
+    .conn-layout { flex:1; overflow-y:auto; padding:20px; max-width:860px; margin:0 auto; width:100%; }
+    .conn-stitle { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+    .conn-wrap { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:8px; }
+    .conn-acc {
+      width:100%; background:none; border:none; color:var(--fg2);
+      font:inherit; font-size:13px; font-weight:500;
+      padding:12px 14px; text-align:left; cursor:pointer;
+      display:flex; align-items:center; gap:8px;
+    }
+    .conn-acc:hover { background:var(--bg3); }
+    .cdot { width:7px; height:7px; border-radius:50%; background:var(--border); flex-shrink:0; }
+    .cdot.on { background:var(--success); box-shadow:0 0 5px rgba(63,185,80,.5); }
+    .cbadge { font-size:10px; padding:2px 6px; border-radius:10px; font-weight:600; }
+    .cbadge.live { background:var(--success-dim); color:var(--success); }
+    .cbadge.soon { background:var(--bg4); color:var(--muted); }
+    .chev { font-size:10px; color:var(--muted); transition:transform .2s; margin-left:auto; }
+    .conn-form { padding:14px; border-top:1px solid var(--border); display:none; }
+    .conn-form.open { display:block; }
+    .flbl { font-size:12px; font-weight:500; color:var(--muted); margin-bottom:3px; display:block; }
+    .finput {
+      width:100%; background:var(--bg3); border:1px solid var(--border);
+      color:var(--fg); font:inherit; font-size:13px; font-family:var(--mono);
+      padding:6px 9px; border-radius:var(--radius-sm); outline:none; margin-bottom:10px;
+    }
+    .finput:focus { border-color:var(--primary); }
+    .conn-acts { display:flex; gap:7px; flex-wrap:wrap; }
+    .conn-result { margin-top:10px; }
+
+    /* ── Toast ─────────────────────────────────────── */
+    .toast-wrap { position:fixed; bottom:18px; right:18px; display:flex; flex-direction:column; gap:7px; z-index:9999; }
+    .toast {
+      background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm);
+      padding:9px 13px; font-size:13px; color:var(--fg2); max-width:300px;
+      animation:tin .18s ease; box-shadow:0 4px 12px rgba(0,0,0,.5);
+    }
+    .toast.ok { border-left:3px solid var(--success); }
+    .toast.err { border-left:3px solid var(--error); }
+    @keyframes tin { from { transform:translateY(6px); opacity:0; } to { transform:none; opacity:1; } }
+
+    /* ── Spinner ─────────────────────────────────── */
+    .spin { display:inline-block; width:13px; height:13px; border:2px solid var(--bg4); border-top-color:var(--primary); border-radius:50%; animation:rot .7s linear infinite; }
+    @keyframes rot { to { transform:rotate(360deg); } }
+
+    /* ── Scrollbars ─────────────────────────────── */
+    * { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
   </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <h1>Universal <span>ICM</span> Connector</h1>
-    <p>Connect, extract, and export compensation plan data</p>
-  </div>
-</div>
+<header class="header">
+  <div class="header-logo">ICM <span>Rule Builder</span></div>
+  <nav class="header-tabs">
+    <button class="tab-btn active" onclick="switchTab('builder')" id="tbtn-builder">
+      Builder <span class="live-dot"></span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('connector')" id="tbtn-connector">API Connector</button>
+  </nav>
+</header>
 
-<div class="container">
-  <!-- Vendor Connectors -->
-  <div class="section">
-    <div class="section-title">Vendor Connectors</div>
-    <div class="card">
-      <div id="connectors" class="connector-list"></div>
+<div class="app-body">
+
+  <!-- ── BUILDER ─────────────────────────────────── -->
+  <div class="tab-panel active" id="panel-builder">
+    <aside class="sidebar">
+      <div class="sidebar-hdr">
+        <span class="sidebar-title">Projects</span>
+        <button class="btn-new" onclick="promptCreateProject()">+ New</button>
+      </div>
+      <div class="project-list" id="proj-list">
+        <div class="empty-state">No projects yet.<br>Click + New to start.</div>
+      </div>
+    </aside>
+    <main class="main-content" id="main">
+      <div class="no-project" id="no-proj">
+        <div class="no-project-icon">📊</div>
+        <p>Select or create a project.</p>
+      </div>
+      <div class="project-detail" id="proj-detail" style="display:none"></div>
+    </main>
+  </div>
+
+  <!-- ── CONNECTOR ───────────────────────────────── -->
+  <div class="tab-panel" id="panel-connector">
+    <div class="conn-layout">
+      <div style="margin-bottom:20px">
+        <div class="conn-stitle">ICM Vendor Connectors</div>
+        <div class="conn-wrap">
+          <button class="conn-acc" onclick="toggleAcc(this)">
+            <span class="cdot on"></span>
+            CaptivateIQ
+            <span class="cbadge live">Live</span>
+            <span class="chev">▼</span>
+          </button>
+          <div class="conn-form" data-vendor="captivateiq">
+            <label class="flbl">API Token</label>
+            <input class="finput" type="password" name="apiKey" placeholder="ciq_...">
+            <label class="flbl">Base URL</label>
+            <input class="finput" type="text" name="baseUrl" value="https://api.captivateiq.com/ciq/v1">
+            <div class="conn-acts">
+              <button class="btn btn-ghost" onclick="connTest(this,'captivateiq')">Test Connection</button>
+              <button class="btn btn-ghost" onclick="connListPlans(this,'captivateiq')">List Plans</button>
+              <button class="btn btn-success" onclick="connExtract(this,'captivateiq')">Extract Rules</button>
+            </div>
+            <div class="conn-result"></div>
+          </div>
+        </div>
+        <div id="planned-v"></div>
+      </div>
+      <div>
+        <div class="conn-stitle">Rule Concept Taxonomy</div>
+        <div class="conn-wrap" style="padding:14px">
+          <table class="cfg-tbl"><thead><tr><th>Concept</th><th>Description</th></tr></thead>
+          <tbody id="tax-tb"></tbody></table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Concept Taxonomy Reference -->
-  <div class="section">
-    <div class="section-title">Rule Concept Taxonomy</div>
-    <div class="card">
-      <div id="taxonomy" class="concept-grid"></div>
-    </div>
-  </div>
 </div>
+
+<div class="toast-wrap" id="toasts"></div>
 
 <script>
-// ── Vendor Config ─────────────────────────────────
-var VENDOR_CONFIG = {
-  captivateiq: {
-    label: 'CaptivateIQ',
-    available: true,
-    fields: [
-      { name: 'apiKey', label: 'API Token', type: 'password', required: true, placeholder: 'Paste your CaptivateIQ API token', defaultValue: '' },
-      { name: 'baseUrl', label: 'Base URL', type: 'url', required: false, placeholder: 'https://api.captivateiq.com/ciq/v1', defaultValue: 'https://api.captivateiq.com/ciq/v1' },
-    ],
-  },
-  varicent: {
-    label: 'Varicent',
-    available: false,
-    fields: [
-      { name: 'baseUrl', label: 'Base URL', type: 'url', required: true, placeholder: 'https://your-instance.varicent.com' },
-      { name: 'clientId', label: 'Client ID', type: 'text', required: true, placeholder: 'OAuth Client ID' },
-      { name: 'clientSecret', label: 'Client Secret', type: 'password', required: true, placeholder: 'OAuth Client Secret' },
-    ],
-  },
-  xactly: {
-    label: 'Xactly',
-    available: false,
-    fields: [
-      { name: 'baseUrl', label: 'Base URL', type: 'url', required: true, placeholder: 'https://your-instance.xactly.com' },
-      { name: 'apiKey', label: 'API Key', type: 'password', required: true, placeholder: 'API Key' },
-      { name: 'apiSecret', label: 'API Secret', type: 'password', required: true, placeholder: 'API Secret' },
-    ],
-  },
-  'sap-successfactors': {
-    label: 'SAP SuccessFactors',
-    available: false,
-    fields: [
-      { name: 'baseUrl', label: 'Base URL', type: 'url', required: true, placeholder: 'https://your-instance.successfactors.com' },
-      { name: 'clientId', label: 'Client ID', type: 'text', required: true, placeholder: 'OAuth Client ID' },
-      { name: 'clientSecret', label: 'Client Secret', type: 'password', required: true, placeholder: 'OAuth Client Secret' },
-    ],
-  },
-  salesforce: {
-    label: 'Salesforce',
-    available: false,
-    fields: [
-      { name: 'baseUrl', label: 'Base URL', type: 'url', required: true, placeholder: 'https://your-instance.salesforce.com' },
-      { name: 'clientId', label: 'Client ID', type: 'text', required: true, placeholder: 'OAuth Client ID' },
-      { name: 'clientSecret', label: 'Client Secret', type: 'password', required: true, placeholder: 'OAuth Client Secret' },
-    ],
-  },
-};
+'use strict';
 
-var TAXONOMY = [
-  { id: 'rate-table',   label: 'Rate Table',   color: '#0ea5e9' },
-  { id: 'accelerator',  label: 'Accelerator',  color: '#10b981' },
-  { id: 'decelerator',  label: 'Decelerator',  color: '#f59e0b' },
-  { id: 'qualifier',    label: 'Qualifier',     color: '#6366f1' },
-  { id: 'split',        label: 'Split',         color: '#8b5cf6' },
-  { id: 'territory',    label: 'Territory',     color: '#06b6d4' },
-  { id: 'quota-target', label: 'Quota Target',  color: '#3b82f6' },
-  { id: 'draw',         label: 'Draw',          color: '#ec4899' },
-  { id: 'spif',         label: 'SPIF',          color: '#f97316' },
-  { id: 'cap',          label: 'Cap',           color: '#ef4444' },
-  { id: 'floor',        label: 'Floor',         color: '#14b8a6' },
-  { id: 'clawback',     label: 'Clawback',      color: '#dc2626' },
+// ── State ───────────────────────────────────────────
+var S = { projects:[], pid:null, files:[], reqs:[], notes:[], extractions:{}, aggregation:null };
+
+// ── API ─────────────────────────────────────────────
+async function api(method, path, body) {
+  var opts = { method: method, headers:{'Content-Type':'application/json'} };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+  var res = await fetch(path, opts);
+  var d = await res.json();
+  if (!res.ok) throw new Error(d.error || 'API error ' + res.status);
+  return d;
+}
+
+// ── Toast ───────────────────────────────────────────
+function toast(msg, type) {
+  var el = document.createElement('div');
+  el.className = 'toast ' + (type==='success'?'ok':type==='error'?'err':'');
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(function(){ el.remove(); }, 3500);
+}
+
+// ── Tabs ────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-'+name).classList.add('active');
+  document.getElementById('tbtn-'+name).classList.add('active');
+}
+
+// ── Escape ──────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── Projects ────────────────────────────────────────
+async function loadProjects() {
+  var d = await api('GET','/api/builder/projects');
+  S.projects = d.projects||[];
+  renderProjList();
+}
+
+function renderProjList() {
+  var el = document.getElementById('proj-list');
+  if (!S.projects.length) { el.innerHTML = '<div class="empty-state">No projects yet.<br>Click + New to start.</div>'; return; }
+  el.innerHTML = S.projects.map(function(p){
+    var a = p.id===S.pid?' active':'';
+    return '<div class="project-item'+a+'" onclick="selProj(\''+p.id+'\')">'
+      +'<div class="project-name">'+esc(p.name)+'</div>'
+      +'<div class="project-meta">'+new Date(p.updatedAt).toLocaleDateString()+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+async function selProj(id) {
+  S.pid = id; renderProjList(); await loadDetail(id);
+}
+
+async function loadDetail(id) {
+  var [fd,rd,nd] = await Promise.all([
+    api('GET','/api/builder/projects/'+id+'/files'),
+    api('GET','/api/builder/projects/'+id+'/requirements'),
+    api('GET','/api/builder/projects/'+id+'/notes'),
+  ]);
+  S.files = fd.files||[]; S.reqs = rd.requirements||[]; S.notes = nd.notes||[];
+  // Try to load existing aggregation — 404 is fine (not yet run)
+  S.aggregation = null;
+  try { var ag = await api('GET','/api/builder/projects/'+id+'/aggregate'); S.aggregation = ag; } catch(_){}
+  renderDetail();
+}
+
+function renderDetail() {
+  var p = S.projects.find(function(x){ return x.id===S.pid; });
+  if (!p) return;
+  document.getElementById('no-proj').style.display = 'none';
+  var det = document.getElementById('proj-detail');
+  det.style.display = 'flex';
+
+  det.innerHTML =
+    '<div class="proj-hdr">'
+      +'<div><h2>'+esc(p.name)+'</h2>'+(p.description?'<p>'+esc(p.description)+'</p>':'')+'</div>'
+      +'<div style="display:flex;gap:8px;flex-shrink:0">'
+        +'<button class="btn btn-danger" onclick="delProj(\''+p.id+'\')">Delete</button>'
+      +'</div>'
+    +'</div>'
+    + renderFilesCard()
+    + renderReqCard()
+    + renderNotesCard()
+    + renderExtCard()
+    + renderAggCard();
+
+  bindUpload();
+}
+
+// ── Files Card ──────────────────────────────────────
+function renderFilesCard() {
+  var rows = S.files.map(function(f){
+    var st = f.parseError ? '<span class="fstatus err">Error</span>'
+           : f.parsedAt  ? '<span class="fstatus ok">Ready</span>'
+           : '<span class="fstatus pend">Pending</span>';
+    var kb = Math.round(f.size/1024);
+    return '<div class="file-item">'
+      +'<span class="file-icon">📊</span>'
+      +'<div class="file-info"><div class="file-name">'+esc(f.originalName)+'</div>'
+      +'<div class="file-meta">'+kb+' KB · '+new Date(f.uploadedAt).toLocaleDateString()+'</div></div>'
+      + st
+      +'<button class="btn btn-success" onclick="runExtract(\''+f.id+'\',\''+esc(f.originalName)+'\')">⚡ Extract</button>'
+      +'<button class="idel" onclick="delFile(\''+f.id+'\')">✕</button>'
+    +'</div>';
+  }).join('');
+
+  return '<div class="card">'
+    +'<div class="card-hdr"><div class="card-title">Excel Files <span class="badge">'+S.files.length+'</span></div></div>'
+    +'<div class="card-body">'
+      +'<label class="drop-zone" id="drop-zone">'
+        +'<input type="file" id="file-in" accept=".xlsx,.xls,.xlsm,.csv" multiple>'
+        +'<div class="drop-icon">📂</div>'
+        +'Drop Excel files here or click to browse'
+      +'</label>'
+      +(S.files.length ? '<div class="file-list">'+rows+'</div>' : '')
+    +'</div></div>';
+}
+
+function bindUpload() {
+  var dz = document.getElementById('drop-zone');
+  var fi = document.getElementById('file-in');
+  if (!dz||!fi) return;
+  fi.onchange = function(){ if(this.files) uploadFiles(this.files); };
+  dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', function(){ dz.classList.remove('drag-over'); });
+  dz.addEventListener('drop', function(e){ e.preventDefault(); dz.classList.remove('drag-over'); if(e.dataTransfer&&e.dataTransfer.files) uploadFiles(e.dataTransfer.files); });
+}
+
+async function uploadFiles(list) {
+  for (var i=0; i<list.length; i++) {
+    var f = list[i];
+    try {
+      var b64 = await toBase64(f);
+      await api('POST','/api/builder/projects/'+S.pid+'/files',{filename:f.name,data:b64,mimeType:f.type});
+      toast('Uploaded '+f.name,'success');
+    } catch(e){ toast('Upload failed: '+e.message,'error'); }
+  }
+  await loadDetail(S.pid);
+}
+
+function toBase64(file) {
+  return new Promise(function(res,rej){
+    var r = new FileReader();
+    r.onload = function(e){ res(e.target.result.split(',')[1]); };
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function delFile(id) {
+  if (!confirm('Delete this file and its extraction?')) return;
+  try { await api('DELETE','/api/builder/projects/'+S.pid+'/files/'+id); toast('Deleted','success'); await loadDetail(S.pid); }
+  catch(e){ toast(e.message,'error'); }
+}
+
+// ── Requirements Card ───────────────────────────────
+function renderReqCard() {
+  var items = S.reqs.map(function(r){
+    var cl = r.priority==='high'?' ph':r.priority==='low'?' pl':' pm';
+    return '<div class="item-row'+cl+'">'
+      +'<div class="pdot"></div>'
+      +'<div class="itext">'+esc(r.text)+'</div>'
+      +'<span style="font-size:11px;color:var(--muted);flex-shrink:0">'+r.priority+'</span>'
+      +'<button class="idel" onclick="delReq(\''+r.id+'\')">✕</button>'
+    +'</div>';
+  }).join('');
+
+  return '<div class="card">'
+    +'<div class="card-hdr"><div class="card-title">Requirements <span class="badge">'+S.reqs.length+'</span></div></div>'
+    +'<div class="card-body">'
+      +'<div class="add-row">'
+        +'<input id="req-txt" type="text" placeholder="Add requirement..." onkeydown="if(event.key===\'Enter\')addReq()">'
+        +'<select id="req-pri"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select>'
+        +'<button class="btn btn-ghost" onclick="addReq()">Add</button>'
+      +'</div>'
+      +(S.reqs.length ? '<div class="item-list">'+items+'</div>' : '<div style="font-size:13px;color:var(--muted)">No requirements yet.</div>')
+    +'</div></div>';
+}
+
+async function addReq() {
+  var t = document.getElementById('req-txt').value.trim();
+  var p = document.getElementById('req-pri').value;
+  if (!t) return;
+  try { await api('POST','/api/builder/projects/'+S.pid+'/requirements',{text:t,priority:p}); document.getElementById('req-txt').value=''; await loadDetail(S.pid); }
+  catch(e){ toast(e.message,'error'); }
+}
+
+async function delReq(id) {
+  try { await api('DELETE','/api/builder/projects/'+S.pid+'/requirements/'+id); await loadDetail(S.pid); }
+  catch(e){ toast(e.message,'error'); }
+}
+
+// ── Notes Card ──────────────────────────────────────
+function renderNotesCard() {
+  var items = S.notes.map(function(n){
+    return '<div class="item-row">'
+      +'<div class="itext">'+esc(n.text)+'</div>'
+      +'<span style="font-size:11px;color:var(--muted);flex-shrink:0">'+new Date(n.createdAt).toLocaleDateString()+'</span>'
+      +'<button class="idel" onclick="delNote(\''+n.id+'\')">✕</button>'
+    +'</div>';
+  }).join('');
+
+  return '<div class="card">'
+    +'<div class="card-hdr"><div class="card-title">Notes <span class="badge">'+S.notes.length+'</span></div></div>'
+    +'<div class="card-body">'
+      +'<div class="add-row">'
+        +'<input id="note-txt" type="text" placeholder="Add note..." onkeydown="if(event.key===\'Enter\')addNote()">'
+        +'<button class="btn btn-ghost" onclick="addNote()">Add</button>'
+      +'</div>'
+      +(S.notes.length ? '<div class="item-list">'+items+'</div>' : '<div style="font-size:13px;color:var(--muted)">No notes yet.</div>')
+    +'</div></div>';
+}
+
+async function addNote() {
+  var t = document.getElementById('note-txt').value.trim();
+  if (!t) return;
+  try { await api('POST','/api/builder/projects/'+S.pid+'/notes',{text:t}); document.getElementById('note-txt').value=''; await loadDetail(S.pid); }
+  catch(e){ toast(e.message,'error'); }
+}
+
+async function delNote(id) {
+  try { await api('DELETE','/api/builder/projects/'+S.pid+'/notes/'+id); await loadDetail(S.pid); }
+  catch(e){ toast(e.message,'error'); }
+}
+
+// ── Extraction Card ──────────────────────────────────
+function renderExtCard() {
+  if (!S.files.length) return '';
+  return '<div class="card" id="ext-card">'
+    +'<div class="card-hdr"><div class="card-title">⚡ AI Extraction → CaptivateIQ Rules</div></div>'
+    +'<div class="card-body" id="ext-body">'
+      +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px">Click <strong style="color:var(--fg2)">⚡ Extract</strong> on any file above to analyze it with Claude Opus. The AI will reverse-engineer the Excel compensation logic into structured CaptivateIQ configurations.</p>'
+      +'<div class="subcard" style="font-size:12px;color:var(--muted)">'
+        +'<strong style="color:var(--fg2)">Extraction output:</strong>'
+        +'<ul style="margin:5px 0 0 14px;line-height:1.9">'
+          +'<li>Rule concepts (rate tables, accelerators, qualifiers, caps, splits…)</li>'
+          +'<li>Data Worksheet configs with columns + sample rows</li>'
+          +'<li>Employee Assumption columns (quotas, targets, variable pay)</li>'
+          +'<li>Attribute Worksheet configs (territories, roles)</li>'
+          +'<li>Formula recommendations with pseudocode + SmartGrid guidance</li>'
+        +'</ul>'
+      +'</div>'
+    +'</div></div>';
+}
+
+// Global ref for download
+var _lastExtResult = null;
+
+async function runExtract(fileId, fname) {
+  var card = document.getElementById('ext-card');
+  if (!card) { toast('No extraction card found','error'); return; }
+  var body = document.getElementById('ext-body');
+  body.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px;color:var(--muted);font-size:13px">'
+    +'<div class="spin"></div>'
+    +'<span>Analyzing <strong style="color:var(--fg2)">'+esc(fname)+'</strong> with Claude Opus 4.6…<br><span style="font-size:12px">This may take 30–90 seconds depending on workbook complexity.</span></span>'
+    +'</div>';
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  try {
+    var result = await api('POST','/api/builder/projects/'+S.pid+'/files/'+fileId+'/extract',{});
+    _lastExtResult = result;
+    S.extractions[fileId] = result;
+    renderExtResult(body, result, fname);
+    toast('Extraction complete — '+result.ruleCount+' rules','success');
+  } catch(e) {
+    body.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Extraction failed: '+esc(e.message)+'</div>';
+    toast('Extraction failed: '+e.message,'error');
+  }
+}
+
+function renderExtResult(container, r, fname) {
+  var rules = r.rules||[];
+  var rulesHtml = rules.map(function(rule){
+    var cls = 'ct-'+(rule.concept||'').replace(/\s+/g,'-');
+    var conf = Math.round((rule.confidence||0)*100);
+    var fillCls = conf>=70?'c-hi':conf>=40?'c-md':'c-lo';
+    return '<div class="rule-card">'
+      +'<div class="rule-top"><span class="ctag '+cls+'">'+(rule.concept||'unknown')+'</span>'
+      +'<div class="conf-bar"><div class="conf-fill '+fillCls+'" style="width:'+conf+'%"></div></div>'
+      +'<span style="font-size:11px;color:var(--muted);flex-shrink:0">'+conf+'%</span></div>'
+      +'<div class="rule-desc">'+esc(rule.description||'')+'</div>'
+      +(rule.sourceRef?'<div class="rule-src">'+esc(rule.sourceRef.vendorRuleId||'')+'</div>':'')
+    +'</div>';
+  }).join('');
+
+  container.innerHTML =
+    (r.insights?'<div class="insights-box">'+esc(r.insights)+'</div>':'')
+    +(rules.length?'<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">'+rules.length+' Rules Identified</div>':'')
+    +(rulesHtml?'<div class="rules-grid">'+rulesHtml+'</div>':'')
+    +'<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:10px">CaptivateIQ Build Configuration</div>'
+    +buildCfgTabs(r.captivateiqConfig||{})
+    +'<div class="dl-row">'
+      +'<button class="btn btn-ghost" onclick="copyJson()">Copy JSON</button>'
+      +'<button class="btn btn-success" onclick="downloadJson()">⬇ Download</button>'
+    +'</div>';
+}
+
+function buildCfgTabs(cfg, prefix) {
+  prefix = prefix || '';
+  var labels = [['plan','Plan'],['ws','Worksheets'],['ea','Assumptions'],['attr','Attributes'],['fm','Formulas']];
+  var tabsH = labels.map(function(l,i){
+    return '<button class="cfg-tab'+(i===0?' active':'')+'" onclick="swCfg(this,\''+prefix+'cfgp-'+l[0]+'\')">'+l[1]+'</button>';
+  }).join('');
+
+  // plan
+  var pl = cfg.planStructure||{};
+  var planH = '<table class="cfg-tbl"><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>'
+    +'<tr><td>planName</td><td>'+esc(pl.planName||'—')+'</td></tr>'
+    +'<tr><td>periodType</td><td>'+esc(pl.periodType||'—')+'</td></tr>'
+    +'<tr><td>payoutComponents</td><td>'+esc((pl.payoutComponents||[]).join(', ')||'—')+'</td></tr>'
+    +(pl.notes?'<tr><td>notes</td><td>'+esc(pl.notes)+'</td></tr>':'')
+    +'</tbody></table>';
+
+  // worksheets
+  var wsH = (cfg.dataWorksheets||[]).length
+    ? (cfg.dataWorksheets||[]).map(function(ws){
+        return '<div class="subcard"><div class="subcard-title">'+esc(ws.name)+'<span style="font-size:10px;color:var(--muted);margin-left:6px">['+esc(ws.concept)+']</span></div>'
+          +'<div style="font-size:12px;color:var(--muted);margin-bottom:3px">'+esc(ws.description||'')+'</div>'
+          +'<div style="font-size:11px;color:var(--primary);font-family:var(--mono)">'+esc((ws.columns||[]).map(function(c){return c.name+'('+c.type+')';}).join(', '))+'</div>'
+        +'</div>';
+      }).join('')
+    : '<div style="font-size:13px;color:var(--muted)">None identified.</div>';
+
+  // employee assumptions
+  var eaH = (cfg.employeeAssumptionColumns||[]).length
+    ? '<table class="cfg-tbl"><thead><tr><th>Column</th><th>Type</th><th>Concept</th><th>Description</th></tr></thead><tbody>'
+      +(cfg.employeeAssumptionColumns||[]).map(function(c){
+          return '<tr><td>'+esc(c.name)+'</td><td>'+esc(c.type)+'</td><td>'+esc(c.concept||'')+'</td><td>'+esc(c.description||'')+'</td></tr>';
+        }).join('')+'</tbody></table>'
+    : '<div style="font-size:13px;color:var(--muted)">None identified.</div>';
+
+  // attributes
+  var atH = (cfg.attributeWorksheets||[]).length
+    ? (cfg.attributeWorksheets||[]).map(function(a){
+        return '<div class="subcard"><div class="subcard-title">'+esc(a.name)+'<span style="font-size:10px;color:var(--muted);margin-left:6px">['+esc(a.concept)+'] pk:'+esc(a.pkType||'')+'</span></div>'
+          +'<div style="font-size:12px;color:var(--muted);margin-bottom:3px">'+esc(a.description||'')+'</div>'
+          +'<div style="font-size:11px;color:var(--primary);font-family:var(--mono)">'+esc((a.columns||[]).map(function(c){return c.name+'('+c.type+')';}).join(', '))+'</div>'
+        +'</div>';
+      }).join('')
+    : '<div style="font-size:13px;color:var(--muted)">None identified.</div>';
+
+  // formulas
+  var fmH = (cfg.formulaRecommendations||[]).length
+    ? (cfg.formulaRecommendations||[]).map(function(fr){
+        var tc = 'ct-'+(fr.concept||'').replace(/\s+/g,'-');
+        return '<div class="subcard">'
+          +'<div class="subcard-title"><span class="ctag '+tc+'">'+esc(fr.concept)+'</span> '+esc(fr.description||'')+'</div>'
+          +'<div style="font-size:12px;color:var(--muted);margin:4px 0">'+esc(fr.logicExplanation||'')+'</div>'
+          +(fr.pseudoFormula?'<div class="pseudo">'+esc(fr.pseudoFormula)+'</div>':'')
+          +(fr.captivateiqNotes?'<div class="ciq-note">💡 '+esc(fr.captivateiqNotes)+'</div>':'')
+        +'</div>';
+      }).join('')
+    : '<div style="font-size:13px;color:var(--muted)">None identified.</div>';
+
+  return '<div class="cfg-tabs">'+tabsH+'</div>'
+    +'<div id="'+prefix+'cfgp-plan" class="cfg-panel active">'+planH+'</div>'
+    +'<div id="'+prefix+'cfgp-ws" class="cfg-panel">'+wsH+'</div>'
+    +'<div id="'+prefix+'cfgp-ea" class="cfg-panel">'+eaH+'</div>'
+    +'<div id="'+prefix+'cfgp-attr" class="cfg-panel">'+atH+'</div>'
+    +'<div id="'+prefix+'cfgp-fm" class="cfg-panel">'+fmH+'</div>';
+}
+
+function swCfg(btn, pid) {
+  var root = btn.closest('#ext-body')||btn.closest('.card-body');
+  root.querySelectorAll('.cfg-tab').forEach(function(t){ t.classList.remove('active'); });
+  root.querySelectorAll('.cfg-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  var p = document.getElementById(pid);
+  if (p) p.classList.add('active');
+}
+
+function copyJson() {
+  if (!_lastExtResult) { toast('No extraction data','error'); return; }
+  navigator.clipboard.writeText(JSON.stringify(_lastExtResult,null,2)).then(function(){ toast('Copied!','success'); });
+}
+
+function downloadJson() {
+  if (!_lastExtResult) { toast('No extraction data','error'); return; }
+  var blob = new Blob([JSON.stringify(_lastExtResult,null,2)],{type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href=url; a.download='captivateiq-config.json'; a.click(); URL.revokeObjectURL(url);
+}
+
+// ── Aggregate Card ───────────────────────────────────
+var _lastAggResult = null;
+
+function renderAggCard() {
+  // Only show when there are 2+ files
+  if (S.files.length < 2) return '';
+
+  var agg = S.aggregation;
+
+  if (!agg) {
+    // Count how many files have extractions
+    var extMeta = Object.keys(S.extractions).filter(function(fid){ return !!S.extractions[fid]; });
+    var hasEnough = extMeta.length >= 2;
+    return '<div class="card" id="agg-card">'
+      +'<div class="card-hdr"><div class="card-title">🔗 Aggregated Project Config'
+        +'<span class="badge" style="margin-left:6px">'+S.files.length+' files</span>'
+      +'</div></div>'
+      +'<div class="card-body" id="agg-body">'
+        +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px">'
+          +'Combine insights from all extracted Excel files into a single unified CaptivateIQ configuration. '
+          +'Worksheets, assumptions, attributes, and formulas are merged and deduplicated across all uploads.'
+        +'</p>'
+        +(hasEnough
+          ? '<button class="btn btn-success" onclick="runAggregate()">🔗 Aggregate All Files</button>'
+          : '<div style="font-size:12px;color:var(--warning)">Run ⚡ Extract on at least 2 files first, then aggregate.</div>'
+        )
+      +'</div>'
+    +'</div>';
+  }
+
+  // Render existing aggregation result
+  _lastAggResult = agg;
+  var ac = agg.aggregatedConfig;
+  var stats = ac.stats||{};
+  var sources = (ac.sources||[]).map(function(s){
+    return '<div style="font-size:12px;color:var(--fg2);display:flex;gap:8px;align-items:center;margin-bottom:3px">'
+      +'<span style="color:var(--primary)">📄</span>'
+      +'<span>'+esc(s.fileName)+'</span>'
+      +'<span style="color:var(--muted)">'+ new Date(s.extractedAt).toLocaleDateString()+'</span>'
+    +'</div>';
+  }).join('');
+
+  var statBadges = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+    +badge(stats.dataWorksheetCount+' Data Worksheets','var(--primary)')
+    +badge(stats.employeeAssumptionCount+' Assumptions','var(--purple)')
+    +badge(stats.attributeWorksheetCount+' Attributes','var(--cyan)')
+    +badge(stats.formulaCount+' Formulas','var(--orange)')
+  +'</div>';
+
+  var insightsHtml = ac.combinedInsights
+    ? '<div class="insights-box" style="margin-bottom:14px;white-space:pre-wrap;max-height:180px;overflow-y:auto">'+esc(ac.combinedInsights)+'</div>'
+    : '';
+
+  return '<div class="card" id="agg-card">'
+    +'<div class="card-hdr">'
+      +'<div class="card-title">🔗 Aggregated Project Config'
+        +'<span class="badge" style="margin-left:6px">'+stats.fileCount+' files merged</span>'
+      +'</div>'
+      +'<button class="btn btn-ghost" style="font-size:12px" onclick="runAggregate()">↻ Re-run</button>'
+    +'</div>'
+    +'<div class="card-body" id="agg-body">'
+      +'<div style="margin-bottom:12px">'+sources+'</div>'
+      +statBadges
+      +insightsHtml
+      +'<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:10px">Merged CaptivateIQ Build Configuration</div>'
+      +buildCfgTabs(ac.mergedConfig||{}, 'agg-')
+      +'<div class="dl-row" style="margin-top:14px">'
+        +'<button class="btn btn-ghost" onclick="copyAggJson()">Copy JSON</button>'
+        +'<button class="btn btn-success" onclick="downloadAggJson()">⬇ Download</button>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function badge(label, color) {
+  return '<span style="font-size:11px;font-weight:600;color:'+color+';background:rgba(0,0,0,0.2);'
+    +'border:1px solid '+color+';border-radius:4px;padding:2px 7px">'+esc(String(label))+'</span>';
+}
+
+async function runAggregate() {
+  var card = document.getElementById('agg-card');
+  var body = document.getElementById('agg-body');
+  if (body) {
+    body.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px;color:var(--muted);font-size:13px">'
+      +'<div class="spin"></div>'
+      +'<span>Merging insights from all extracted files…</span>'
+    +'</div>';
+  }
+  if (card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  try {
+    var result = await api('POST','/api/builder/projects/'+S.pid+'/aggregate',{});
+    S.aggregation = result;
+    _lastAggResult = result;
+    renderDetail();
+    toast('Aggregation complete — '+result.aggregatedConfig.stats.fileCount+' files merged','success');
+  } catch(e) {
+    if (body) body.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Aggregation failed: '+esc(e.message)+'</div>';
+    toast('Aggregation failed: '+e.message,'error');
+  }
+}
+
+function copyAggJson() {
+  if (!_lastAggResult) { toast('No aggregation data','error'); return; }
+  navigator.clipboard.writeText(JSON.stringify(_lastAggResult,null,2)).then(function(){ toast('Copied!','success'); });
+}
+
+function downloadAggJson() {
+  if (!_lastAggResult) { toast('No aggregation data','error'); return; }
+  var blob = new Blob([JSON.stringify(_lastAggResult,null,2)],{type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var proj = S.projects.find(function(p){ return p.id===S.pid; });
+  a.href=url; a.download=(proj?proj.name.replace(/\s+/g,'-'):'project')+'-aggregated.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Delete Project ───────────────────────────────────
+async function delProj(id) {
+  if (!confirm('Delete this project and all its data?')) return;
+  try {
+    await api('DELETE','/api/builder/projects/'+id);
+    S.pid = null;
+    document.getElementById('no-proj').style.display = 'flex';
+    document.getElementById('proj-detail').style.display = 'none';
+    toast('Project deleted','success');
+    await loadProjects();
+  } catch(e){ toast(e.message,'error'); }
+}
+
+// ── Create Project ───────────────────────────────────
+function promptCreateProject() {
+  var name = prompt('Project name:');
+  if (!name||!name.trim()) return;
+  var desc = prompt('Description (optional):') || '';
+  createProj(name.trim(), desc.trim());
+}
+
+async function createProj(name, desc) {
+  try {
+    var d = await api('POST','/api/builder/projects',{name:name,description:desc||undefined});
+    S.projects.unshift(d.project);
+    renderProjList();
+    await selProj(d.project.id);
+    toast('Project created','success');
+  } catch(e){ toast(e.message,'error'); }
+}
+
+// ── Connector Tab ────────────────────────────────────
+function toggleAcc(btn) {
+  var form = btn.nextElementSibling;
+  var chev = btn.querySelector('.chev');
+  form.classList.toggle('open');
+  chev.textContent = form.classList.contains('open') ? '▲' : '▼';
+}
+
+function getConnAuth(btn) {
+  var auth = {};
+  btn.closest('.conn-form').querySelectorAll('input').forEach(function(inp){ if(inp.name) auth[inp.name]=inp.value; });
+  return auth;
+}
+
+async function connTest(btn, vendor) {
+  var res = btn.closest('.conn-form').querySelector('.conn-result');
+  res.innerHTML = '<span style="color:var(--muted);font-size:13px"><span class="spin"></span> Testing…</span>';
+  try {
+    var d = await api('POST','/api/test-connection',{vendor:vendor,auth:getConnAuth(btn)});
+    res.innerHTML = d.connected
+      ? '<span style="color:var(--success);font-size:13px">✓ Connected'+(d.vendorName?' to '+esc(d.vendorName):'')+'</span>'
+      : '<span style="color:var(--error);font-size:13px">✗ '+esc(d.error||'Failed')+'</span>';
+  } catch(e){ res.innerHTML = '<span style="color:var(--error);font-size:13px">✗ '+esc(e.message)+'</span>'; }
+}
+
+async function connListPlans(btn, vendor) {
+  var form = btn.closest('.conn-form');
+  var res = form.querySelector('.conn-result');
+  res.innerHTML = '<span style="color:var(--muted);font-size:13px"><span class="spin"></span> Loading plans…</span>';
+  try {
+    var d = await api('POST','/api/list-plans',{vendor:vendor,auth:getConnAuth(btn)});
+    var plans = d.plans||[];
+    if (!plans.length) { res.innerHTML='<span style="color:var(--muted);font-size:13px">No plans found.</span>'; return; }
+    res.innerHTML = '<div style="margin-top:7px">'
+      +plans.map(function(p){ return '<div style="padding:5px 9px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:4px;font-size:12px;color:var(--fg2)"><strong>'+esc(p.name||p.id||'')+'</strong>'+(p.id?' <span style="color:var(--muted)">('+esc(String(p.id))+')</span>':'')+'</div>'; }).join('')
+    +'</div>';
+  } catch(e){ res.innerHTML='<span style="color:var(--error);font-size:13px">✗ '+esc(e.message)+'</span>'; }
+}
+
+async function connExtract(btn, vendor) {
+  var form = btn.closest('.conn-form');
+  var res = form.querySelector('.conn-result');
+  res.innerHTML = '<span style="color:var(--muted);font-size:13px"><span class="spin"></span> Extracting…</span>';
+  try {
+    var d = await api('POST','/api/extract-rules',{vendor:vendor,auth:getConnAuth(btn)});
+    var rules = d.rules||[];
+    var blob = new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    res.innerHTML = '<div style="margin-top:7px;font-size:12px;color:var(--muted)">'
+      +rules.length+' rules extracted. '
+      +'<a href="'+url+'" download="extracted-rules.json" style="color:var(--primary)">Download JSON</a>'
+    +'</div>';
+  } catch(e){ res.innerHTML='<span style="color:var(--error);font-size:13px">✗ '+esc(e.message)+'</span>'; }
+}
+
+// ── Taxonomy ─────────────────────────────────────────
+var TAX = [
+  ['rate-table','Commission rate lookup — flat, tiered, or matrix'],
+  ['accelerator','Rate increase above quota threshold'],
+  ['decelerator','Rate decrease below quota threshold'],
+  ['qualifier','Gate condition — must hit threshold to earn'],
+  ['split','Credit splitting between reps or roles'],
+  ['territory','Geographic or account assignment rules'],
+  ['quota-target','Quota / target definition and allocation'],
+  ['draw','Guaranteed minimum / recoverable draw'],
+  ['spif','Special incentive, bonus, or contest'],
+  ['cap','Maximum earning limit'],
+  ['floor','Minimum earning guarantee'],
+  ['clawback','Recovery of previously paid commissions'],
 ];
 
-var activeConnections = {};
+function renderTax() {
+  var tb = document.getElementById('tax-tb');
+  if (!tb) return;
+  tb.innerHTML = TAX.map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>'; }).join('');
+}
 
-// ── Init ──────────────────────────────────────────
-(function init() {
-  renderConnectors();
-  renderTaxonomy();
+function renderPlanned() {
+  var vv = [['Varicent','OAuth2'],['Xactly Incent','API Key'],['SAP SuccessFactors','OAuth2'],['Salesforce / Spiff','OAuth2']];
+  document.getElementById('planned-v').innerHTML = vv.map(function(v){
+    return '<div class="conn-wrap"><button class="conn-acc" disabled style="cursor:default;opacity:.5">'
+      +'<span class="cdot"></span>'+v[0]+'<span class="cbadge soon">Soon</span></button></div>';
+  }).join('');
+}
+
+// ── Init ─────────────────────────────────────────────
+(async function(){
+  renderTax(); renderPlanned();
+  try { await loadProjects(); } catch(e){ toast('Failed to load projects: '+e.message,'error'); }
 })();
-
-// ── Render Connectors ─────────────────────────────
-function renderConnectors() {
-  var container = document.getElementById('connectors');
-  var vendors = Object.keys(VENDOR_CONFIG);
-  container.innerHTML = vendors.map(function(vendor) {
-    var config = VENDOR_CONFIG[vendor];
-
-    var row = '<div class="connector-row" id="conn-row-' + vendor + '" data-vendor="' + vendor + '">' +
-      '<div class="conn-dot off"></div>' +
-      '<div class="conn-name">' + config.label + '</div>' +
-      '<div class="conn-detail">' + (config.available ? 'Not connected' : 'Coming soon') + '</div>' +
-      '<button class="conn-configure-btn" data-vendor="' + vendor + '">Configure</button>' +
-    '</div>';
-
-    var panel;
-    if (config.available) {
-      var fieldsHtml = config.fields.map(function(f) {
-        var val = f.defaultValue ? ' value="' + f.defaultValue + '"' : '';
-        return '<div class="form-field">' +
-          '<label for="' + vendor + '-' + f.name + '">' + f.label +
-          (f.required ? ' <span class="required">*</span>' : '') + '</label>' +
-          '<input type="' + f.type + '" id="' + vendor + '-' + f.name + '" name="' + f.name + '"' +
-          ' placeholder="' + f.placeholder + '"' + val + (f.required ? ' required' : '') + '>' +
-        '</div>';
-      }).join('');
-
-      panel = '<div class="conn-setup-panel" id="setup-' + vendor + '">' +
-        '<form class="conn-setup-form" data-vendor="' + vendor + '">' +
-        fieldsHtml +
-        '<div class="form-actions">' +
-          '<button type="submit" class="btn-test-connection" data-vendor="' + vendor + '">' +
-            '<span class="btn-label">Test Connection</span>' +
-            '<span class="btn-spinner" style="display:none;"></span>' +
-          '</button>' +
-          '<button type="button" class="btn-cancel" data-vendor="' + vendor + '">Cancel</button>' +
-        '</div>' +
-        '<div class="conn-test-result" id="result-' + vendor + '" style="display:none;"></div>' +
-        '</form>' +
-      '</div>';
-    } else {
-      panel = '<div class="conn-setup-panel" id="setup-' + vendor + '">' +
-        '<div class="conn-coming-soon">' +
-          '<span class="coming-soon-icon">&#128679;</span>' +
-          '<div><strong>' + config.label + ' connector coming soon</strong>' +
-          '<span>Integration is planned. Contact the team for early access.</span></div>' +
-        '</div>' +
-      '</div>';
-    }
-
-    return row + panel;
-  }).join('');
-
-  setupConnectorListeners();
-}
-
-function setupConnectorListeners() {
-  document.querySelectorAll('.conn-configure-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      toggleSetupPanel(this.getAttribute('data-vendor'));
-    });
-  });
-  document.querySelectorAll('.btn-cancel').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      toggleSetupPanel(this.getAttribute('data-vendor'), false);
-    });
-  });
-  document.querySelectorAll('.conn-setup-form').forEach(function(form) {
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      testConnection(this.getAttribute('data-vendor'), this);
-    });
-  });
-}
-
-function toggleSetupPanel(vendor, forceState) {
-  var panel = document.getElementById('setup-' + vendor);
-  var row = document.getElementById('conn-row-' + vendor);
-  if (!panel) return;
-
-  var shouldOpen = forceState !== undefined ? forceState : !panel.classList.contains('open');
-
-  document.querySelectorAll('.conn-setup-panel.open').forEach(function(p) { p.classList.remove('open'); });
-  document.querySelectorAll('.connector-row.expanded').forEach(function(r) { r.classList.remove('expanded'); });
-
-  if (shouldOpen) {
-    panel.classList.add('open');
-    row.classList.add('expanded');
-    var firstInput = panel.querySelector('input');
-    if (firstInput) setTimeout(function() { firstInput.focus(); }, 300);
-  }
-}
-
-// ── Test Connection ───────────────────────────────
-async function testConnection(vendor, form) {
-  var formData = new FormData(form);
-  var auth = {};
-  formData.forEach(function(value, key) { if (value) auth[key] = value; });
-
-  var btn = form.querySelector('.btn-test-connection');
-  var btnLabel = btn.querySelector('.btn-label');
-  var btnSpinner = btn.querySelector('.btn-spinner');
-  var resultDiv = document.getElementById('result-' + vendor);
-
-  btn.disabled = true;
-  btnLabel.textContent = 'Testing...';
-  btnSpinner.style.display = 'inline-block';
-  resultDiv.style.display = 'none';
-  resultDiv.className = 'conn-test-result';
-
-  var controller = new AbortController();
-  var timeout = setTimeout(function() { controller.abort(); }, 15000);
-
-  try {
-    var res = await fetch('/api/test-connection', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ vendor: vendor, auth: auth }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-    var data = await res.json();
-
-    if (data.connected) {
-      activeConnections[vendor] = auth;
-
-      resultDiv.className = 'conn-test-result result-success';
-      resultDiv.textContent = '';
-      var si = document.createElement('span');
-      si.className = 'result-icon';
-      si.textContent = '\u2713';
-      var sd = document.createElement('div');
-      sd.className = 'result-details';
-      var st = document.createElement('strong');
-      st.textContent = 'Connected';
-      sd.appendChild(st);
-      sd.appendChild(document.createTextNode(
-        (data.authenticatedAs || '') + (data.apiVersion ? ' \u00B7 API ' + data.apiVersion : '')
-      ));
-      resultDiv.appendChild(si);
-      resultDiv.appendChild(sd);
-      updateConnectorRowStatus(vendor, data);
-      showPostConnectionActions(vendor, form);
-    } else {
-      resultDiv.className = 'conn-test-result result-error';
-      resultDiv.textContent = '';
-      var ei = document.createElement('span');
-      ei.className = 'result-icon';
-      ei.textContent = '\u2717';
-      var ed = document.createElement('div');
-      ed.className = 'result-details';
-      var et = document.createElement('strong');
-      et.textContent = 'Connection failed';
-      ed.appendChild(et);
-      ed.appendChild(document.createTextNode(data.error || 'Unknown error'));
-      resultDiv.appendChild(ei);
-      resultDiv.appendChild(ed);
-    }
-    resultDiv.style.display = 'flex';
-
-  } catch (err) {
-    clearTimeout(timeout);
-    resultDiv.className = 'conn-test-result result-error';
-    resultDiv.textContent = '';
-    var ci = document.createElement('span');
-    ci.className = 'result-icon';
-    ci.textContent = '\u2717';
-    var cd = document.createElement('div');
-    cd.className = 'result-details';
-    var ct = document.createElement('strong');
-    ct.textContent = 'Request failed';
-    cd.appendChild(ct);
-    cd.appendChild(document.createTextNode(err.name === 'AbortError' ? 'Connection timed out (15s)' : err.message));
-    resultDiv.appendChild(ci);
-    resultDiv.appendChild(cd);
-    resultDiv.style.display = 'flex';
-  } finally {
-    btn.disabled = false;
-    btnLabel.textContent = 'Test Connection';
-    btnSpinner.style.display = 'none';
-  }
-}
-
-function updateConnectorRowStatus(vendor, status) {
-  var row = document.getElementById('conn-row-' + vendor);
-  if (!row) return;
-  var dot = row.querySelector('.conn-dot');
-  var detail = row.querySelector('.conn-detail');
-  dot.className = 'conn-dot ' + (status.connected ? 'on' : 'off');
-  detail.textContent = status.connected
-    ? (status.authenticatedAs || '') + (status.apiVersion ? ' \u00B7 ' + status.apiVersion : '')
-    : (status.error || 'Disconnected');
-}
-
-// ── Post-Connection Actions ───────────────────────
-function showPostConnectionActions(vendor, form) {
-  var existing = form.querySelector('.conn-actions');
-  if (existing) existing.remove();
-  var ep = form.querySelector('.plans-list-container');
-  if (ep) ep.remove();
-  var er = form.querySelector('.extracted-rules-container');
-  if (er) er.remove();
-
-  var actionsDiv = document.createElement('div');
-  actionsDiv.className = 'conn-actions';
-  actionsDiv.innerHTML =
-    '<button type="button" class="conn-action-btn btn-list-plans" data-vendor="' + vendor + '">' +
-      '<span class="btn-label">List Plans</span>' +
-      '<span class="btn-spinner" style="display:none;"></span>' +
-    '</button>' +
-    '<button type="button" class="conn-action-btn btn-extract-rules" data-vendor="' + vendor + '">' +
-      '<span class="btn-label">Extract Rules</span>' +
-      '<span class="btn-spinner" style="display:none;"></span>' +
-    '</button>';
-  form.appendChild(actionsDiv);
-
-  form.querySelector('.btn-list-plans').addEventListener('click', function() {
-    fetchPlans(vendor, form);
-  });
-  form.querySelector('.btn-extract-rules').addEventListener('click', function() {
-    var sel = form.querySelector('.plan-item.selected');
-    fetchExtractRules(vendor, form, sel ? sel.getAttribute('data-plan-id') : null);
-  });
-}
-
-// ── List Plans ────────────────────────────────────
-async function fetchPlans(vendor, form) {
-  var btn = form.querySelector('.btn-list-plans');
-  var btnLabel = btn.querySelector('.btn-label');
-  var btnSpinner = btn.querySelector('.btn-spinner');
-  var auth = activeConnections[vendor];
-  if (!auth) return;
-
-  btn.disabled = true;
-  btnLabel.textContent = 'Loading...';
-  btnSpinner.style.display = 'inline-block';
-
-  var existing = form.querySelector('.plans-list-container');
-  if (existing) existing.remove();
-
-  try {
-    var res = await fetch('/api/list-plans', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ vendor: vendor, auth: auth }),
-    });
-    var data = await res.json();
-
-    if (data.error) { showActionError(form, data.error); return; }
-
-    var plans = data.plans || [];
-    var listHtml =
-      '<div class="plans-list-container">' +
-        '<div class="plans-list-header">' +
-          '<span>Commission Plans</span>' +
-          '<span class="plan-count">' + plans.length + ' found</span>' +
-        '</div>' +
-        '<ul class="plans-list">' +
-        (plans.length === 0
-          ? '<li class="plan-item" style="cursor:default;color:var(--muted);">No plans found</li>'
-          : plans.map(function(p) {
-              return '<li class="plan-item" data-plan-id="' + p.id + '">' +
-                '<div class="plan-radio"></div>' +
-                '<div><div>' + (p.name || 'Unnamed Plan') + '</div>' +
-                '<div class="plan-id">' + p.id + '</div></div>' +
-              '</li>';
-            }).join('')) +
-        '</ul>' +
-      '</div>';
-    form.insertAdjacentHTML('beforeend', listHtml);
-
-    form.querySelectorAll('.plan-item[data-plan-id]').forEach(function(item) {
-      item.addEventListener('click', function() {
-        form.querySelectorAll('.plan-item.selected').forEach(function(s) { s.classList.remove('selected'); });
-        this.classList.add('selected');
-      });
-    });
-
-  } catch (err) {
-    showActionError(form, err.message);
-  } finally {
-    btn.disabled = false;
-    btnLabel.textContent = 'List Plans';
-    btnSpinner.style.display = 'none';
-  }
-}
-
-// ── Extract Rules ─────────────────────────────────
-async function fetchExtractRules(vendor, form, planId) {
-  var btn = form.querySelector('.btn-extract-rules');
-  var btnLabel = btn.querySelector('.btn-label');
-  var btnSpinner = btn.querySelector('.btn-spinner');
-  var auth = activeConnections[vendor];
-  if (!auth) return;
-
-  btn.disabled = true;
-  btnLabel.textContent = 'Extracting...';
-  btnSpinner.style.display = 'inline-block';
-
-  var existing = form.querySelector('.extracted-rules-container');
-  if (existing) existing.remove();
-
-  var payload = { vendor: vendor, auth: auth };
-  if (planId) payload.planId = planId;
-
-  try {
-    var res = await fetch('/api/extract-rules', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    var data = await res.json();
-
-    if (data.error) { showActionError(form, data.error); return; }
-
-    var rules = data.rules || [];
-    window._lastExtractedRules = rules;
-    window._lastExtractedPlanId = planId;
-
-    var container = document.createElement('div');
-    container.className = 'extracted-rules-container';
-
-    var header = document.createElement('div');
-    header.className = 'extracted-rules-header';
-    var hl = document.createElement('span');
-    hl.textContent = 'Extracted Rules' + (planId ? ' (Plan: ' + planId + ')' : ' (All Plans)');
-    var hc = document.createElement('span');
-    hc.className = 'rule-count';
-    hc.textContent = rules.length + ' rules';
-    header.appendChild(hl);
-    header.appendChild(hc);
-    container.appendChild(header);
-
-    var list = document.createElement('ul');
-    list.className = 'extracted-rules-list';
-
-    if (rules.length === 0) {
-      var empty = document.createElement('li');
-      empty.className = 'extracted-rule-item';
-      empty.style.color = 'var(--muted)';
-      empty.textContent = 'No rules extracted';
-      list.appendChild(empty);
-    } else {
-      rules.forEach(function(r) {
-        var li = document.createElement('li');
-        li.className = 'extracted-rule-item';
-
-        var badge = document.createElement('span');
-        badge.className = 'rule-type-badge';
-        badge.textContent = r.vendorRuleType;
-        li.appendChild(badge);
-
-        var info = document.createElement('div');
-        info.className = 'rule-plan-id';
-        info.textContent = 'Plan: ' + (r.planId || 'N/A') + ' \u00B7 Rule: ' + r.vendorRuleId;
-        li.appendChild(info);
-
-        var preview = document.createElement('div');
-        preview.className = 'rule-data-preview';
-        preview.textContent = JSON.stringify(r.data, null, 2);
-        preview.addEventListener('click', function() { preview.classList.toggle('expanded'); });
-        li.appendChild(preview);
-
-        list.appendChild(li);
-      });
-    }
-    container.appendChild(list);
-
-    if (rules.length > 0) {
-      var actions = document.createElement('div');
-      actions.className = 'extracted-rules-actions';
-
-      var copyBtn = document.createElement('button');
-      copyBtn.className = 'btn-export';
-      copyBtn.textContent = 'Copy Full JSON';
-      copyBtn.addEventListener('click', function() {
-        navigator.clipboard.writeText(JSON.stringify(window._lastExtractedRules, null, 2)).then(function() {
-          copyBtn.classList.add('copied');
-          copyBtn.textContent = '\u2713 Copied!';
-          setTimeout(function() {
-            copyBtn.classList.remove('copied');
-            copyBtn.textContent = 'Copy Full JSON';
-          }, 2000);
-        });
-      });
-      actions.appendChild(copyBtn);
-
-      var dlBtn = document.createElement('button');
-      dlBtn.className = 'btn-export';
-      dlBtn.textContent = 'Download JSON';
-      dlBtn.addEventListener('click', function() {
-        var blob = new Blob([JSON.stringify(window._lastExtractedRules, null, 2)], { type: 'application/json' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'extracted-rules-' + (window._lastExtractedPlanId || 'all') + '.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      });
-      actions.appendChild(dlBtn);
-
-      container.appendChild(actions);
-    }
-
-    form.appendChild(container);
-
-  } catch (err) {
-    showActionError(form, err.message);
-  } finally {
-    btn.disabled = false;
-    btnLabel.textContent = 'Extract Rules';
-    btnSpinner.style.display = 'none';
-  }
-}
-
-// ── Helpers ───────────────────────────────────────
-function showActionError(form, message) {
-  var existing = form.querySelector('.conn-action-error');
-  if (existing) existing.remove();
-  var c = document.createElement('div');
-  c.className = 'conn-test-result result-error conn-action-error';
-  c.style.marginTop = '12px';
-  var i = document.createElement('span');
-  i.className = 'result-icon';
-  i.textContent = '\u2717';
-  var d = document.createElement('div');
-  d.className = 'result-details';
-  var t = document.createElement('strong');
-  t.textContent = 'Error';
-  d.appendChild(t);
-  d.appendChild(document.createTextNode(message));
-  c.appendChild(i);
-  c.appendChild(d);
-  form.appendChild(c);
-  setTimeout(function() {
-    var el = form.querySelector('.conn-action-error');
-    if (el) el.remove();
-  }, 8000);
-}
-
-function renderTaxonomy() {
-  document.getElementById('taxonomy').innerHTML = TAXONOMY.map(function(t) {
-    return '<div class="concept-chip" style="background:' + t.color + '15;border-color:' + t.color + '40;color:' + t.color + ';">' + t.label + '</div>';
-  }).join('');
-}
 </script>
 </body>
 </html>

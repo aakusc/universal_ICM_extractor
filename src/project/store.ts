@@ -14,6 +14,7 @@ import type {
   StoreData, Project, ProjectFile, Requirement, Note, ExtractionResult,
 } from './types.js';
 import type { CaptivateIQApiPayloads } from '../generators/types.js';
+import type { AggregatedProjectConfig } from '../generators/aggregator.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const DATA_DIR = path.resolve(__dirname, '../../data');
@@ -316,6 +317,62 @@ export function getGeneration(
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as CaptivateIQApiPayloads;
+  } catch {
+    return null;
+  }
+}
+
+// ── Multi-file: load all extractions for a project ────
+
+/**
+ * Load all ExtractionResult objects for a project (one per extracted file).
+ * Silently skips any extraction whose JSON file is missing or corrupt.
+ */
+export function getProjectExtractions(projectId: string): ExtractionResult[] {
+  const store = readStore();
+  const metas = store.extractionMeta.filter((e) => e.projectId === projectId);
+  const results: ExtractionResult[] = [];
+  for (const meta of metas) {
+    const ep = path.join(EXTRACTIONS_DIR, `${meta.id}.json`);
+    if (!fs.existsSync(ep)) continue;
+    try {
+      results.push(JSON.parse(fs.readFileSync(ep, 'utf-8')) as ExtractionResult);
+    } catch {
+      // skip corrupt file
+    }
+  }
+  return results;
+}
+
+// ── Aggregated Generations ────────────────────────────
+// Stored as data/generations/<projectId>-aggregated.json
+
+interface SavedAggregation {
+  aggregatedConfig: AggregatedProjectConfig;
+  payloads: CaptivateIQApiPayloads;
+}
+
+function aggregationPath(projectId: string): string {
+  return path.join(GENERATIONS_DIR, `${projectId}-aggregated.json`);
+}
+
+export function saveAggregatedGeneration(
+  projectId: string,
+  aggregatedConfig: AggregatedProjectConfig,
+  payloads: CaptivateIQApiPayloads,
+): void {
+  ensureDirs();
+  const data: SavedAggregation = { aggregatedConfig, payloads };
+  fs.writeFileSync(aggregationPath(projectId), JSON.stringify(data, null, 2));
+}
+
+export function getAggregatedGeneration(
+  projectId: string,
+): SavedAggregation | null {
+  const p = aggregationPath(projectId);
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8')) as SavedAggregation;
   } catch {
     return null;
   }
