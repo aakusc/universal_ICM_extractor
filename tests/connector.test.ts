@@ -1,25 +1,34 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { CaptivateIQConnector } from '../src/connectors/captivateiq/connector.js';
 
-// Mock the entire client module
-const mockClientInstance = {
-  getOrganization: vi.fn(),
-  listEmployees: vi.fn(),
-  listPlans: vi.fn(),
-  fetchAllPages: vi.fn(),
-  listPeriodGroups: vi.fn(),
-  listEmployeeAssumptions: vi.fn(),
-  listWorkbooks: vi.fn(),
-  listWorksheets: vi.fn(),
-  listWorksheetRecords: vi.fn(),
-  listAttributeWorksheets: vi.fn(),
-  listAttributeWorksheetRecords: vi.fn(),
-  listPayoutWorksheets: vi.fn(),
-  listReportModels: vi.fn(),
-};
+// Create mock instance - vi.fn defined in hoisted to be available for vi.mock
+const { mockClientInstance } = vi.hoisted(() => {
+  return {
+    mockClientInstance: {
+      getOrganization: vi.fn(),
+      listEmployees: vi.fn(),
+      listPlans: vi.fn(),
+      fetchAllPages: vi.fn(),
+      listPeriodGroups: vi.fn(),
+      listEmployeeAssumptions: vi.fn(),
+      listWorkbooks: vi.fn(),
+      listWorksheets: vi.fn(),
+      listWorksheetRecords: vi.fn(),
+      listAttributeWorksheets: vi.fn(),
+      listAttributeWorksheetRecords: vi.fn(),
+      listPayoutWorksheets: vi.fn(),
+      listReportModels: vi.fn(),
+    },
+  };
+});
 
+// Mock the client module
 vi.mock('../src/connectors/captivateiq/client.js', () => ({
-  CaptivateIQClient: vi.fn().mockImplementation(() => mockClientInstance),
+  CaptivateIQClient: class {
+    constructor() {
+      return mockClientInstance;
+    }
+  },
 }));
 
 describe('CaptivateIQConnector', () => {
@@ -49,7 +58,7 @@ describe('CaptivateIQConnector', () => {
         data: [{ name: 'Test Company' }],
       };
 
-      mockClientInstance.getOrganization.mockResolvedValue(mockOrgResponse);
+      vi.spyOn(mockClientInstance, 'getOrganization').mockResolvedValue(mockOrgResponse);
 
       const result = await connector.connect({ apiKey: 'test-token' });
 
@@ -59,8 +68,8 @@ describe('CaptivateIQConnector', () => {
     });
 
     it('should fallback to listEmployees if org fetch fails', async () => {
-      mockClientInstance.getOrganization.mockRejectedValue(new Error('Org fetch failed'));
-      mockClientInstance.listEmployees.mockResolvedValue({ data: [] });
+      vi.spyOn(mockClientInstance, 'getOrganization').mockRejectedValue(new Error('Org fetch failed'));
+      vi.spyOn(mockClientInstance, 'listEmployees').mockResolvedValue({ data: [] });
 
       const result = await connector.connect({ apiKey: 'test-token' });
 
@@ -69,8 +78,8 @@ describe('CaptivateIQConnector', () => {
     });
 
     it('should fail when both org and employee fetch fail', async () => {
-      mockClientInstance.getOrganization.mockRejectedValue(new Error('Org fetch failed'));
-      mockClientInstance.listEmployees.mockRejectedValue(new Error('Employee fetch failed'));
+      vi.spyOn(mockClientInstance, 'getOrganization').mockRejectedValue(new Error('Org fetch failed'));
+      vi.spyOn(mockClientInstance, 'listEmployees').mockRejectedValue(new Error('Employee fetch failed'));
 
       const result = await connector.connect({ apiKey: 'test-token' });
 
@@ -83,7 +92,7 @@ describe('CaptivateIQConnector', () => {
     beforeEach(async () => {
       // Setup connected state
       const mockOrgResponse = { data: [{ name: 'Test Company' }] };
-      mockClientInstance.getOrganization.mockResolvedValue(mockOrgResponse);
+      vi.spyOn(mockClientInstance, 'getOrganization').mockResolvedValue(mockOrgResponse);
       await connector.connect({ apiKey: 'test-token' });
     });
 
@@ -93,11 +102,11 @@ describe('CaptivateIQConnector', () => {
         { id: 'plan-2', name: 'AE Plan 2024' },
       ];
 
-      mockClientInstance.listPlans.mockResolvedValue({ data: mockPlans });
-      mockClientInstance.fetchAllPages.mockImplementation((page: { data?: unknown[] }) =>
+      vi.spyOn(mockClientInstance, 'listPlans').mockResolvedValue({ data: mockPlans });
+      vi.spyOn(mockClientInstance, 'fetchAllPages').mockImplementation((page: { data?: unknown[] }) =>
         Promise.resolve(page.data || [])
       );
-      mockClientInstance.listPeriodGroups.mockRejectedValue(new Error('Not accessible'));
+      vi.spyOn(mockClientInstance, 'listPeriodGroups').mockRejectedValue(new Error('Not accessible'));
 
       const rules = await connector.extractRules({});
 
@@ -113,11 +122,11 @@ describe('CaptivateIQConnector', () => {
         { id: 'plan-2', name: 'AE Plan 2024' },
       ];
 
-      mockClientInstance.listPlans.mockResolvedValue({ data: mockPlans });
-      mockClientInstance.fetchAllPages.mockImplementation((page: { data?: unknown[] }) =>
+      vi.spyOn(mockClientInstance, 'listPlans').mockResolvedValue({ data: mockPlans });
+      vi.spyOn(mockClientInstance, 'fetchAllPages').mockImplementation((page: { data?: unknown[] }) =>
         Promise.resolve(page.data || [])
       );
-      mockClientInstance.listPeriodGroups.mockRejectedValue(new Error('Not accessible'));
+      vi.spyOn(mockClientInstance, 'listPeriodGroups').mockRejectedValue(new Error('Not accessible'));
 
       const rules = await connector.extractRules({ planId: 'plan-1' });
 
@@ -133,11 +142,11 @@ describe('CaptivateIQConnector', () => {
         { id: 'a2', data: { quota: 150000, rate: 0.12 } },
       ];
 
-      mockClientInstance.listPlans.mockResolvedValue({ data: mockPlans });
-      mockClientInstance.fetchAllPages.mockImplementation((page: { data?: unknown[] }) =>
+      vi.spyOn(mockClientInstance, 'listPlans').mockResolvedValue({ data: mockPlans });
+      vi.spyOn(mockClientInstance, 'fetchAllPages').mockImplementation((page: { data?: unknown[] }) =>
         Promise.resolve(page.data || [])
       );
-      mockClientInstance.listEmployeeAssumptions.mockResolvedValue({ data: mockAssumptions });
+      vi.spyOn(mockClientInstance, 'listEmployeeAssumptions').mockResolvedValue({ data: mockAssumptions });
 
       const rules = await connector.extractRules({});
 
@@ -158,13 +167,13 @@ describe('CaptivateIQConnector', () => {
         { tier: 'Tier 2', rate: 0.15 },
       ];
 
-      mockClientInstance.listPlans.mockResolvedValue({ data: mockPlans });
-      mockClientInstance.fetchAllPages.mockImplementation((page: { data?: unknown[] }) =>
+      vi.spyOn(mockClientInstance, 'listPlans').mockResolvedValue({ data: mockPlans });
+      vi.spyOn(mockClientInstance, 'fetchAllPages').mockImplementation((page: { data?: unknown[] }) =>
         Promise.resolve(page.data || [])
       );
-      mockClientInstance.listWorkbooks.mockResolvedValue({ data: mockWorkbooks });
-      mockClientInstance.listWorksheets.mockResolvedValue({ data: mockWorksheets });
-      mockClientInstance.listWorksheetRecords.mockResolvedValue({ data: mockRecords });
+      vi.spyOn(mockClientInstance, 'listWorkbooks').mockResolvedValue({ data: mockWorkbooks });
+      vi.spyOn(mockClientInstance, 'listWorksheets').mockResolvedValue({ data: mockWorksheets });
+      vi.spyOn(mockClientInstance, 'listWorksheetRecords').mockResolvedValue({ data: mockRecords });
 
       const rules = await connector.extractRules({});
 
@@ -181,11 +190,11 @@ describe('CaptivateIQConnector', () => {
         { id: 'payout-2', name: 'Q2 Commission' },
       ];
 
-      mockClientInstance.listPlans.mockResolvedValue({ data: mockPlans });
-      mockClientInstance.fetchAllPages.mockImplementation((page: { data?: unknown[] }) =>
+      vi.spyOn(mockClientInstance, 'listPlans').mockResolvedValue({ data: mockPlans });
+      vi.spyOn(mockClientInstance, 'fetchAllPages').mockImplementation((page: { data?: unknown[] }) =>
         Promise.resolve(page.data || [])
       );
-      mockClientInstance.listPayoutWorksheets.mockResolvedValue({ data: mockPayouts });
+      vi.spyOn(mockClientInstance, 'listPayoutWorksheets').mockResolvedValue({ data: mockPayouts });
 
       const rules = await connector.extractRules({});
 
@@ -204,13 +213,13 @@ describe('CaptivateIQConnector', () => {
     it('should list all available plans', async () => {
       const mockPlans = [{ id: 'plan-1', name: 'Sales Plan 2024' }];
 
-      mockClientInstance.listPlans.mockResolvedValue({ data: mockPlans });
-      mockClientInstance.fetchAllPages.mockImplementation((page: { data?: unknown[] }) =>
+      vi.spyOn(mockClientInstance, 'listPlans').mockResolvedValue({ data: mockPlans });
+      vi.spyOn(mockClientInstance, 'fetchAllPages').mockImplementation((page: { data?: unknown[] }) =>
         Promise.resolve(page.data || [])
       );
 
       // Connect first
-      mockClientInstance.getOrganization.mockResolvedValue({ data: [{ name: 'Test' }] });
+      vi.spyOn(mockClientInstance, 'getOrganization').mockResolvedValue({ data: [{ name: 'Test' }] });
       await connector.connect({ apiKey: 'test-token' });
 
       const plans = await connector.listPlans();
@@ -223,7 +232,7 @@ describe('CaptivateIQConnector', () => {
 
   describe('disconnect', () => {
     it('should clear the client on disconnect', async () => {
-      mockClientInstance.getOrganization.mockResolvedValue({ data: [{ name: 'Test' }] });
+      vi.spyOn(mockClientInstance, 'getOrganization').mockResolvedValue({ data: [{ name: 'Test' }] });
       await connector.connect({ apiKey: 'test-token' });
 
       await connector.disconnect();
