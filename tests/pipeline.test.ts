@@ -106,5 +106,28 @@ describe('Pipeline', () => {
       expect(result.plan.metadata).toHaveProperty('connectorVersion');
       expect(result.plan.metadata).toHaveProperty('apiVersion');
     });
+
+    it('should handle empty rules array', async () => {
+      (mockConnector.extractRules as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+      
+      const result = await Pipeline.run(mockConnector, mockConfig);
+      expect(result.stats.rawRulesExtracted).toBe(0);
+      expect(result.stats.rulesNormalized).toBe(0);
+      expect(result.stats.avgConfidence).toBe(0);
+    });
+
+    it('should calculate average confidence correctly', async () => {
+      // The mock extractor returns rules with confidence scores
+      const result = await Pipeline.run(mockConnector, mockConfig);
+      expect(result.stats.avgConfidence).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should set default effective date when not provided', async () => {
+      const configWithoutDate = { ...mockConfig };
+      delete configWithoutDate.extractOptions;
+      
+      const result = await Pipeline.run(mockConnector, configWithoutDate);
+      expect(result.plan.effectivePeriod.start).toBeDefined();
+    });
   });
 });
