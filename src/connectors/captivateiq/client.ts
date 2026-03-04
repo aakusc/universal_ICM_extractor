@@ -237,7 +237,18 @@ export class CaptivateIQClient {
   }
 
   private async getAbsolute<T>(url: string): Promise<T> {
-    const response = await fetch(url, {
+    // CaptivateIQ pagination returns relative URLs like /ciq/v1/employees/?limit=50&offset=50
+    // Resolve them against the base URL origin
+    let absoluteUrl = url;
+    if (url.startsWith('/')) {
+      try {
+        const origin = new URL(this.baseUrl).origin;
+        absoluteUrl = origin + url;
+      } catch {
+        absoluteUrl = url;
+      }
+    }
+    const response = await fetch(absoluteUrl, {
       method: 'GET',
       headers: {
         Accept: 'application/json',
