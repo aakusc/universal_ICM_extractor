@@ -72,9 +72,12 @@ export function getInterpreterConfig(): IInterpreterConfig {
     };
   }
 
-  throw new Error(
-    'No AI provider configured. Set ANTHROPIC_API_KEY, AICR_GATEWAY_URL+AICR_API_KEY, or OPENAI_API_KEY.'
-  );
+  // Fallback to Claude CLI (no API key needed — extractor spawns CLI directly)
+  return {
+    provider: 'claude',
+    apiKey: '',
+    model: 'claude-opus-4-6',
+  };
 }
 
 function requireEnv(key: string): string {
