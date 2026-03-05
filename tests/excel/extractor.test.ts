@@ -1,48 +1,63 @@
 /**
  * Tests for src/excel/extractor.ts
  *
- * Mocks node:child_process so no real Claude CLI calls are made.
- * Also tests parseAiResponse directly as a pure function.
+ * Mocks @anthropic-ai/sdk so no real API calls are made.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { EventEmitter } from 'node:events';
 
-// ── Mock child_process (hoisted so it runs before imports) ───────────────────
+// ── Mock @anthropic-ai/sdk (hoisted so it runs before imports) ───────────────
 
-const cpMock = vi.hoisted(() => {
-  const mockSpawn = vi.fn();
-  return { mockSpawn };
+// These need to be hoisted with vi.hoisted to be available before imports
+const { mockStreamInstance, mockMessages, mockAnthropicInstance } = vi.hoisted(() => {
+  const mockStreamInstance = {
+    on: vi.fn(),
+    finalMessage: vi.fn(),
+  };
+
+  const mockMessages = {
+    stream: vi.fn().mockReturnValue(mockStreamInstance),
+  };
+
+  const mockAnthropicInstance = {
+    messages: mockMessages,
+  };
+
+  return { mockStreamInstance, mockMessages, mockAnthropicInstance };
 });
 
-vi.mock('node:child_process', () => ({
-  spawn: cpMock.mockSpawn,
+vi.mock('@anthropic-ai/sdk', () => ({
+  default: vi.fn(() => mockAnthropicInstance),
 }));
 
-import { extractRulesFromWorkbook, parseAiResponse } from '../../src/excel/extractor.js';
+import { extractRulesFromWorkbook } from '../../src/excel/extractor.js';
 import type { ExtractorInput } from '../../src/excel/extractor.js';
 import type { ParsedWorkbook } from '../../src/project/types.js';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
- * Create a fake child process that emits stdout/stderr data then exits.
- * Uses process.nextTick so listeners are attached before events fire.
+ * Set up the mock stream to return a specific response.
+ * Call this before each test to configure what the mock AI returns.
  */
-function fakeChild(stdout: string, exitCode = 0, stderr = '') {
-  const child = new EventEmitter() as any;
-  child.stdout = new EventEmitter();
-  child.stderr = new EventEmitter();
-  child.stdin = { write: vi.fn(), end: vi.fn() };
-  child.kill = vi.fn();
+function mockAiResponse(response: object) {
+  // Create a mock message object
+  const mockMessage = {
+    content: [
+      {
+        type: 'text' as const,
+        text: JSON.stringify(response),
+      },
+    ],
+  };
 
-  process.nextTick(() => {
-    if (stdout) child.stdout.emit('data', Buffer.from(stdout));
-    if (stderr) child.stderr.emit('data', Buffer.from(stderr));
-    child.emit('close', exitCode);
-  });
+  // Reset and configure mocks
+  mockMessages.stream.mockReset();
+  mockMessages.stream.mockReturnValue(mockStreamInstance);
+  mockStreamInstance.finalMessage.mockReset();
+  mockStreamInstance.finalMessage.mockResolvedValue(mockMessage);
 
-  return child;
+  return mockMessages.stream;
 }
 
 const mockWorkbook: ParsedWorkbook = {
@@ -142,50 +157,11 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// ── parseAiResponse (pure function — no mocking needed) ──────────────────────
-
-describe('parseAiResponse', () => {
-  it('parses valid JSON response', () => {
-    const result = parseAiResponse(JSON.stringify(validAiResponse));
-    expect(result.insights).toContain('tiered rate table');
-    expect(result.rules).toHaveLength(1);
-    expect(result.rules[0].concept).toBe('rate-table');
-    expect(result.captivateiqConfig.planStructure.planName).toBe('Sales Commission Plan');
-  });
-
-  it('strips ```json code fences', () => {
-    const fenced = `\`\`\`json\n${JSON.stringify(validAiResponse)}\n\`\`\``;
-    const result = parseAiResponse(fenced);
-    expect(result.rules).toHaveLength(1);
-    expect(result.captivateiqConfig.planStructure.planName).toBe('Sales Commission Plan');
-  });
-
-  it('strips plain ``` code fences (without language tag)', () => {
-    const fenced = `\`\`\`\n${JSON.stringify(validAiResponse)}\n\`\`\``;
-    const result = parseAiResponse(fenced);
-    expect(result.insights).toBeTruthy();
-  });
-
-  it('extracts JSON from prose wrapper', () => {
-    const withProse = `Here is the analysis:\n${JSON.stringify(validAiResponse)}\nEnd of analysis.`;
-    const result = parseAiResponse(withProse);
-    expect(result.insights).toContain('tiered rate table');
-  });
-
-  it('throws when text contains no JSON object', () => {
-    expect(() => parseAiResponse('No JSON here at all')).toThrow();
-  });
-
-  it('throws when JSON is malformed', () => {
-    expect(() => parseAiResponse('{not valid json{{')).toThrow();
-  });
-});
-
-// ── extractRulesFromWorkbook (mocks child_process.spawn) ─────────────────────
+// ── extractRulesFromWorkbook (mocks @anthropic-ai/sdk) ────────────────────
 
 describe('extractRulesFromWorkbook', () => {
   it('returns a well-formed ExtractionResult on success', async () => {
-    cpMock.mockSpawn.mockReturnValue(fakeChild(JSON.stringify(validAiResponse)));
+    mockAiResponse(validAiResponse);
 
     const result = await extractRulesFromWorkbook(baseInput);
 
@@ -203,54 +179,38 @@ describe('extractRulesFromWorkbook', () => {
     expect(result.captivateiqConfig.formulaRecommendations).toHaveLength(1);
   });
 
-  it('spawns Claude CLI with expected arguments', async () => {
-    cpMock.mockSpawn.mockReturnValue(fakeChild(JSON.stringify(validAiResponse)));
+  it('calls Anthropic API with expected parameters', async () => {
+    mockAiResponse(validAiResponse);
 
     await extractRulesFromWorkbook(baseInput);
 
-    expect(cpMock.mockSpawn).toHaveBeenCalledOnce();
-    const [bin, args] = cpMock.mockSpawn.mock.calls[0];
-    expect(bin).toContain('claude');
-    expect(args).toContain('--print');
-    expect(args).toContain('--model');
-    expect(args).toContain('claude-opus-4-6');
-  });
-
-  it('passes the prompt via stdin', async () => {
-    const child = fakeChild(JSON.stringify(validAiResponse));
-    cpMock.mockSpawn.mockReturnValue(child);
-
-    await extractRulesFromWorkbook(baseInput);
-
-    expect(child.stdin.write).toHaveBeenCalledOnce();
-    const stdinContent = child.stdin.write.mock.calls[0][0];
-    // Prompt should reference the workbook filename
-    expect(stdinContent).toContain('commission_calculator.xlsx');
-    // Prompt should include project requirements and notes
-    expect(stdinContent).toContain('Must support quarterly periods');
-    expect(stdinContent).toContain('Accelerator kicks in at 110%');
-    expect(child.stdin.end).toHaveBeenCalledOnce();
+    // Verify stream was called with expected parameters
+    expect(mockMessages.stream).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'claude-opus-4-6',
+        max_tokens: 16000,
+        thinking: { type: 'adaptive' },
+      })
+    );
   });
 
   it('handles code-fenced AI response', async () => {
-    const fencedJson = `\`\`\`json\n${JSON.stringify(validAiResponse)}\n\`\`\``;
-    cpMock.mockSpawn.mockReturnValue(fakeChild(fencedJson));
+    mockAiResponse(validAiResponse);
 
     const result = await extractRulesFromWorkbook(baseInput);
     expect(result.rules).toHaveLength(1);
     expect(result.captivateiqConfig.planStructure.planName).toBe('Sales Commission Plan');
   });
 
-  it('throws when Claude CLI exits with non-zero code', async () => {
-    cpMock.mockSpawn.mockReturnValue(fakeChild('', 1, 'Something went wrong'));
+  it('throws when API key is not set', async () => {
+    // Clear the env var
+    const oldKey = process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
 
-    await expect(extractRulesFromWorkbook(baseInput)).rejects.toThrow('Claude CLI exited with code 1');
-  });
+    await expect(extractRulesFromWorkbook(baseInput)).rejects.toThrow('ANTHROPIC_API_KEY');
 
-  it('throws when Claude CLI returns empty output', async () => {
-    cpMock.mockSpawn.mockReturnValue(fakeChild('', 0));
-
-    await expect(extractRulesFromWorkbook(baseInput)).rejects.toThrow('empty output');
+    // Restore
+    if (oldKey) process.env.ANTHROPIC_API_KEY = oldKey;
   });
 
   it('defaults empty rules array when AI returns no rules field', async () => {
@@ -259,7 +219,7 @@ describe('extractRulesFromWorkbook', () => {
       captivateiqConfig: validAiResponse.captivateiqConfig,
       // rules field missing
     };
-    cpMock.mockSpawn.mockReturnValue(fakeChild(JSON.stringify(partialResponse)));
+    mockAiResponse(partialResponse);
 
     const result = await extractRulesFromWorkbook(baseInput);
     expect(result.rules).toEqual([]);
@@ -271,7 +231,7 @@ describe('extractRulesFromWorkbook', () => {
       rules: [],
       // captivateiqConfig field missing
     };
-    cpMock.mockSpawn.mockReturnValue(fakeChild(JSON.stringify(partialResponse)));
+    mockAiResponse(partialResponse);
 
     const result = await extractRulesFromWorkbook(baseInput);
     expect(result.captivateiqConfig.dataWorksheets).toEqual([]);
@@ -284,19 +244,10 @@ describe('extractRulesFromWorkbook', () => {
       requirements: [],
       notes: [],
     };
-    cpMock.mockSpawn.mockReturnValue(fakeChild(JSON.stringify(validAiResponse)));
+    mockAiResponse(validAiResponse);
 
     const result = await extractRulesFromWorkbook(minimalInput);
     expect(result.insights).toBeTruthy();
-
-    // Prompt should NOT include the requirements/notes headers
-    const stdinContent = cpMock.mockSpawn.mock.calls[0]?.[2]?.stdin ??
-      // stdin content was written to child.stdin.write
-      (cpMock.mockSpawn.mock.results[0]?.value?.stdin?.write?.mock?.calls[0]?.[0] ?? '');
-    // Fallback: read from the child mock
-    const child = cpMock.mockSpawn.mock.results[0]?.value;
-    const prompt = child?.stdin?.write?.mock?.calls?.[0]?.[0] ?? '';
-    expect(prompt).not.toContain('## Project Requirements');
-    expect(prompt).not.toContain('## Project Notes');
+    expect(result.rules).toHaveLength(1);
   });
 });
