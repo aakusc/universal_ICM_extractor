@@ -123,3 +123,16 @@
 - The concept-extractor.ts `interpretSingleRule()` remains stubbed (returns empty concepts, confidence 0)
 - User copies raw extraction JSON output and interprets with their own AI externally
 - CaptivateIQ API does NOT expose SmartGrid formula definitions — AI must infer rule concepts from data patterns (quotas, territories, payout schedules, role attributes)
+
+### 2026-03-03 — Multi-Format Bulk Processing (v2)
+- **Major revision**: Platform now accepts ALL document types, not just Excel
+- Added document parser (`src/documents/parser.ts`): supports PDF, Word (.docx), CSV, text files
+- New dependencies: `pdf-parse` (PDF text extraction), `mammoth` (Word doc extraction)
+- **Bulk "Process All" mode**: Single button feeds all project files (Excel + documents) into one Claude Opus call for cross-referencing
+- **Excel output**: New exporter (`src/excel/exporter.ts`) generates consolidated multi-sheet Excel workbook with Summary, Rules, Data Worksheets, Employee Assumptions, Attribute Worksheets, Formula Logic, CIQ Build Guide, and Insights sheets
+- **CaptivateIQ Build Document**: New generator (`src/generators/build-document.ts`) produces formatted implementation guide with step-by-step instructions
+- Updated file model with `category` field (excel | document | csv | unknown) for pipeline routing
+- Back-compatibility: existing files without `category` default to 'excel'
+- Dashboard UI overhauled: multi-format drag-drop upload, "Process All" banner, download bar (Excel, Build Guide, JSON), full results view
+- New API endpoints: `POST /process-all`, `GET /export-excel`, `GET /build-document`
+- TypeScript compiles clean, dashboard verified running on port 3847

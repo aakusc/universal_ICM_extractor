@@ -221,13 +221,22 @@ async function extractFile(args: string[]): Promise<void> {
   const requirements = store.listRequirements(projectId);
   const notes = store.listNotes(projectId);
 
-  const result = await extractRulesFromWorkbook({
-    projectId,
-    fileId,
-    workbook,
-    requirements: requirements.map((r) => ({ text: r.text, priority: r.priority })),
-    notes: notes.map((n) => ({ text: n.text, createdAt: n.createdAt })),
-  });
+  let result;
+  try {
+    result = await extractRulesFromWorkbook({
+      projectId,
+      fileId,
+      workbook,
+      requirements: requirements.map((r) => ({ text: r.text, priority: r.priority })),
+      notes: notes.map((n) => ({ text: n.text, createdAt: n.createdAt })),
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`\n  ✗ AI extraction failed: ${msg}`);
+    console.error(`    This may be due to a network error, API quota limit, or invalid API key.`);
+    console.error(`    Check your ANTHROPIC_API_KEY environment variable and try again.\n`);
+    process.exit(1);
+  }
 
   store.saveExtraction(result);
 
@@ -318,7 +327,7 @@ function exportPayloads(args: string[]): void {
   }
 
   let payloads;
-  let label: string;
+  let label = 'unknown';
 
   if (fileId) {
     // Export single-file generation
@@ -347,7 +356,6 @@ function exportPayloads(args: string[]): void {
         console.error(`No generated payloads found. Run 'generate' or 'aggregate' first.`);
         process.exit(1);
       }
-      label = label!;
     }
   }
 

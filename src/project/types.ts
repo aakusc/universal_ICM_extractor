@@ -17,6 +17,10 @@ export interface Project {
   updatedAt: string;
 }
 
+// ── File Categories ───────────────────────────────────────────
+
+export type FileCategory = 'excel' | 'document' | 'csv' | 'unknown';
+
 // ── Files ─────────────────────────────────────────────────────
 
 export interface ProjectFile {
@@ -29,6 +33,8 @@ export interface ProjectFile {
   uploadedAt: string;
   parsedAt?: string;
   parseError?: string;
+  /** File category for processing pipeline routing */
+  category: FileCategory;
 }
 
 // ── Context: Requirements & Notes ─────────────────────────────
@@ -140,6 +146,7 @@ export interface StoreData {
   files: ProjectFile[];
   requirements: Requirement[];
   notes: Note[];
+  profiles: Array<{ id: string; name: string; description?: string; createdAt: string }>;
   extractionMeta: Array<{
     id: string;
     projectId: string;

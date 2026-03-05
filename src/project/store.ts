@@ -22,19 +22,20 @@ const STORE_FILE = path.join(DATA_DIR, 'store.json');
 const FILES_DIR = path.join(DATA_DIR, 'files');
 const EXTRACTIONS_DIR = path.join(DATA_DIR, 'extractions');
 const GENERATIONS_DIR = path.join(DATA_DIR, 'generations');
+const PROFILES_DIR = path.join(DATA_DIR, 'profiles');
 
 const EMPTY_STORE: StoreData = {
-  projects: [], files: [], requirements: [], notes: [], extractionMeta: [],
+  projects: [], files: [], requirements: [], notes: [], profiles: [], extractionMeta: [],
 };
 
 function ensureDirs(): void {
-  for (const dir of [DATA_DIR, FILES_DIR, EXTRACTIONS_DIR, GENERATIONS_DIR]) {
+  for (const dir of [DATA_DIR, FILES_DIR, EXTRACTIONS_DIR, GENERATIONS_DIR, PROFILES_DIR]) {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   }
 }
 
 function emptyStore(): StoreData {
-  return { projects: [], files: [], requirements: [], notes: [], extractionMeta: [] };
+  return { projects: [], files: [], requirements: [], notes: [], profiles: [], extractionMeta: [] };
 }
 
 function readStore(): StoreData {
@@ -42,7 +43,8 @@ function readStore(): StoreData {
   if (!fs.existsSync(STORE_FILE)) return emptyStore();
   try {
     return JSON.parse(fs.readFileSync(STORE_FILE, 'utf-8')) as StoreData;
-  } catch {
+  } catch (err) {
+    console.warn(`[store] ⚠ store.json is corrupt — returning empty store. Data may appear missing.`, err);
     return emptyStore();
   }
 }
@@ -127,18 +129,23 @@ export function deleteProject(id: string): boolean {
 // ── Files ─────────────────────────────────────────────────────
 
 export function listFiles(projectId: string): ProjectFile[] {
-  return readStore().files.filter((f) => f.projectId === projectId);
+  return readStore().files
+    .filter((f) => f.projectId === projectId)
+    .map((f) => ({ ...f, category: f.category || ('excel' as const) })); // Back-compat for pre-v2 files
 }
 
 export function getFile(id: string): ProjectFile | undefined {
-  return readStore().files.find((f) => f.id === id);
+  const f = readStore().files.find((f) => f.id === id);
+  if (f && !f.category) f.category = 'excel'; // Back-compat
+  return f;
 }
 
 export function saveFile(
   projectId: string,
   originalName: string,
   buffer: Buffer,
-  mimeType: string
+  mimeType: string,
+  category: import('./types.js').FileCategory = 'excel',
 ): ProjectFile {
   ensureDirs();
   const id = generateId();
@@ -155,6 +162,7 @@ export function saveFile(
     mimeType,
     size: buffer.length,
     uploadedAt: new Date().toISOString(),
+    category,
   };
   store.files.push(file);
   writeStore(store);
@@ -286,7 +294,8 @@ export function getExtraction(projectId: string, fileId: string): ExtractionResu
   if (!fs.existsSync(ep)) return null;
   try {
     return JSON.parse(fs.readFileSync(ep, 'utf-8')) as ExtractionResult;
-  } catch {
+  } catch (err) {
+    console.warn(`[store] ⚠ Corrupt extraction file: ${meta.id}.json (project=${projectId}, file=${fileId})`, err);
     return null;
   }
 }
@@ -321,7 +330,8 @@ export function getGeneration(
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as CaptivateIQApiPayloads;
-  } catch {
+  } catch (err) {
+    console.warn(`[store] ⚠ Corrupt generation file: ${projectId}-${fileId}.json`, err);
     return null;
   }
 }
@@ -336,14 +346,23 @@ export function getProjectExtractions(projectId: string): ExtractionResult[] {
   const store = readStore();
   const metas = store.extractionMeta.filter((e) => e.projectId === projectId);
   const results: ExtractionResult[] = [];
+  let skipped = 0;
   for (const meta of metas) {
     const ep = path.join(EXTRACTIONS_DIR, `${meta.id}.json`);
-    if (!fs.existsSync(ep)) continue;
+    if (!fs.existsSync(ep)) {
+      console.warn(`[store] ⚠ Extraction file missing: ${meta.id}.json (file=${meta.fileId})`);
+      skipped++;
+      continue;
+    }
     try {
       results.push(JSON.parse(fs.readFileSync(ep, 'utf-8')) as ExtractionResult);
-    } catch {
-      // skip corrupt file
+    } catch (err) {
+      console.warn(`[store] ⚠ Corrupt extraction file: ${meta.id}.json (file=${meta.fileId})`, err);
+      skipped++;
     }
+  }
+  if (skipped > 0) {
+    console.warn(`[store] ⚠ Skipped ${skipped}/${metas.length} extraction(s) for project=${projectId} — files missing or corrupt`);
   }
   return results;
 }
@@ -377,7 +396,191 @@ export function getAggregatedGeneration(
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as SavedAggregation;
-  } catch {
+  } catch (err) {
+    console.warn(`[store] ⚠ Corrupt aggregation file: ${projectId}-aggregated.json`, err);
+    return null;
+  }
+}
+
+
+// ── Profiles ──────────────────────────────────────────────────
+
+export function listProfiles(): StoreData['profiles'] {
+  return readStore().profiles || [];
+}
+
+export function getProfile(id: string): unknown | null {
+  const p = path.join(PROFILES_DIR, id + '.json');
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8'));
+  } catch (err) {
+    console.warn('[store] Corrupt profile file:', id, err);
+    return null;
+  }
+}
+
+export function saveProfile(name: string, description: string | undefined, data: unknown): { id: string; name: string; description?: string; createdAt: string } {
+  ensureDirs();
+  const store = readStore();
+  if (!store.profiles) store.profiles = [];
+  const id = generateId();
+  const meta = { id, name, description, createdAt: new Date().toISOString() };
+  fs.writeFileSync(path.join(PROFILES_DIR, id + '.json'), JSON.stringify(data, null, 2));
+  store.profiles.push(meta);
+  writeStore(store);
+  return meta;
+}
+
+export function deleteProfile(id: string): boolean {
+  const store = readStore();
+  if (!store.profiles) store.profiles = [];
+  const before = store.profiles.length;
+  store.profiles = store.profiles.filter(p => p.id !== id);
+  const fp = path.join(PROFILES_DIR, id + '.json');
+  if (fs.existsSync(fp)) fs.unlinkSync(fp);
+  writeStore(store);
+  return store.profiles.length < before;
+}
+
+// ── Pipeline Intermediate Results ─────────────────────────
+// Stored under data/pipeline/{projectId}/
+
+import type {
+  FileExtractionResult,
+  SynthesisResult,
+  ValidationResult,
+  PipelineStatus,
+} from '../pipeline/types.js';
+
+const PIPELINE_DIR = path.join(DATA_DIR, 'pipeline');
+
+function pipelineDir(projectId: string): string {
+  const dir = path.join(PIPELINE_DIR, projectId);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+function pass1Dir(projectId: string): string {
+  const dir = path.join(pipelineDir(projectId), 'pass1');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+export function saveFileExtractionResult(projectId: string, fileId: string, result: FileExtractionResult): void {
+  fs.writeFileSync(path.join(pass1Dir(projectId), `${fileId}.json`), JSON.stringify(result, null, 2));
+}
+
+export function loadFileExtractionResult(projectId: string, fileId: string): FileExtractionResult | null {
+  const p = path.join(pass1Dir(projectId), `${fileId}.json`);
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8')) as FileExtractionResult;
+  } catch (err) {
+    console.warn(`[store] ⚠ Corrupt pass1 file: ${fileId}.json`, err);
+    return null;
+  }
+}
+
+export function loadAllFileExtractionResults(projectId: string): FileExtractionResult[] {
+  const dir = path.join(PIPELINE_DIR, projectId, 'pass1');
+  if (!fs.existsSync(dir)) return [];
+  const results: FileExtractionResult[] = [];
+  for (const file of fs.readdirSync(dir)) {
+    if (!file.endsWith('.json')) continue;
+    try {
+      results.push(JSON.parse(fs.readFileSync(path.join(dir, file), 'utf-8')) as FileExtractionResult);
+    } catch (err) {
+      console.warn(`[store] ⚠ Corrupt pass1 file: ${file}`, err);
+    }
+  }
+  return results;
+}
+
+export function saveSynthesisResult(projectId: string, result: SynthesisResult): void {
+  fs.writeFileSync(path.join(pipelineDir(projectId), 'pass2.json'), JSON.stringify(result, null, 2));
+}
+
+export function loadSynthesisResult(projectId: string): SynthesisResult | null {
+  const p = path.join(PIPELINE_DIR, projectId, 'pass2.json');
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8')) as SynthesisResult;
+  } catch (err) {
+    console.warn(`[store] ⚠ Corrupt pass2 file`, err);
+    return null;
+  }
+}
+
+export function saveValidationResult(projectId: string, result: ValidationResult): void {
+  fs.writeFileSync(path.join(pipelineDir(projectId), 'pass3.json'), JSON.stringify(result, null, 2));
+}
+
+export function loadValidationResult(projectId: string): ValidationResult | null {
+  const p = path.join(PIPELINE_DIR, projectId, 'pass3.json');
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8')) as ValidationResult;
+  } catch (err) {
+    console.warn(`[store] ⚠ Corrupt pass3 file`, err);
+    return null;
+  }
+}
+
+export function savePipelineStatus(projectId: string, status: PipelineStatus): void {
+  fs.writeFileSync(path.join(pipelineDir(projectId), 'status.json'), JSON.stringify(status, null, 2));
+}
+
+export function loadPipelineStatus(projectId: string): PipelineStatus | null {
+  const p = path.join(PIPELINE_DIR, projectId, 'status.json');
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8')) as PipelineStatus;
+  } catch (err) {
+    console.warn(`[store] ⚠ Corrupt pipeline status file`, err);
+    return null;
+  }
+}
+
+export function clearPipelineResults(projectId: string): void {
+  const dir = path.join(PIPELINE_DIR, projectId);
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+// ── Completeness Results ──────────────────────────────────
+import type { CompletenessResult } from '../pipeline/types.js';
+
+export function saveCompletenessResult(projectId: string, result: CompletenessResult): void {
+  fs.writeFileSync(path.join(pipelineDir(projectId), 'completeness.json'), JSON.stringify(result, null, 2));
+}
+
+export function loadCompletenessResult(projectId: string): CompletenessResult | null {
+  const p = path.join(PIPELINE_DIR, projectId, 'completeness.json');
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8')) as CompletenessResult;
+  } catch (err) {
+    console.warn(`[store] Corrupt completeness file`, err);
+    return null;
+  }
+}
+
+// ── Plan Test Results ─────────────────────────────────────
+import type { PlanTestResult } from '../pipeline/plan-tester-types.js';
+
+export function savePlanTestResult(projectId: string, result: PlanTestResult): void {
+  fs.writeFileSync(path.join(pipelineDir(projectId), 'plan-test.json'), JSON.stringify(result, null, 2));
+}
+
+export function loadPlanTestResult(projectId: string): PlanTestResult | null {
+  const p = path.join(PIPELINE_DIR, projectId, 'plan-test.json');
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8')) as PlanTestResult;
+  } catch (err) {
+    console.warn(`[store] Corrupt plan-test file`, err);
     return null;
   }
 }

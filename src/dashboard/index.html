@@ -158,6 +158,57 @@
     .drop-zone input[type=file] { display: none; }
     .drop-icon { font-size: 26px; margin-bottom: 6px; }
 
+    /* ── Process All Banner ─────────────────────────── */
+    .process-banner {
+      background: linear-gradient(135deg, rgba(88,166,255,0.08), rgba(188,140,255,0.08));
+      border: 1px solid rgba(88,166,255,0.25); border-radius: var(--radius);
+      padding: 16px 18px; display: flex; align-items: center; gap: 14px;
+    }
+    .process-banner .pb-icon { font-size: 28px; flex-shrink: 0; }
+    .process-banner .pb-text { flex: 1; }
+    .process-banner .pb-title { font-size: 14px; font-weight: 700; color: var(--fg); margin-bottom: 3px; }
+    .process-banner .pb-sub { font-size: 12px; color: var(--muted); }
+    .btn-process {
+      background: linear-gradient(135deg, var(--primary), var(--purple));
+      color: #fff; border: none; font: inherit; font-size: 13px; font-weight: 700;
+      padding: 8px 18px; border-radius: var(--radius-sm); cursor: pointer;
+      transition: opacity 0.12s; flex-shrink: 0;
+    }
+    .btn-process:hover { opacity: 0.85; }
+    .btn-process:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── Output Downloads ─────────────────────────────── */
+    .output-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 14px;
+      border-top: 1px solid var(--border); background: var(--bg3);
+    }
+    .btn-download {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--success-dim); color: var(--success); border: 1px solid rgba(63,185,80,0.3);
+      font: inherit; font-size: 12px; font-weight: 600;
+      padding: 6px 12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.12s;
+    }
+    .btn-download:hover { background: rgba(63,185,80,0.2); }
+    .btn-download.purple { background: rgba(188,140,255,0.12); color: var(--purple); border-color: rgba(188,140,255,0.3); }
+    .btn-download.purple:hover { background: rgba(188,140,255,0.2); }
+    .btn-download.blue { background: var(--primary-dim); color: var(--primary); border-color: rgba(88,166,255,0.3); }
+    .btn-download.blue:hover { background: rgba(88,166,255,0.2); }
+
+    /* ── Processing Progress ──────────────────────────── */
+    .process-progress {
+      background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px; margin-bottom: 12px;
+    }
+    .pp-stage { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+    .pp-stage .pp-check { color: var(--success); flex-shrink: 0; }
+    .pp-stage .pp-spin { flex-shrink: 0; }
+    .pp-stage.done { color: var(--fg2); }
+    .pp-stage.active { color: var(--primary); font-weight: 500; }
+    .pp-stage.pending { color: var(--muted); }
+
+    /* ── Build Document View ──────────────────────────── */
+    .build-doc { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-size: 13px; color: var(--fg2); line-height: 1.7; }
+
     .file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
     .file-item {
       display: flex; align-items: center; gap: 8px;
@@ -307,6 +358,8 @@
       Builder <span class="live-dot"></span>
     </button>
     <button class="tab-btn" onclick="switchTab('connector')" id="tbtn-connector">API Connector</button>
+    <button class="tab-btn" onclick="switchTab('tester')" id="tbtn-tester">Rule Tester</button>
+    <button class="tab-btn" onclick="switchTab('compare')" id="tbtn-compare">Compare</button>
   </nav>
 </header>
 
@@ -371,13 +424,155 @@
 
 </div>
 
-<div class="toast-wrap" id="toasts"></div>
+<div class="toast-wrap" id="toasts">
+
+  <!-- ── RULE TESTER ──────────────────────────────── -->
+  <div class="tab-panel" id="panel-tester">
+    <div style="flex:1;overflow-y:auto;padding:24px;max-width:900px;margin:0 auto;width:100%">
+      <div style="font-size:18px;font-weight:700;color:var(--fg);margin-bottom:16px">Rule Tester</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px">
+        Compare a live CaptivateIQ instance against your generated build plan.
+      </div>
+
+      <!-- Project selector -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-body" style="padding:14px">
+          <div style="font-size:12px;font-weight:600;color:var(--fg);margin-bottom:8px">Project</div>
+          <select id="tester-project" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg);font-family:var(--font);font-size:13px" onchange="testerProjectChanged()">
+            <option value="">Select a project with pipeline results...</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- CIQ Connection -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-body" style="padding:14px">
+          <div style="font-size:12px;font-weight:600;color:var(--fg);margin-bottom:8px">CaptivateIQ Connection</div>
+          <div style="margin-bottom:8px">
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">API Token</label>
+            <input type="password" id="tester-token" placeholder="Enter CaptivateIQ API token" 
+              style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg);font-family:var(--mono);font-size:12px">
+          </div>
+          <div style="margin-bottom:12px">
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Base URL</label>
+            <input type="text" id="tester-url" value="https://api.captivateiq.com/ciq/v1" 
+              style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg);font-family:var(--mono);font-size:12px">
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost" onclick="testCiqConnection()" id="btn-test-conn">Test Connection</button>
+            <button class="btn btn-ghost" style="border-color:var(--purple);color:var(--purple)" onclick="runCiqExtraction()" id="btn-extract">Extract Config</button>
+            <button class="btn" style="background:var(--primary);color:#000;font-weight:600" onclick="runPlanComparison()" id="btn-compare">Compare to Plan</button>
+          </div>
+          <div id="tester-conn-status" style="margin-top:8px;font-size:11px"></div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <!-- Extraction results -->
+      <div id="extraction-results"></div>
+
+      <!-- Comparison results -->
+      <div id="tester-results"></div>
+    </div>
+  </div>
+
+  <!-- ── COMPARE ──────────────────────────────── -->
+  <div class="tab-panel" id="panel-compare">
+    <div style="flex:1;overflow-y:auto;padding:24px;max-width:1000px;margin:0 auto;width:100%">
+      <div style="font-size:18px;font-weight:700;color:var(--fg);margin-bottom:4px">Compare</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px">
+        Compare a builder project config against a CIQ extraction (offline, no live API needed).
+      </div>
+
+      <!-- Two-column selector -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <!-- LEFT: Builder Project -->
+        <div class="card">
+          <div class="card-body" style="padding:14px">
+            <div style="font-size:12px;font-weight:600;color:var(--fg);margin-bottom:8px">Builder Project</div>
+            <select id="cmp-project" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg);font-family:var(--font);font-size:13px" onchange="cmpProjectChanged()">
+              <option value="">Select a project with pipeline results...</option>
+            </select>
+            <div id="cmp-project-status" style="margin-top:6px;font-size:11px;color:var(--muted)"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: CIQ Extraction -->
+        <div class="card">
+          <div class="card-body" style="padding:14px">
+            <div style="font-size:12px;font-weight:600;color:var(--fg);margin-bottom:8px">CIQ Extraction</div>
+            <div style="display:flex;gap:4px;margin-bottom:10px">
+              <button class="btn btn-ghost" style="font-size:11px;padding:3px 10px" onclick="compareSourceTab('profile')" id="csrc-profile">Load Profile</button>
+              <button class="btn btn-ghost" style="font-size:11px;padding:3px 10px" onclick="compareSourceTab('upload')" id="csrc-upload">Upload JSON</button>
+              <button class="btn btn-ghost" style="font-size:11px;padding:3px 10px" onclick="compareSourceTab('live')" id="csrc-live">Extract Live</button>
+            </div>
+            <!-- Profile sub-panel -->
+            <div id="csrc-panel-profile" style="display:none">
+              <select id="cmp-profile" style="width:100%;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg);font-family:var(--font);font-size:13px" onchange="compareProfileChanged()">
+                <option value="">Select a saved profile...</option>
+              </select>
+              <div style="margin-top:6px;display:flex;gap:6px">
+                <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px;color:var(--error);border-color:var(--error)" onclick="deleteSelectedProfile()" id="btn-del-profile">Delete</button>
+              </div>
+            </div>
+            <!-- Upload sub-panel -->
+            <div id="csrc-panel-upload" style="display:none">
+              <div id="cmp-dropzone" style="border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;transition:border-color 0.15s"
+                ondragover="event.preventDefault();this.style.borderColor='var(--primary)'"
+                ondragleave="this.style.borderColor='var(--border)'"
+                ondrop="event.preventDefault();this.style.borderColor='var(--border)';handleCompareFileDrop(event)"
+                onclick="document.getElementById('cmp-file-input').click()">
+                <div style="font-size:12px;color:var(--muted)">Drop .json file here or click to browse</div>
+                <input type="file" id="cmp-file-input" accept=".json" style="display:none" onchange="handleCompareFileSelect(event)">
+              </div>
+              <div id="cmp-upload-status" style="margin-top:6px;font-size:11px;color:var(--muted)"></div>
+            </div>
+            <!-- Live sub-panel -->
+            <div id="csrc-panel-live" style="display:none">
+              <div style="margin-bottom:6px">
+                <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px">API Token</label>
+                <input type="password" id="cmp-token" placeholder="CIQ API token"
+                  style="width:100%;padding:6px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg);font-family:var(--mono);font-size:11px">
+              </div>
+              <button class="btn btn-ghost" style="font-size:11px;border-color:var(--purple);color:var(--purple)" onclick="compareLiveExtract()" id="btn-cmp-extract">Extract from CIQ</button>
+              <div id="cmp-live-status" style="margin-top:6px;font-size:11px;color:var(--muted)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan Selector -->
+      <div id="cmp-plan-selector" style="display:none">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr">
+            <div class="card-title">Select Plans to Include</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px" onclick="cmpSelectAll(true)">Select All</button>
+              <button class="btn btn-ghost" style="font-size:10px;padding:2px 8px" onclick="cmpSelectAll(false)">Deselect All</button>
+            </div>
+          </div>
+          <div class="card-body" id="cmp-plan-list" style="max-height:300px;overflow-y:auto"></div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div id="cmp-actions" style="display:none;margin-bottom:16px;gap:8px">
+        <button class="btn" style="background:var(--primary);color:#000;font-weight:600" onclick="runOfflineComparison()" id="btn-cmp-run">Compare</button>
+        <button class="btn btn-ghost" style="border-color:var(--purple);color:var(--purple)" onclick="saveAsProfile()" id="btn-save-profile">Save as Profile</button>
+      </div>
+
+      <!-- Results -->
+      <div id="cmp-results"></div>
+    </div>
+  </div>
+
+</div>
 
 <script>
 'use strict';
 
 // ── State ───────────────────────────────────────────
-var S = { projects:[], pid:null, files:[], reqs:[], notes:[], extractions:{}, aggregation:null };
+var S = { projects:[], pid:null, files:[], reqs:[], notes:[], extractions:{}, aggregation:null, processResult:null };
 
 // ── API ─────────────────────────────────────────────
 async function api(method, path, body) {
@@ -402,6 +597,8 @@ function toast(msg, type) {
 function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (name === 'tester') loadTesterProjects();
+  if (name === 'compare') loadCompareData();
   document.getElementById('panel-'+name).classList.add('active');
   document.getElementById('tbtn-'+name).classList.add('active');
 }
@@ -441,9 +638,18 @@ async function loadDetail(id) {
     api('GET','/api/builder/projects/'+id+'/notes'),
   ]);
   S.files = fd.files||[]; S.reqs = rd.requirements||[]; S.notes = nd.notes||[];
-  // Try to load existing aggregation — 404 is fine (not yet run)
-  S.aggregation = null;
-  try { var ag = await api('GET','/api/builder/projects/'+id+'/aggregate'); S.aggregation = ag; } catch(_){}
+  // Load existing results (from previous pipeline run)
+  try {
+    var results = await api('GET','/api/builder/projects/'+id+'/results');
+    if (results && results.extraction) {
+      S.processResult = results;
+      _lastProcessResult = results;
+    } else {
+      if (S.pid !== id) S.processResult = null;
+    }
+  } catch(e) {
+    if (S.pid !== id) S.processResult = null;
+  }
   renderDetail();
 }
 
@@ -462,39 +668,65 @@ function renderDetail() {
       +'</div>'
     +'</div>'
     + renderFilesCard()
+    + renderProcessAllCard()
     + renderReqCard()
     + renderNotesCard()
-    + renderExtCard()
-    + renderAggCard();
+    + renderResultsCard();
 
   bindUpload();
 }
 
+// ── File Icons ──────────────────────────────────────
+function fileIcon(name) {
+  var ext = (name||'').split('.').pop().toLowerCase();
+  var icons = { xlsx:'📊', xls:'📊', xlsm:'📊', csv:'📋', pdf:'📄', docx:'📝', doc:'📝', txt:'📝', md:'📝' };
+  return icons[ext] || '📎';
+}
+
+function fileCategory(name) {
+  var ext = (name||'').split('.').pop().toLowerCase();
+  if (['xlsx','xls','xlsm','xlsb'].indexOf(ext) >= 0) return 'excel';
+  if (ext === 'csv') return 'csv';
+  if (['pdf','docx','doc','txt','md','text','log','notes'].indexOf(ext) >= 0) return 'document';
+  return 'unknown';
+}
+
 // ── Files Card ──────────────────────────────────────
 function renderFilesCard() {
+  var excelCount = 0, docCount = 0;
   var rows = S.files.map(function(f){
+    var cat = f.category || fileCategory(f.originalName);
+    if (cat === 'excel') excelCount++; else docCount++;
     var st = f.parseError ? '<span class="fstatus err">Error</span>'
            : f.parsedAt  ? '<span class="fstatus ok">Ready</span>'
            : '<span class="fstatus pend">Pending</span>';
     var kb = Math.round(f.size/1024);
+    var catLabel = cat === 'excel' ? 'Excel' : cat === 'csv' ? 'CSV' : cat === 'document' ? 'Doc' : 'File';
     return '<div class="file-item">'
-      +'<span class="file-icon">📊</span>'
+      +'<span class="file-icon">'+fileIcon(f.originalName)+'</span>'
       +'<div class="file-info"><div class="file-name">'+esc(f.originalName)+'</div>'
-      +'<div class="file-meta">'+kb+' KB · '+new Date(f.uploadedAt).toLocaleDateString()+'</div></div>'
+      +'<div class="file-meta">'+catLabel+' · '+kb+' KB · '+new Date(f.uploadedAt).toLocaleDateString()+'</div></div>'
       + st
-      +'<button class="btn btn-success" onclick="runExtract(\''+f.id+'\',\''+esc(f.originalName)+'\')">⚡ Extract</button>'
       +'<button class="idel" onclick="delFile(\''+f.id+'\')">✕</button>'
     +'</div>';
   }).join('');
 
+  var summary = '';
+  if (S.files.length > 0) {
+    summary = '<div style="font-size:11px;color:var(--muted);margin-top:6px;margin-bottom:4px">'
+      +excelCount+' spreadsheet(s), '+docCount+' document(s)'
+    +'</div>';
+  }
+
   return '<div class="card">'
-    +'<div class="card-hdr"><div class="card-title">Excel Files <span class="badge">'+S.files.length+'</span></div></div>'
+    +'<div class="card-hdr"><div class="card-title">Project Files <span class="badge">'+S.files.length+'</span></div></div>'
     +'<div class="card-body">'
       +'<label class="drop-zone" id="drop-zone">'
-        +'<input type="file" id="file-in" accept=".xlsx,.xls,.xlsm,.csv" multiple>'
+        +'<input type="file" id="file-in" accept=".xlsx,.xls,.xlsm,.csv,.pdf,.docx,.doc,.txt,.md" multiple>'
         +'<div class="drop-icon">📂</div>'
-        +'Drop Excel files here or click to browse'
+        +'Drop files here — Excel, PDF, Word, CSV, Text'
       +'</label>'
+      + summary
       +(S.files.length ? '<div class="file-list">'+rows+'</div>' : '')
     +'</div></div>';
 }
@@ -606,50 +838,875 @@ async function delNote(id) {
   catch(e){ toast(e.message,'error'); }
 }
 
-// ── Extraction Card ──────────────────────────────────
-function renderExtCard() {
+// ── Process All Card (Multi-Pass Pipeline) ───────────
+function renderProcessAllCard() {
   if (!S.files.length) return '';
-  return '<div class="card" id="ext-card">'
-    +'<div class="card-hdr"><div class="card-title">⚡ AI Extraction → CaptivateIQ Rules</div></div>'
-    +'<div class="card-body" id="ext-body">'
-      +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px">Click <strong style="color:var(--fg2)">⚡ Extract</strong> on any file above to analyze it with Claude Opus. The AI will reverse-engineer the Excel compensation logic into structured CaptivateIQ configurations.</p>'
-      +'<div class="subcard" style="font-size:12px;color:var(--muted)">'
-        +'<strong style="color:var(--fg2)">Extraction output:</strong>'
+  return '<div class="card" id="process-card">'
+    +'<div class="card-body" id="process-body">'
+      +'<div class="process-banner">'
+        +'<div class="pb-icon">⚡</div>'
+        +'<div class="pb-text">'
+          +'<div class="pb-title">Process All Files</div>'
+          +'<div class="pb-sub">Multi-pass AI pipeline: extracts rules per-file, synthesizes across all '+S.files.length+' file(s), '
+          +'validates against source data, then generates CaptivateIQ configuration.</div>'
+        +'</div>'
+        +'<button class="btn-process" id="process-btn" onclick="runProcessAll(false)">🚀 Process All</button>'
+        +'<button class="btn-process" id="reprocess-btn" onclick="runProcessAll(true)" '
+        +'style="background:transparent;border:1px solid var(--border);color:var(--muted);margin-left:6px;font-size:11px;padding:6px 12px">'
+        +'↻ Re-run</button>'
+      +'</div>'
+    +'</div></div>';
+}
+
+// Global ref for results
+var _lastProcessResult = null;
+
+function renderPipelineProgress(fileStatuses, phase, percent, passInfo) {
+  var html = '<div class="process-progress" id="pp-box" style="font-family:var(--mono);font-size:12px;line-height:2">';
+
+  // Pass 1: Per-file status
+  var p1Done = (fileStatuses||[]).filter(function(f){return f.status==='done'}).length;
+  var p1Total = (fileStatuses||[]).length || S.files.length;
+  var p1Active = phase === 'extracting';
+  html += '<div style="font-weight:600;color:'+(p1Active?'var(--primary)':'var(--success)')+'">Pass 1: Per-File Extraction '
+    +(p1Active ? '['+p1Done+'/'+p1Total+']' : (p1Done>0?'✓ '+p1Done+' files':'○'))+'</div>';
+
+  if (fileStatuses && fileStatuses.length > 0) {
+    for (var i=0; i<fileStatuses.length; i++) {
+      var f = fileStatuses[i];
+      var icon = f.status==='done' ? '<span style="color:var(--success)">✓</span>'
+        : f.status==='running' ? '<div class="spin" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></div>'
+        : f.status==='error' ? '<span style="color:var(--error)">✗</span>'
+        : '<span style="color:var(--muted)">○</span>';
+      var detail = f.status==='done' ? '<span style="color:var(--muted)">'+f.ruleCount+' rules</span>'
+        : f.status==='running' ? '<span style="color:var(--primary)">extracting...</span>'
+        : f.status==='error' ? '<span style="color:var(--error)">failed</span>'
+        : '';
+      html += '<div style="padding-left:16px">' + icon + ' ' + esc(f.fileName) + ' ' + detail + '</div>';
+    }
+  }
+
+  // Pass 2
+  var p2Active = phase === 'synthesizing';
+  var p2Done = passInfo && passInfo.pass2;
+  html += '<div style="font-weight:600;margin-top:6px;color:'
+    +(p2Active?'var(--primary)':(p2Done?'var(--success)':'var(--muted)'))
+    +'">Pass 2: Cross-Reference Synthesis '
+    +(p2Active ? '<div class="spin" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></div>'
+    : (p2Done ? '✓ '+p2Done.ruleCount+' rules, '+p2Done.conflictCount+' conflicts' : '○'))
+    +'</div>';
+
+  // Pass 3
+  var p3Active = phase === 'validating';
+  var p3Done = passInfo && passInfo.pass3;
+  html += '<div style="font-weight:600;margin-top:6px;color:'
+    +(p3Active?'var(--primary)':(p3Done?'var(--success)':'var(--muted)'))
+    +'">Pass 3: Validation '
+    +(p3Active ? '<div class="spin" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></div>'
+    : (p3Done ? '✓ Score: '+p3Done.overallScore+'/100, '+p3Done.flaggedCount+' flagged' : '○'))
+    +'</div>';
+
+  // Pass 4
+  var p4Active = phase === 'generating';
+  var p4Done = phase === 'complete';
+  html += '<div style="font-weight:600;margin-top:6px;color:'
+    +(p4Active?'var(--primary)':(p4Done?'var(--success)':'var(--muted)'))
+    +'">Pass 4: Generate Outputs '
+    +(p4Active ? '<div class="spin" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></div>'
+    : (p4Done ? '✓' : '○'))
+    +'</div>';
+
+  // Progress bar
+  html += '<div style="margin-top:10px;height:4px;background:var(--border);border-radius:2px;overflow:hidden">'
+    +'<div style="height:100%;width:'+percent+'%;background:var(--primary);transition:width 0.3s"></div></div>';
+
+  html += '</div>';
+  return html;
+}
+
+async function runProcessAll(force) {
+  var card = document.getElementById('process-card');
+  var body = document.getElementById('process-body');
+  var btn = document.getElementById('process-btn');
+  var rebtn = document.getElementById('reprocess-btn');
+  if (btn) btn.disabled = true;
+  if (rebtn) rebtn.disabled = true;
+
+  var fileStatuses = S.files.map(function(f) { return { fileId: f.id, fileName: f.originalName, status: 'pending' }; });
+  var passInfo = {};
+  body.innerHTML = renderPipelineProgress(fileStatuses, 'extracting', 2, passInfo);
+  if (card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  try {
+    var response = await fetch('/api/run-pipeline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId: S.pid, force: !!force }),
+    });
+
+    var reader = response.body.getReader();
+    var decoder = new TextDecoder();
+    var buffer = '';
+
+    while (true) {
+      var chunk = await reader.read();
+      if (chunk.done) break;
+      buffer += decoder.decode(chunk.value, { stream: true });
+
+      // Parse SSE events from buffer
+      var lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      var currentEvent = null;
+      for (var li = 0; li < lines.length; li++) {
+        var line = lines[li];
+        if (line.startsWith('event: ')) {
+          currentEvent = line.slice(7).trim();
+        } else if (line.startsWith('data: ') && currentEvent) {
+          try {
+            var eventData = JSON.parse(line.slice(6));
+            handlePipelineEvent(currentEvent, eventData, body, fileStatuses, passInfo);
+          } catch(pe) {}
+          currentEvent = null;
+        }
+      }
+    }
+  } catch(e) {
+    body.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Pipeline failed: '+esc(e.message)+'</div>';
+    toast('Pipeline failed: '+e.message,'error');
+  }
+}
+
+function handlePipelineEvent(eventName, data, body, fileStatuses, passInfo) {
+  if (eventName === 'progress') {
+    // Update file statuses
+    if (data.fileStatuses && data.fileStatuses.length > 0) {
+      for (var i = 0; i < data.fileStatuses.length; i++) {
+        var fs = data.fileStatuses[i];
+        // Find matching entry
+        for (var j = 0; j < fileStatuses.length; j++) {
+          if (fileStatuses[j].fileId === fs.fileId || fileStatuses[j].fileName === fs.fileName) {
+            fileStatuses[j].status = fs.status;
+            fileStatuses[j].ruleCount = fs.ruleCount;
+            fileStatuses[j].error = fs.error;
+            break;
+          }
+        }
+      }
+    }
+    body.innerHTML = renderPipelineProgress(fileStatuses, data.phase, data.progress.percent, passInfo);
+  }
+  else if (eventName === 'pass1_file') {
+    // Individual file completed
+    for (var k = 0; k < fileStatuses.length; k++) {
+      if (fileStatuses[k].fileId === data.fileId || fileStatuses[k].fileName === data.fileName) {
+        fileStatuses[k].status = 'done';
+        fileStatuses[k].ruleCount = data.ruleCount;
+        break;
+      }
+    }
+    body.innerHTML = renderPipelineProgress(fileStatuses, 'extracting', 30, passInfo);
+  }
+  else if (eventName === 'pass2') {
+    passInfo.pass2 = data;
+    body.innerHTML = renderPipelineProgress(fileStatuses, 'validating', 55, passInfo);
+  }
+  else if (eventName === 'pass3') {
+    passInfo.pass3 = data;
+    body.innerHTML = renderPipelineProgress(fileStatuses, 'generating', 80, passInfo);
+  }
+  else if (eventName === 'result') {
+    _lastProcessResult = data;
+    S.processResult = data;
+    toast('Pipeline complete — '+data.stats.rulesExtracted+' rules, score '
+      +(data.pipeline&&data.pipeline.validation?data.pipeline.validation.overallScore:'?')+'/100','success');
+    renderDetail();
+  }
+  else if (eventName === 'error') {
+    body.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Pipeline failed at '
+      +esc(data.phase||'unknown')+': '+esc(data.message)+'</div>';
+    toast('Pipeline failed: '+data.message,'error');
+  }
+}
+
+// ── Results Card ─────────────────────────────────────
+function renderResultsCard() {
+  var r = S.processResult || _lastProcessResult;
+  if (!r) return renderExtHintCard();
+  return renderFullResults(r);
+}
+
+function renderExtHintCard() {
+  if (!S.files.length) return '';
+  return '<div class="card" id="results-card">'
+    +'<div class="card-hdr"><div class="card-title">📊 Results</div></div>'
+    +'<div class="card-body">'
+      +'<p style="font-size:13px;color:var(--muted)">Click <strong style="color:var(--primary)">🚀 Process All</strong> above to analyze all uploaded files and generate outputs.</p>'
+      +'<div class="subcard" style="font-size:12px;color:var(--muted);margin-top:10px">'
+        +'<strong style="color:var(--fg2)">What you get:</strong>'
         +'<ul style="margin:5px 0 0 14px;line-height:1.9">'
-          +'<li>Rule concepts (rate tables, accelerators, qualifiers, caps, splits…)</li>'
-          +'<li>Data Worksheet configs with columns + sample rows</li>'
-          +'<li>Employee Assumption columns (quotas, targets, variable pay)</li>'
-          +'<li>Attribute Worksheet configs (territories, roles)</li>'
-          +'<li>Formula recommendations with pseudocode + SmartGrid guidance</li>'
+          +'<li><strong>Consolidated Excel</strong> — All numeric data organized into one spreadsheet</li>'
+          +'<li><strong>CaptivateIQ Build Guide</strong> — Formatted implementation steps</li>'
+          +'<li><strong>Rule Reference</strong> — Rate tables, accelerators, qualifiers, caps, splits…</li>'
+          +'<li><strong>API Payloads</strong> — Ready-to-use JSON for CaptivateIQ API</li>'
         +'</ul>'
       +'</div>'
     +'</div></div>';
 }
 
-// Global ref for download
-var _lastExtResult = null;
 
-async function runExtract(fileId, fname) {
-  var card = document.getElementById('ext-card');
-  if (!card) { toast('No extraction card found','error'); return; }
-  var body = document.getElementById('ext-body');
-  body.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px;color:var(--muted);font-size:13px">'
-    +'<div class="spin"></div>'
-    +'<span>Analyzing <strong style="color:var(--fg2)">'+esc(fname)+'</strong> with Claude Opus 4.6…<br><span style="font-size:12px">This may take 30–90 seconds depending on workbook complexity.</span></span>'
+function renderReadinessCard(comp) {
+  if (!comp) return '';
+  var score = comp.overallReadiness;
+  var scoreColor = score >= 80 ? 'var(--success)' : score >= 60 ? 'var(--orange)' : 'var(--error)';
+  var barColor = score >= 80 ? 'var(--success)' : score >= 60 ? 'var(--orange)' : 'var(--error)';
+
+  // Category bars
+  var catHtml = '';
+  var cats = comp.categorySummaries || [];
+  for (var i = 0; i < cats.length; i++) {
+    var c = cats[i];
+    if (c.total === 0) continue;
+    var pct = c.completionPercent;
+    var catColor = pct >= 80 ? 'var(--success)' : pct >= 60 ? 'var(--orange)' : 'var(--error)';
+    var gapText = c.missing > 0 ? ' <span style="color:var(--error);font-size:10px">'+c.missing+' gap'+(c.missing>1?'s':'')+'</span>' : '';
+    catHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+      +'<div style="width:130px;font-size:11px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+esc(c.displayName)+'">'+esc(c.displayName)+'</div>'
+      +'<div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">'
+        +'<div style="height:100%;width:'+pct+'%;background:'+catColor+';border-radius:4px;transition:width 0.3s"></div>'
+      +'</div>'
+      +'<div style="width:60px;font-size:10px;color:var(--muted);text-align:right">'+c.complete+'/'+c.total+' '+pct+'%</div>'
+      +gapText
     +'</div>';
-  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
 
+  // Blockers
+  var blockHtml = '';
+  if (comp.blockers && comp.blockers.length > 0) {
+    blockHtml = '<div style="margin-top:10px;padding:8px 10px;background:var(--error-dim);border:1px solid rgba(248,81,73,0.2);border-radius:var(--radius-sm)">'
+      +'<div style="font-size:11px;font-weight:700;color:var(--error);margin-bottom:6px">BLOCKERS ('+comp.blockers.length+' required items need attention)</div>';
+    for (var b = 0; b < comp.blockers.length && b < 5; b++) {
+      var bl = comp.blockers[b];
+      blockHtml += '<div style="font-size:11px;color:var(--fg2);margin-bottom:4px">'
+        +'<span style="color:var(--error)">✗</span> <strong>'+esc(bl.name)+'</strong>'
+        +(bl.gapDescription ? '<div style="font-size:10px;color:var(--muted);margin-left:14px">'+esc(bl.gapDescription).substring(0,120)+'</div>' : '')
+        +(bl.suggestedAction ? '<div style="font-size:10px;color:var(--primary);margin-left:14px">→ '+esc(bl.suggestedAction).substring(0,120)+'</div>' : '')
+      +'</div>';
+    }
+    if (comp.blockers.length > 5) {
+      blockHtml += '<div style="font-size:10px;color:var(--muted);margin-top:2px">+'+(comp.blockers.length-5)+' more...</div>';
+    }
+    blockHtml += '</div>';
+  }
+
+  // Quick wins
+  var winHtml = '';
+  if (comp.quickWins && comp.quickWins.length > 0) {
+    winHtml = '<div style="margin-top:8px">'
+      +'<div style="font-size:11px;font-weight:600;color:var(--orange);margin-bottom:4px">QUICK WINS (close to complete)</div>';
+    for (var w = 0; w < comp.quickWins.length && w < 3; w++) {
+      var qw = comp.quickWins[w];
+      winHtml += '<div style="font-size:10px;color:var(--fg2);margin-bottom:2px">'
+        +'<span style="color:var(--orange)">~</span> '+esc(qw.name)
+        +(qw.suggestedAction ? ' — <span style="color:var(--muted)">'+esc(qw.suggestedAction).substring(0,80)+'</span>' : '')
+      +'</div>';
+    }
+    winHtml += '</div>';
+  }
+
+  // Full checklist toggle
+  var checklistHtml = '<div style="margin-top:10px">'
+    +'<button class="btn btn-ghost" style="font-size:11px" onclick="toggleChecklist()">Show Full Checklist</button>'
+    +'<div id="full-checklist" style="display:none;margin-top:8px">';
+  var items = comp.items || [];
+  for (var j = 0; j < items.length; j++) {
+    var it = items[j];
+    var icon = it.status === 'complete' ? '<span style="color:var(--success)">✓</span>'
+      : it.status === 'partial' ? '<span style="color:var(--orange)">◐</span>'
+      : it.status === 'missing' ? '<span style="color:var(--error)">✗</span>'
+      : '<span style="color:var(--muted)">—</span>';
+    var prioTag = it.priority === 'required' ? '<span style="font-size:9px;color:var(--error);background:var(--error-dim);padding:0 4px;border-radius:3px;margin-left:4px">req</span>'
+      : it.priority === 'recommended' ? '<span style="font-size:9px;color:var(--orange);background:var(--warning-dim);padding:0 4px;border-radius:3px;margin-left:4px">rec</span>'
+      : '<span style="font-size:9px;color:var(--muted);background:var(--bg3);padding:0 4px;border-radius:3px;margin-left:4px">opt</span>';
+    checklistHtml += '<div style="font-size:11px;padding:2px 0;color:var(--fg2)">'
+      +icon+' '+esc(it.name)+prioTag
+      +(it.evidence ? ' <span style="color:var(--muted);font-size:10px">'+esc(it.evidence).substring(0,80)+'</span>' : '')
+    +'</div>';
+  }
+  checklistHtml += '</div></div>';
+
+  return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px">'
+    +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">'
+      +'<div>'
+        +'<div style="font-size:13px;font-weight:700;color:var(--fg)">CIQ Build Readiness</div>'
+        +'<div style="font-size:11px;color:var(--muted)">'+comp.counts.complete+' complete, '+comp.counts.partial+' partial, '+comp.counts.missing+' missing'
+        +(comp.counts.notApplicable > 0 ? ', '+comp.counts.notApplicable+' n/a' : '')+'</div>'
+      +'</div>'
+      +'<div style="margin-left:auto;font-size:32px;font-weight:700;color:'+scoreColor+'">'+score+'<span style="font-size:14px;color:var(--muted)">%</span></div>'
+    +'</div>'
+    +'<div style="height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;margin-bottom:12px">'
+      +'<div style="height:100%;width:'+score+'%;background:'+barColor+';border-radius:5px;transition:width 0.5s"></div>'
+    +'</div>'
+    +catHtml
+    +blockHtml
+    +winHtml
+    +checklistHtml
+  +'</div>';
+}
+
+
+
+// ── CIQ Extraction Mode ──────────────────────────────
+
+var _extractionResult = null;
+
+async function runCiqExtraction() {
+  var token = document.getElementById('tester-token').value.trim();
+  var url = document.getElementById('tester-url').value.trim();
+  var container = document.getElementById('extraction-results');
+  var btn = document.getElementById('btn-extract');
+  if (!token) { toast('Enter an API token', 'error'); return; }
+  btn.disabled = true;
+  btn.textContent = 'Extracting...';
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">'
+    + '<div style="font-size:14px;margin-bottom:8px">Extracting CIQ configuration...</div>'
+    + '<div style="font-size:11px">Fetching plans, workbooks, worksheets, attributes, assumptions...</div></div>';
   try {
-    var result = await api('POST','/api/builder/projects/'+S.pid+'/files/'+fileId+'/extract',{});
-    _lastExtResult = result;
-    S.extractions[fileId] = result;
-    renderExtResult(body, result, fname);
-    toast('Extraction complete — '+result.ruleCount+' rules','success');
+    var r = await fetch('/api/tester/extract', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiToken: token, baseUrl: url }),
+    });
+    var data = await r.json();
+    if (r.ok) {
+      _extractionResult = data;
+      container.innerHTML = renderCiqExtraction(data);
+      toast('Extracted: ' + data.summary.planCount + ' plans, ' + data.summary.worksheetCount + ' worksheets', 'success');
+    } else {
+      container.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Extraction failed: ' + esc(data.error) + '</div>';
+    }
   } catch(e) {
-    body.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Extraction failed: '+esc(e.message)+'</div>';
-    toast('Extraction failed: '+e.message,'error');
+    container.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Error: ' + esc(e.message) + '</div>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Extract Config';
   }
 }
+
+function renderCiqExtraction(d) {
+  if (!d) return '';
+
+  // Summary badges
+  var s = d.summary;
+  var summaryHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+    + badge(s.planCount + ' Plans', 'var(--primary)')
+    + badge(s.workbookCount + ' Workbooks', 'var(--success)')
+    + badge(s.worksheetCount + ' Worksheets', 'var(--orange)')
+    + badge(s.attributeWorksheetCount + ' Attributes', 'var(--purple)')
+    + badge(s.assumptionRecords + ' Assumptions', 'var(--cyan)')
+    + badge(s.employeeCount + ' Employees', 'var(--muted)')
+  + '</div>';
+
+  // Plans section
+  var plansHtml = '';
+  if (d.plans && d.plans.length > 0) {
+    plansHtml = '<div style="margin-bottom:14px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:6px">Commission Plans</div>';
+    for (var i = 0; i < d.plans.length; i++) {
+      var p = d.plans[i];
+      plansHtml += '<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:4px">'
+        + '<div style="font-size:12px;font-weight:600;color:var(--fg)">' + esc(p.name) + '</div>'
+        + '<div style="font-size:10px;color:var(--muted)">'
+          + 'Period: ' + esc(p.periodType || 'unknown')
+          + ' | Status: ' + esc(p.status || 'unknown')
+          + ' | ID: ' + esc(p.id)
+        + '</div>'
+        + (p.description ? '<div style="font-size:10px;color:var(--fg2);margin-top:2px">' + esc(p.description) + '</div>' : '')
+      + '</div>';
+    }
+    plansHtml += '</div>';
+  }
+
+  // Workbooks + Worksheets
+  var wbHtml = '';
+  if (d.workbooks && d.workbooks.length > 0) {
+    wbHtml = '<div style="margin-bottom:14px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:6px">Data Workbooks & Worksheets</div>';
+    for (var w = 0; w < d.workbooks.length; w++) {
+      var wb = d.workbooks[w];
+      wbHtml += '<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:4px">'
+        + '<div style="font-size:12px;font-weight:600;color:var(--fg)">' + esc(wb.name)
+        + ' <span style="color:var(--muted);font-weight:400">(' + wb.worksheetCount + ' worksheets)</span></div>';
+      if (wb.worksheets && wb.worksheets.length > 0) {
+        for (var ws = 0; ws < wb.worksheets.length; ws++) {
+          var sheet = wb.worksheets[ws];
+          var cols = sheet.columns || [];
+          var derivedCount = cols.filter(function(c){ return c.isDerived; }).length;
+          wbHtml += '<div style="margin-left:12px;padding:4px 0;border-top:1px solid var(--border-muted)">'
+            + '<div style="font-size:11px;color:var(--fg2)">'
+              + esc(sheet.name)
+              + ' <span style="color:var(--muted)">(' + cols.length + ' cols'
+              + (derivedCount > 0 ? ', ' + derivedCount + ' derived' : '') + ')</span>'
+            + '</div>';
+          if (cols.length > 0) {
+            wbHtml += '<div style="font-size:10px;color:var(--muted);margin-top:2px">'
+              + cols.map(function(c){
+                  return '<span style="' + (c.isDerived ? 'color:var(--purple)' : '') + '">'
+                    + esc(c.name) + '<span style="color:var(--bg4)">:' + esc(c.type) + '</span></span>';
+                }).join(', ')
+            + '</div>';
+          }
+          wbHtml += '</div>';
+        }
+      }
+      wbHtml += '</div>';
+    }
+    wbHtml += '</div>';
+  }
+
+  // Attribute Worksheets
+  var attrHtml = '';
+  if (d.attributeWorksheets && d.attributeWorksheets.length > 0) {
+    attrHtml = '<div style="margin-bottom:14px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:6px">Attribute Worksheets</div>';
+    for (var a = 0; a < d.attributeWorksheets.length; a++) {
+      var attr = d.attributeWorksheets[a];
+      attrHtml += '<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:4px">'
+        + '<div style="font-size:12px;font-weight:600;color:var(--fg)">' + esc(attr.name)
+        + ' <span style="color:var(--muted);font-weight:400">[' + esc(attr.pkType || '?') + ']</span></div>'
+        + (attr.description ? '<div style="font-size:10px;color:var(--fg2)">' + esc(attr.description) + '</div>' : '');
+      if (attr.columns && attr.columns.length > 0) {
+        attrHtml += '<div style="font-size:10px;color:var(--muted);margin-top:2px">'
+          + attr.columns.map(function(c){ return esc(c.name) + ':' + esc(c.type); }).join(', ')
+        + '</div>';
+      }
+      attrHtml += '</div>';
+    }
+    attrHtml += '</div>';
+  }
+
+  // Employee Assumptions
+  var assumHtml = '';
+  var ea = d.employeeAssumptions;
+  if (ea && ea.columns.length > 0) {
+    assumHtml = '<div style="margin-bottom:14px">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:6px">Employee Assumptions</div>'
+      + '<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px">'
+        + '<div style="font-size:11px;color:var(--fg2);margin-bottom:4px">' + ea.recordCount + ' records, ' + ea.columns.length + ' columns</div>'
+        + '<div style="font-size:10px;color:var(--muted);margin-bottom:6px">Columns: ' + ea.columns.map(function(c){ return esc(c); }).join(', ') + '</div>';
+    if (ea.sampleValues && ea.sampleValues.length > 0) {
+      assumHtml += '<div style="font-size:10px;color:var(--muted);margin-bottom:2px">Sample values:</div>';
+      for (var sv = 0; sv < ea.sampleValues.length; sv++) {
+        var sample = ea.sampleValues[sv];
+        assumHtml += '<div style="font-size:10px;color:var(--fg2);padding:2px 0;border-top:1px solid var(--border-muted)">'
+          + '<strong>' + esc(sample.employee) + '</strong>'
+          + (sample.period ? ' <span style="color:var(--muted)">(' + esc(sample.period) + ')</span>' : '')
+          + '<div style="margin-left:8px;color:var(--muted)">'
+            + Object.entries(sample.data).map(function(e){ return esc(e[0]) + ': ' + esc(String(e[1])); }).join(', ')
+          + '</div>'
+        + '</div>';
+      }
+    }
+    assumHtml += '</div></div>';
+  }
+
+  // Download JSON button
+  var downloadHtml = '<div style="margin-top:8px">'
+    + '<button class="btn btn-ghost" style="font-size:11px" onclick="downloadExtractionJson()">Download Full JSON</button>'
+    + '<button class="btn btn-ghost" style="font-size:11px;margin-left:6px" onclick="copyExtractionJson()">Copy JSON</button>'
+  + '</div>';
+
+  return '<div class="card" style="margin-bottom:16px"><div class="card-hdr">'
+    + '<div class="card-title">CIQ Instance Configuration</div>'
+    + '<div style="font-size:10px;color:var(--muted)">Extracted: ' + new Date(d.extractedAt).toLocaleString() + '</div>'
+  + '</div><div class="card-body">'
+    + summaryHtml + plansHtml + wbHtml + attrHtml + assumHtml + downloadHtml
+  + '</div></div>';
+}
+
+function downloadExtractionJson() {
+  if (!_extractionResult) return;
+  var blob = new Blob([JSON.stringify(_extractionResult, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'ciq-extraction-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function copyExtractionJson() {
+  if (!_extractionResult) return;
+  navigator.clipboard.writeText(JSON.stringify(_extractionResult, null, 2)).then(function(){
+    toast('Copied to clipboard', 'success');
+  });
+}
+
+
+// ── Rule Tester Functions ─────────────────────────────
+
+var _testerResult = null;
+
+async function loadTesterProjects() {
+  try {
+    var data = await api('GET', '/api/builder/projects');
+    var sel = document.getElementById('tester-project');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Select a project with pipeline results...</option>';
+    var projects = data.projects || data || [];
+    for (var i = 0; i < projects.length; i++) {
+      var p = projects[i];
+      sel.innerHTML += '<option value="' + p.id + '">' + esc(p.name) + '</option>';
+    }
+  } catch(e) { console.warn('Failed to load tester projects', e); }
+}
+
+function testerProjectChanged() {
+  var sel = document.getElementById('tester-project');
+  var pid = sel ? sel.value : '';
+  var container = document.getElementById('tester-results');
+  if (!pid || !container) { if (container) container.innerHTML = ''; return; }
+  // Try loading cached result
+  api('GET', '/api/tester/projects/' + pid + '/result').then(function(r) {
+    if (r && r.trueToPlanScore !== undefined) {
+      _testerResult = r;
+      container.innerHTML = renderPlanTestReport(r);
+    } else {
+      container.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px">No previous test result. Enter API token and click Compare to Plan.</div>';
+    }
+  }).catch(function() {
+    container.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px">No previous test result. Enter API token and click Compare to Plan.</div>';
+  });
+}
+
+async function testCiqConnection() {
+  var token = document.getElementById('tester-token').value.trim();
+  var url = document.getElementById('tester-url').value.trim();
+  var status = document.getElementById('tester-conn-status');
+  if (!token) { status.innerHTML = '<span style="color:var(--error)">Enter an API token</span>'; return; }
+  status.innerHTML = '<span style="color:var(--muted)">Connecting...</span>';
+  try {
+    var r = await api('POST', '/api/tester/list-plans', { apiToken: token, baseUrl: url });
+    if (r.connected) {
+      status.innerHTML = '<span style="color:var(--success)">Connected! ' + r.plans.length + ' plan(s) found: ' 
+        + r.plans.map(function(p){ return esc(p.name); }).join(', ') + '</span>';
+    } else {
+      status.innerHTML = '<span style="color:var(--error)">Connection failed: ' + esc(r.error || 'Unknown error') + '</span>';
+    }
+  } catch(e) {
+    status.innerHTML = '<span style="color:var(--error)">Error: ' + esc(e.message || String(e)) + '</span>';
+  }
+}
+
+async function runPlanComparison() {
+  var pid = document.getElementById('tester-project').value;
+  var token = document.getElementById('tester-token').value.trim();
+  var url = document.getElementById('tester-url').value.trim();
+  var container = document.getElementById('tester-results');
+  var btn = document.getElementById('btn-compare');
+  if (!pid) { toast('Select a project first', 'error'); return; }
+  if (!token) { toast('Enter an API token', 'error'); return; }
+  btn.disabled = true;
+  btn.textContent = 'Comparing...';
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">'
+    + '<div style="font-size:14px;margin-bottom:8px">Fetching live CIQ data and comparing...</div>'
+    + '<div style="font-size:11px">This may take 30-60 seconds</div></div>';
+  try {
+    var r = await fetch('/api/tester/projects/' + pid + '/compare', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiToken: token, baseUrl: url }),
+    });
+    var data = await r.json();
+    if (r.ok) {
+      _testerResult = data;
+      container.innerHTML = renderPlanTestReport(data);
+      toast('Comparison complete: ' + data.trueToPlanScore + '% true to plan', 'success');
+    } else {
+      container.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Comparison failed: ' + esc(data.error || 'Unknown error') + '</div>';
+      toast('Comparison failed', 'error');
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Error: ' + esc(e.message || String(e)) + '</div>';
+    toast('Comparison error', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Compare to Plan';
+  }
+}
+
+function renderPlanTestReport(r) {
+  if (!r) return '';
+  var score = r.trueToPlanScore;
+  var scoreColor = score >= 80 ? 'var(--success)' : score >= 60 ? 'var(--orange)' : 'var(--error)';
+
+  // Live summary
+  var liveHtml = '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">'
+    + 'Live CIQ: ' + r.liveSummary.planCount + ' plans, '
+    + r.liveSummary.workbookCount + ' workbooks, '
+    + r.liveSummary.worksheetCount + ' worksheets, '
+    + r.liveSummary.attributeWorksheetCount + ' attr worksheets, '
+    + r.liveSummary.employeeCount + ' employees'
+    + (r.liveSummary.matchedPlanName ? ' | Matched plan: "' + esc(r.liveSummary.matchedPlanName) + '"' : '')
+  + '</div>';
+
+  // Category bars
+  var catHtml = '';
+  var cats = r.categorySummaries || [];
+  for (var i = 0; i < cats.length; i++) {
+    var c = cats[i];
+    if (c.total === 0) continue;
+    var pct = c.matchPercent;
+    var catColor = pct >= 80 ? 'var(--success)' : pct >= 60 ? 'var(--orange)' : 'var(--error)';
+    var gapText = c.missingInCiq > 0 ? ' <span style="color:var(--error);font-size:10px">' + c.missingInCiq + ' missing</span>' : '';
+    catHtml += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'
+      + '<div style="width:140px;font-size:11px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(c.displayName) + '</div>'
+      + '<div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">'
+        + '<div style="height:100%;width:' + pct + '%;background:' + catColor + ';border-radius:4px;transition:width 0.3s"></div>'
+      + '</div>'
+      + '<div style="width:60px;font-size:10px;color:var(--muted);text-align:right">' + c.matched + '/' + c.total + ' ' + pct + '%</div>'
+      + gapText
+    + '</div>';
+  }
+
+  // Mismatches
+  var mismatchHtml = '';
+  if (r.mismatches && r.mismatches.length > 0) {
+    mismatchHtml = '<div style="margin-top:10px;padding:8px 10px;background:var(--error-dim);border:1px solid rgba(248,81,73,0.2);border-radius:var(--radius-sm)">'
+      + '<div style="font-size:11px;font-weight:700;color:var(--error);margin-bottom:6px">MISMATCHES (' + r.mismatches.length + ' items differ)</div>';
+    for (var m = 0; m < r.mismatches.length && m < 5; m++) {
+      var mi = r.mismatches[m];
+      mismatchHtml += '<div style="font-size:11px;color:var(--fg2);margin-bottom:6px">'
+        + '<span style="color:var(--error)">X</span> <strong>' + esc(mi.name) + '</strong>'
+        + (mi.planned ? '<div style="font-size:10px;color:var(--muted);margin-left:14px">Planned: ' + esc(String(mi.planned)).substring(0,100) + '</div>' : '')
+        + (mi.actual ? '<div style="font-size:10px;color:var(--muted);margin-left:14px">Actual: ' + esc(String(mi.actual)).substring(0,100) + '</div>' : '')
+      + '</div>';
+    }
+    if (r.mismatches.length > 5) mismatchHtml += '<div style="font-size:10px;color:var(--muted)">+' + (r.mismatches.length - 5) + ' more...</div>';
+    mismatchHtml += '</div>';
+  }
+
+  // Missing in CIQ
+  var missingHtml = '';
+  if (r.missingInCiq && r.missingInCiq.length > 0) {
+    missingHtml = '<div style="margin-top:8px;padding:8px 10px;background:var(--warning-dim);border:1px solid rgba(210,153,34,0.2);border-radius:var(--radius-sm)">'
+      + '<div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:6px">MISSING IN CIQ (' + r.missingInCiq.length + ' items need to be built)</div>';
+    for (var j = 0; j < r.missingInCiq.length && j < 5; j++) {
+      var mj = r.missingInCiq[j];
+      missingHtml += '<div style="font-size:11px;color:var(--fg2);margin-bottom:2px">'
+        + '<span style="color:var(--orange)">X</span> ' + esc(mj.name)
+        + (mj.planned ? ' <span style="color:var(--muted);font-size:10px">(' + esc(String(mj.planned)).substring(0,60) + ')</span>' : '')
+      + '</div>';
+    }
+    if (r.missingInCiq.length > 5) missingHtml += '<div style="font-size:10px;color:var(--muted)">+' + (r.missingInCiq.length - 5) + ' more...</div>';
+    missingHtml += '</div>';
+  }
+
+  // Extra in CIQ
+  var extraHtml = '';
+  if (r.extraInCiq && r.extraInCiq.length > 0) {
+    extraHtml = '<div style="margin-top:8px">'
+      + '<div style="font-size:11px;font-weight:600;color:var(--primary);margin-bottom:4px">EXTRA IN CIQ (not in plan)</div>';
+    for (var k = 0; k < r.extraInCiq.length && k < 4; k++) {
+      var ek = r.extraInCiq[k];
+      extraHtml += '<div style="font-size:10px;color:var(--fg2);margin-bottom:2px">'
+        + '<span style="color:var(--primary)">+</span> ' + esc(ek.name)
+        + (ek.actual ? ' <span style="color:var(--muted)">(' + esc(String(ek.actual)).substring(0,60) + ')</span>' : '')
+      + '</div>';
+    }
+    if (r.extraInCiq.length > 4) extraHtml += '<div style="font-size:10px;color:var(--muted)">+' + (r.extraInCiq.length - 4) + ' more...</div>';
+    extraHtml += '</div>';
+  }
+
+  // Full comparison toggle
+  var detailHtml = '<div style="margin-top:10px">'
+    + '<button class="btn btn-ghost" style="font-size:11px" onclick="toggleComparisonDetails()">Show Full Comparison</button>'
+    + '<div id="full-comparison" style="display:none;margin-top:8px">';
+  var items = r.items || [];
+  for (var n = 0; n < items.length; n++) {
+    var it = items[n];
+    var icon = it.status === 'match' ? '<span style="color:var(--success)">V</span>'
+      : it.status === 'partial' ? '<span style="color:var(--orange)">~</span>'
+      : it.status === 'mismatch' ? '<span style="color:var(--error)">X</span>'
+      : it.status === 'missing-in-ciq' ? '<span style="color:var(--error)">-</span>'
+      : it.status === 'extra-in-ciq' ? '<span style="color:var(--primary)">+</span>'
+      : '<span style="color:var(--muted)">-</span>';
+    var prioTag = it.priority === 'required' ? '<span style="font-size:9px;color:var(--error);background:var(--error-dim);padding:0 4px;border-radius:3px;margin-left:4px">req</span>'
+      : it.priority === 'recommended' ? '<span style="font-size:9px;color:var(--orange);background:var(--warning-dim);padding:0 4px;border-radius:3px;margin-left:4px">rec</span>'
+      : '<span style="font-size:9px;color:var(--muted);background:var(--bg3);padding:0 4px;border-radius:3px;margin-left:4px">info</span>';
+    detailHtml += '<div style="font-size:11px;padding:2px 0;color:var(--fg2)">'
+      + icon + ' ' + esc(it.name) + prioTag
+      + (it.details ? ' <span style="color:var(--muted);font-size:10px">' + esc(it.details).substring(0,80) + '</span>' : '')
+    + '</div>';
+  }
+  detailHtml += '</div></div>';
+
+  return '<div class="card"><div class="card-hdr"><div class="card-title">True to Plan Report</div>'
+    + '<div style="font-size:10px;color:var(--muted)">Tested: ' + new Date(r.testedAt).toLocaleString() + '</div></div>'
+    + '<div class="card-body">'
+    + '<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">'
+      + '<div>'
+        + '<div style="font-size:13px;font-weight:700;color:var(--fg)">True to Plan</div>'
+        + '<div style="font-size:11px;color:var(--muted)">' + r.counts.matched + ' match, ' + r.counts.partial + ' partial, ' + r.counts.mismatched + ' mismatch, ' + r.counts.missingInCiq + ' missing</div>'
+      + '</div>'
+      + '<div style="margin-left:auto;font-size:32px;font-weight:700;color:' + scoreColor + '">' + score + '<span style="font-size:14px;color:var(--muted)">%</span></div>'
+    + '</div>'
+    + '<div style="height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;margin-bottom:12px">'
+      + '<div style="height:100%;width:' + score + '%;background:' + scoreColor + ';border-radius:5px;transition:width 0.5s"></div>'
+    + '</div>'
+    + liveHtml
+    + catHtml
+    + mismatchHtml
+    + missingHtml
+    + extraHtml
+    + detailHtml
+    + '</div></div>';
+}
+
+function toggleComparisonDetails() {
+  var el = document.getElementById('full-comparison');
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleChecklist() {
+  var el = document.getElementById('full-checklist');
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function renderFullResults(r) {
+  var ext = r.extraction || {};
+  var rules = ext.rules || [];
+  var stats = r.stats || {};
+  var buildDoc = r.buildDocument || {};
+
+  // Stats bar
+  var statsHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+    +badge(stats.filesProcessed+' Files Processed','var(--primary)')
+    +badge(stats.excelFiles+' Excel','var(--success)')
+    +badge(stats.documentFiles+' Documents','var(--purple)')
+    +badge(stats.rulesExtracted+' Rules','var(--orange)')
+  +'</div>';
+
+  // Pipeline validation summary
+  var pipeHtml = '';
+  if (r.pipeline && r.pipeline.validation) {
+    var pv = r.pipeline.validation;
+    var scoreColor = pv.overallScore >= 80 ? 'var(--success)' : pv.overallScore >= 60 ? 'var(--orange)' : 'var(--error)';
+    pipeHtml = '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">'
+      +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">'
+        +'<div style="font-size:28px;font-weight:700;color:'+scoreColor+'">'+pv.overallScore+'<span style="font-size:14px;color:var(--muted)">/100</span></div>'
+        +'<div style="flex:1">'
+          +'<div style="font-size:13px;font-weight:600;color:var(--fg)">Validation Score</div>'
+          +'<div style="font-size:11px;color:var(--muted)">'+pv.checksPassed+'/'+pv.checksRun+' checks passed'
+          +(pv.flaggedRules ? ' &middot; '+pv.flaggedRules+' rules flagged' : '')+'</div>'
+        +'</div>'
+      +'</div>';
+    // File-level results
+    if (r.pipeline.fileResults && r.pipeline.fileResults.length > 0) {
+      pipeHtml += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
+      for (var fi = 0; fi < r.pipeline.fileResults.length; fi++) {
+        var fr = r.pipeline.fileResults[fi];
+        pipeHtml += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--bg3);color:var(--fg2)">'
+          +esc(fr.fileName)+' <span style="color:var(--muted)">('+fr.ruleCount+')</span></span>';
+      }
+      pipeHtml += '</div>';
+    }
+    if (r.pipeline.synthesis) {
+      var ps = r.pipeline.synthesis;
+      pipeHtml += '<div style="font-size:11px;color:var(--muted);margin-top:8px">'
+        +'Synthesis: '+ps.ruleCount+' rules merged, '+ps.conflictCount+' conflicts resolved, '
+        +ps.crossRefCount+' cross-references</div>';
+    }
+    pipeHtml += '</div>';
+  }
+
+  // Parse errors
+  var errHtml = '';
+  if (r.parseErrors && r.parseErrors.length > 0) {
+    errHtml = '<div style="background:var(--error-dim);border:1px solid rgba(248,81,73,0.3);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:12px;font-size:12px;color:var(--error)">'
+      +'<strong>Parse warnings:</strong> '+r.parseErrors.map(function(e){ return esc(e.filename)+': '+esc(e.error); }).join('; ')
+    +'</div>';
+  }
+
+  // Rules grid
+  var rulesHtml = rules.map(function(rule){
+    var cls = 'ct-'+(rule.concept||'').replace(/\s+/g,'-');
+    var conf = Math.round((rule.confidence||0)*100);
+    var fillCls = conf>=70?'c-hi':conf>=40?'c-md':'c-lo';
+    return '<div class="rule-card">'
+      +'<div class="rule-top"><span class="ctag '+cls+'">'+(rule.concept||'unknown')+'</span>'
+      +'<div class="conf-bar"><div class="conf-fill '+fillCls+'" style="width:'+conf+'%"></div></div>'
+      +'<span style="font-size:11px;color:var(--muted);flex-shrink:0">'+conf+'%</span></div>'
+      +'<div class="rule-desc">'+esc(rule.description||'')+'</div>'
+      +(rule.sourceRef?'<div class="rule-src">'+esc(rule.sourceRef.vendorRuleId||'')+'</div>':'')
+    +'</div>';
+  }).join('');
+
+  return '<div class="card" id="results-card">'
+    +'<div class="card-hdr">'
+      +'<div class="card-title">📊 Analysis Results <span class="badge">'+rules.length+' rules</span></div>'
+      +'<button class="btn btn-ghost" style="font-size:12px" onclick="runProcessAll()">↻ Re-process</button>'
+    +'</div>'
+    // Download bar
+    +'<div class="output-bar">'
+      +'<button class="btn-download" onclick="downloadExcel()">📊 Download Excel</button>'
+      +'<button class="btn-download purple" onclick="downloadBuildDoc()">📋 CaptivateIQ Build Guide</button>'
+      +'<button class="btn-download blue" onclick="downloadJson()">📦 API Payloads JSON</button>'
+      +'<button class="btn btn-ghost" onclick="copyJson()">Copy JSON</button>'
+    +'</div>'
+    +'<div class="card-body" id="results-body">'
+      +statsHtml
+      +pipeHtml
+      +renderReadinessCard(r.completeness)
+      +errHtml
+      // Insights
+      +(ext.insights?'<div class="insights-box">'+esc(ext.insights)+'</div>':'')
+      // Rules
+      +(rules.length?'<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">'+rules.length+' Rules Identified</div>':'')
+      +(rulesHtml?'<div class="rules-grid">'+rulesHtml+'</div>':'')
+      // CIQ Config tabs
+      +'<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:10px;margin-top:14px">CaptivateIQ Build Configuration</div>'
+      +buildCfgTabs(ext.captivateiqConfig||{})
+      // Build Document
+      +(buildDoc.content ? '<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:10px;margin-top:18px">📋 CaptivateIQ Build Document</div>'
+        +'<div class="build-doc">'+esc(buildDoc.content)+'</div>' : '')
+    +'</div>'
+  +'</div>';
+}
+
+// ── Download Functions ───────────────────────────────
+
+function downloadExcel() {
+  var r = _lastProcessResult || S.processResult;
+  if (r && r.excelBase64) {
+    var bytes = atob(r.excelBase64);
+    var arr = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    var blob = new Blob([arr], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = r.excelFilename || 'ICM_Analysis.xlsx'; a.click();
+    URL.revokeObjectURL(url);
+    toast('Excel downloaded','success');
+  } else {
+    // Fallback: fetch from server
+    window.open('/api/builder/projects/'+S.pid+'/export-excel','_blank');
+  }
+}
+
+function downloadBuildDoc() {
+  var r = _lastProcessResult || S.processResult;
+  var doc = r && r.buildDocument;
+  if (!doc) { toast('No build document — run Process All first','error'); return; }
+  var blob = new Blob([doc.content],{type:'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var proj = S.projects.find(function(p){ return p.id===S.pid; });
+  a.href=url; a.download=(proj?proj.name.replace(/\s+/g,'_'):'project')+'_CaptivateIQ_Build_Guide.txt'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Build guide downloaded','success');
+}
+
+// Global ref for download
+var _lastExtResult = null;
 
 function renderExtResult(container, r, fname) {
   var rules = r.rules||[];
@@ -753,131 +1810,25 @@ function swCfg(btn, pid) {
 }
 
 function copyJson() {
-  if (!_lastExtResult) { toast('No extraction data','error'); return; }
-  navigator.clipboard.writeText(JSON.stringify(_lastExtResult,null,2)).then(function(){ toast('Copied!','success'); });
+  var r = _lastProcessResult || S.processResult;
+  if (!r) { toast('No data — run Process All first','error'); return; }
+  navigator.clipboard.writeText(JSON.stringify(r.payloads || r.extraction,null,2)).then(function(){ toast('Copied!','success'); });
 }
 
 function downloadJson() {
-  if (!_lastExtResult) { toast('No extraction data','error'); return; }
-  var blob = new Blob([JSON.stringify(_lastExtResult,null,2)],{type:'application/json'});
+  var r = _lastProcessResult || S.processResult;
+  if (!r) { toast('No data — run Process All first','error'); return; }
+  var blob = new Blob([JSON.stringify(r.payloads || r.extraction,null,2)],{type:'application/json'});
   var url = URL.createObjectURL(blob);
-  var a = document.createElement('a'); a.href=url; a.download='captivateiq-config.json'; a.click(); URL.revokeObjectURL(url);
-}
-
-// ── Aggregate Card ───────────────────────────────────
-var _lastAggResult = null;
-
-function renderAggCard() {
-  // Only show when there are 2+ files
-  if (S.files.length < 2) return '';
-
-  var agg = S.aggregation;
-
-  if (!agg) {
-    // Count how many files have extractions
-    var extMeta = Object.keys(S.extractions).filter(function(fid){ return !!S.extractions[fid]; });
-    var hasEnough = extMeta.length >= 2;
-    return '<div class="card" id="agg-card">'
-      +'<div class="card-hdr"><div class="card-title">🔗 Aggregated Project Config'
-        +'<span class="badge" style="margin-left:6px">'+S.files.length+' files</span>'
-      +'</div></div>'
-      +'<div class="card-body" id="agg-body">'
-        +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px">'
-          +'Combine insights from all extracted Excel files into a single unified CaptivateIQ configuration. '
-          +'Worksheets, assumptions, attributes, and formulas are merged and deduplicated across all uploads.'
-        +'</p>'
-        +(hasEnough
-          ? '<button class="btn btn-success" onclick="runAggregate()">🔗 Aggregate All Files</button>'
-          : '<div style="font-size:12px;color:var(--warning)">Run ⚡ Extract on at least 2 files first, then aggregate.</div>'
-        )
-      +'</div>'
-    +'</div>';
-  }
-
-  // Render existing aggregation result
-  _lastAggResult = agg;
-  var ac = agg.aggregatedConfig;
-  var stats = ac.stats||{};
-  var sources = (ac.sources||[]).map(function(s){
-    return '<div style="font-size:12px;color:var(--fg2);display:flex;gap:8px;align-items:center;margin-bottom:3px">'
-      +'<span style="color:var(--primary)">📄</span>'
-      +'<span>'+esc(s.fileName)+'</span>'
-      +'<span style="color:var(--muted)">'+ new Date(s.extractedAt).toLocaleDateString()+'</span>'
-    +'</div>';
-  }).join('');
-
-  var statBadges = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
-    +badge(stats.dataWorksheetCount+' Data Worksheets','var(--primary)')
-    +badge(stats.employeeAssumptionCount+' Assumptions','var(--purple)')
-    +badge(stats.attributeWorksheetCount+' Attributes','var(--cyan)')
-    +badge(stats.formulaCount+' Formulas','var(--orange)')
-  +'</div>';
-
-  var insightsHtml = ac.combinedInsights
-    ? '<div class="insights-box" style="margin-bottom:14px;white-space:pre-wrap;max-height:180px;overflow-y:auto">'+esc(ac.combinedInsights)+'</div>'
-    : '';
-
-  return '<div class="card" id="agg-card">'
-    +'<div class="card-hdr">'
-      +'<div class="card-title">🔗 Aggregated Project Config'
-        +'<span class="badge" style="margin-left:6px">'+stats.fileCount+' files merged</span>'
-      +'</div>'
-      +'<button class="btn btn-ghost" style="font-size:12px" onclick="runAggregate()">↻ Re-run</button>'
-    +'</div>'
-    +'<div class="card-body" id="agg-body">'
-      +'<div style="margin-bottom:12px">'+sources+'</div>'
-      +statBadges
-      +insightsHtml
-      +'<div style="font-size:12px;font-weight:700;color:var(--fg);margin-bottom:10px">Merged CaptivateIQ Build Configuration</div>'
-      +buildCfgTabs(ac.mergedConfig||{}, 'agg-')
-      +'<div class="dl-row" style="margin-top:14px">'
-        +'<button class="btn btn-ghost" onclick="copyAggJson()">Copy JSON</button>'
-        +'<button class="btn btn-success" onclick="downloadAggJson()">⬇ Download</button>'
-      +'</div>'
-    +'</div>'
-  +'</div>';
+  var a = document.createElement('a');
+  var proj = S.projects.find(function(p){ return p.id===S.pid; });
+  a.href=url; a.download=(proj?proj.name.replace(/\s+/g,'_'):'project')+'_captivateiq_payloads.json'; a.click();
+  URL.revokeObjectURL(url);
 }
 
 function badge(label, color) {
   return '<span style="font-size:11px;font-weight:600;color:'+color+';background:rgba(0,0,0,0.2);'
     +'border:1px solid '+color+';border-radius:4px;padding:2px 7px">'+esc(String(label))+'</span>';
-}
-
-async function runAggregate() {
-  var card = document.getElementById('agg-card');
-  var body = document.getElementById('agg-body');
-  if (body) {
-    body.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px;color:var(--muted);font-size:13px">'
-      +'<div class="spin"></div>'
-      +'<span>Merging insights from all extracted files…</span>'
-    +'</div>';
-  }
-  if (card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
-  try {
-    var result = await api('POST','/api/builder/projects/'+S.pid+'/aggregate',{});
-    S.aggregation = result;
-    _lastAggResult = result;
-    renderDetail();
-    toast('Aggregation complete — '+result.aggregatedConfig.stats.fileCount+' files merged','success');
-  } catch(e) {
-    if (body) body.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Aggregation failed: '+esc(e.message)+'</div>';
-    toast('Aggregation failed: '+e.message,'error');
-  }
-}
-
-function copyAggJson() {
-  if (!_lastAggResult) { toast('No aggregation data','error'); return; }
-  navigator.clipboard.writeText(JSON.stringify(_lastAggResult,null,2)).then(function(){ toast('Copied!','success'); });
-}
-
-function downloadAggJson() {
-  if (!_lastAggResult) { toast('No aggregation data','error'); return; }
-  var blob = new Blob([JSON.stringify(_lastAggResult,null,2)],{type:'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  var proj = S.projects.find(function(p){ return p.id===S.pid; });
-  a.href=url; a.download=(proj?proj.name.replace(/\s+/g,'-'):'project')+'-aggregated.json'; a.click();
-  URL.revokeObjectURL(url);
 }
 
 // ── Delete Project ───────────────────────────────────
@@ -1001,6 +1952,277 @@ function renderPlanned() {
   renderTax(); renderPlanned();
   try { await loadProjects(); } catch(e){ toast('Failed to load projects: '+e.message,'error'); }
 })();
+
+// ── Compare Tab Functions ─────────────────────────────
+
+var _cmpExtraction = null;
+var _cmpSourceTab = 'profile';
+
+async function loadCompareData() {
+  try {
+    var data = await api('GET', '/api/builder/projects');
+    var sel = document.getElementById('cmp-project');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Select a project with pipeline results...</option>';
+    var projects = data.projects || [];
+    for (var i = 0; i < projects.length; i++) {
+      var p = projects[i];
+      sel.innerHTML += '<option value="' + p.id + '">' + esc(p.name) + '</option>';
+    }
+  } catch(e) { console.warn('Failed to load compare projects', e); }
+
+  // Load profiles
+  try {
+    var pd = await api('GET', '/api/profiles');
+    var psel = document.getElementById('cmp-profile');
+    if (!psel) return;
+    psel.innerHTML = '<option value="">Select a saved profile...</option>';
+    var profiles = pd.profiles || [];
+    for (var j = 0; j < profiles.length; j++) {
+      var pr = profiles[j];
+      psel.innerHTML += '<option value="' + pr.id + '">' + esc(pr.name) + ' (' + new Date(pr.createdAt).toLocaleDateString() + ')</option>';
+    }
+  } catch(e) { console.warn('Failed to load profiles', e); }
+
+  // Default to profile tab
+  compareSourceTab('profile');
+}
+
+function compareSourceTab(tab) {
+  _cmpSourceTab = tab;
+  ['profile','upload','live'].forEach(function(t) {
+    var panel = document.getElementById('csrc-panel-' + t);
+    var btn = document.getElementById('csrc-' + t);
+    if (panel) panel.style.display = t === tab ? 'block' : 'none';
+    if (btn) {
+      btn.style.background = t === tab ? 'var(--bg3)' : '';
+      btn.style.color = t === tab ? 'var(--fg)' : '';
+    }
+  });
+}
+
+async function cmpProjectChanged() {
+  var pid = document.getElementById('cmp-project').value;
+  var status = document.getElementById('cmp-project-status');
+  if (!pid) { if (status) status.innerHTML = ''; return; }
+  status.innerHTML = '<span style="color:var(--muted)">Checking pipeline results...</span>';
+  try {
+    var r = await api('GET', '/api/builder/projects/' + pid + '/results');
+    if (r && r.extraction && r.extraction.captivateiqConfig) {
+      status.innerHTML = '<span style="color:var(--success)">Pipeline results found</span>';
+    } else {
+      status.innerHTML = '<span style="color:var(--warning)">No pipeline config found</span>';
+    }
+  } catch(e) {
+    status.innerHTML = '<span style="color:var(--error)">No pipeline results</span>';
+  }
+}
+
+async function compareProfileChanged() {
+  var profileId = document.getElementById('cmp-profile').value;
+  if (!profileId) { hidePlanSelector(); return; }
+  try {
+    var r = await api('GET', '/api/profiles/' + profileId);
+    _cmpExtraction = r.data;
+    populatePlanSelector(_cmpExtraction);
+  } catch(e) {
+    toast('Failed to load profile: ' + e.message, 'error');
+  }
+}
+
+function handleCompareFileDrop(event) {
+  var files = event.dataTransfer.files;
+  if (files.length > 0) processCompareFile(files[0]);
+}
+
+function handleCompareFileSelect(event) {
+  var files = event.target.files;
+  if (files.length > 0) processCompareFile(files[0]);
+}
+
+function processCompareFile(file) {
+  var status = document.getElementById('cmp-upload-status');
+  if (!file.name.endsWith('.json')) {
+    status.innerHTML = '<span style="color:var(--error)">Please upload a .json file</span>';
+    return;
+  }
+  status.innerHTML = '<span style="color:var(--muted)">Reading file...</span>';
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      _cmpExtraction = JSON.parse(e.target.result);
+      status.innerHTML = '<span style="color:var(--success)">Loaded: ' + esc(file.name) + '</span>';
+      populatePlanSelector(_cmpExtraction);
+    } catch(err) {
+      status.innerHTML = '<span style="color:var(--error)">Invalid JSON: ' + esc(err.message) + '</span>';
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function compareLiveExtract() {
+  var token = document.getElementById('cmp-token').value.trim();
+  var status = document.getElementById('cmp-live-status');
+  var btn = document.getElementById('btn-cmp-extract');
+  if (!token) { status.innerHTML = '<span style="color:var(--error)">Enter API token</span>'; return; }
+  btn.disabled = true; btn.textContent = 'Extracting...';
+  status.innerHTML = '<span style="color:var(--muted)">Fetching CIQ data (30-60s)...</span>';
+  try {
+    var r = await api('POST', '/api/tester/extract', { apiToken: token });
+    _cmpExtraction = r;
+    status.innerHTML = '<span style="color:var(--success)">Extracted: ' + (r.plans||[]).length + ' plans, ' + (r.workbooks||[]).length + ' workbooks</span>';
+    populatePlanSelector(_cmpExtraction);
+  } catch(e) {
+    status.innerHTML = '<span style="color:var(--error)">Error: ' + esc(e.message) + '</span>';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Extract from CIQ';
+  }
+}
+
+function populatePlanSelector(extraction) {
+  if (!extraction || !extraction.plans || extraction.plans.length === 0) {
+    hidePlanSelector();
+    return;
+  }
+
+  var container = document.getElementById('cmp-plan-list');
+  var wrapper = document.getElementById('cmp-plan-selector');
+  var actions = document.getElementById('cmp-actions');
+  wrapper.style.display = 'block';
+  actions.style.display = 'flex';
+
+  var plans = extraction.plans;
+
+  // FY duplicate detection
+  var fyRegex = /(?:FY|20)(\d{2})/i;
+  var groups = {};
+  for (var i = 0; i < plans.length; i++) {
+    var p = plans[i];
+    var fyMatch = p.name.match(fyRegex);
+    var fy = fyMatch ? parseInt(fyMatch[1]) : null;
+    var baseName = p.name.replace(fyRegex, '').replace(/\s+/g, ' ').trim();
+    if (!groups[baseName]) groups[baseName] = [];
+    groups[baseName].push({ plan: p, fy: fy, index: i });
+  }
+
+  var html = '';
+  var groupKeys = Object.keys(groups);
+  for (var g = 0; g < groupKeys.length; g++) {
+    var key = groupKeys[g];
+    var group = groups[key];
+    var isDup = group.length > 1 && group.some(function(x) { return x.fy !== null; });
+
+    if (isDup) {
+      html += '<div style="background:var(--warning-dim);border:1px solid rgba(210,153,34,0.2);border-radius:var(--radius-sm);padding:6px 8px;margin-bottom:6px">';
+      html += '<div style="font-size:10px;color:var(--orange);font-weight:600;margin-bottom:4px">FY Duplicate Group: ' + esc(key) + '</div>';
+    }
+
+    // Sort by FY descending so newest is first
+    group.sort(function(a, b) { return (b.fy || 0) - (a.fy || 0); });
+
+    for (var m = 0; m < group.length; m++) {
+      var item = group[m];
+      var pp = item.plan;
+      // Default: check newest FY in dup group, uncheck older; check all non-dup
+      var checked = isDup ? (m === 0) : true;
+      var stale = isDup && m > 0;
+      html += '<label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer' + (stale ? ';opacity:0.6' : '') + '">';
+      html += '<input type="checkbox" class="cmp-plan-cb" value="' + pp.id + '"' + (checked ? ' checked' : '') + ' style="accent-color:var(--primary)">';
+      html += '<span style="font-size:12px;color:var(--fg2)">' + esc(pp.name) + '</span>';
+      if (pp.periodType) html += ' <span style="font-size:10px;color:var(--muted)">(' + esc(pp.periodType) + ')</span>';
+      if (pp.status) html += ' <span style="font-size:10px;color:var(--muted)">[' + esc(pp.status) + ']</span>';
+      if (stale) html += ' <span style="font-size:9px;color:var(--orange);background:var(--warning-dim);padding:0 4px;border-radius:3px;margin-left:4px">older FY</span>';
+      html += '</label>';
+    }
+
+    if (isDup) html += '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+function hidePlanSelector() {
+  var wrapper = document.getElementById('cmp-plan-selector');
+  var actions = document.getElementById('cmp-actions');
+  if (wrapper) wrapper.style.display = 'none';
+  if (actions) actions.style.display = 'none';
+}
+
+function cmpSelectAll(checked) {
+  var cbs = document.querySelectorAll('.cmp-plan-cb');
+  for (var i = 0; i < cbs.length; i++) cbs[i].checked = checked;
+}
+
+async function runOfflineComparison() {
+  var pid = document.getElementById('cmp-project').value;
+  if (!pid) { toast('Select a builder project first', 'error'); return; }
+  if (!_cmpExtraction) { toast('Load extraction data first', 'error'); return; }
+
+  var cbs = document.querySelectorAll('.cmp-plan-cb:checked');
+  var selectedIds = [];
+  for (var i = 0; i < cbs.length; i++) selectedIds.push(cbs[i].value);
+  if (selectedIds.length === 0) { toast('Select at least one plan', 'error'); return; }
+
+  var btn = document.getElementById('btn-cmp-run');
+  var container = document.getElementById('cmp-results');
+  btn.disabled = true; btn.textContent = 'Comparing...';
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">Running offline comparison...</div>';
+
+  try {
+    var body = {
+      projectId: pid,
+      selectedPlanIds: selectedIds,
+      extractionData: _cmpExtraction,
+    };
+    // If profile is selected, use profileId instead
+    if (_cmpSourceTab === 'profile') {
+      var profileId = document.getElementById('cmp-profile').value;
+      if (profileId) {
+        body.profileId = profileId;
+        delete body.extractionData;
+      }
+    }
+    var r = await api('POST', '/api/compare', body);
+    container.innerHTML = renderPlanTestReport(r);
+    toast('Comparison complete: ' + r.trueToPlanScore + '% true to plan', 'success');
+  } catch(e) {
+    container.innerHTML = '<div style="padding:16px;color:var(--error);font-size:13px">Error: ' + esc(e.message) + '</div>';
+    toast('Comparison failed', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Compare';
+  }
+}
+
+async function saveAsProfile() {
+  if (!_cmpExtraction) { toast('No extraction data to save', 'error'); return; }
+  var name = prompt('Profile name:');
+  if (!name || !name.trim()) return;
+  var desc = prompt('Description (optional):');
+  try {
+    await api('POST', '/api/profiles', { name: name.trim(), description: (desc && desc.trim()) || undefined, data: _cmpExtraction });
+    toast('Profile saved: ' + name, 'success');
+    // Reload profiles dropdown
+    loadCompareData();
+  } catch(e) {
+    toast('Failed to save profile: ' + e.message, 'error');
+  }
+}
+
+async function deleteSelectedProfile() {
+  var profileId = document.getElementById('cmp-profile').value;
+  if (!profileId) { toast('Select a profile first', 'error'); return; }
+  if (!confirm('Delete this profile?')) return;
+  try {
+    await api('DELETE', '/api/profiles/' + profileId);
+    toast('Profile deleted', 'success');
+    _cmpExtraction = null;
+    hidePlanSelector();
+    loadCompareData();
+  } catch(e) {
+    toast('Failed to delete: ' + e.message, 'error');
+  }
+}
+
 </script>
 </body>
 </html>

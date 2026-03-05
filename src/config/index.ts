@@ -44,9 +44,9 @@ export function getVendorAuth(vendor: VendorId): IAuthConfig {
 
 /**
  * Get AI interpreter configuration from environment variables.
+ * Falls back to Claude CLI (no API key needed) if no env vars set.
  */
 export function getInterpreterConfig(): IInterpreterConfig {
-  // Priority: AICR Gateway > Claude direct > OpenAI fallback
   if (process.env.AICR_GATEWAY_URL && process.env.AICR_API_KEY) {
     return {
       provider: 'aicr-gateway',
@@ -72,18 +72,3 @@ export function getInterpreterConfig(): IInterpreterConfig {
     };
   }
 
-  // Fallback to Claude CLI (no API key needed — extractor spawns CLI directly)
-  return {
-    provider: 'claude',
-    apiKey: '',
-    model: 'claude-opus-4-6',
-  };
-}
-
-function requireEnv(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${key}`);
-  }
-  return value;
-}
