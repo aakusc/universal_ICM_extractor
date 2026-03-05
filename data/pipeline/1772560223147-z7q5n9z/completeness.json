@@ -1,0 +1,777 @@
+{
+  "analyzedAt": "2026-03-03T20:38:48.586Z",
+  "overallReadiness": 80,
+  "categorySummaries": [
+    {
+      "category": "plan-setup",
+      "displayName": "Plan Setup",
+      "total": 6,
+      "complete": 5,
+      "partial": 1,
+      "missing": 0,
+      "completionPercent": 92
+    },
+    {
+      "category": "data-workbooks",
+      "displayName": "Data Workbooks",
+      "total": 5,
+      "complete": 4,
+      "partial": 1,
+      "missing": 0,
+      "completionPercent": 90
+    },
+    {
+      "category": "employee-assumptions",
+      "displayName": "Employee Assumptions",
+      "total": 5,
+      "complete": 4,
+      "partial": 1,
+      "missing": 0,
+      "completionPercent": 90
+    },
+    {
+      "category": "global-attributes",
+      "displayName": "Global Attributes",
+      "total": 4,
+      "complete": 3,
+      "partial": 1,
+      "missing": 0,
+      "completionPercent": 88
+    },
+    {
+      "category": "formulas",
+      "displayName": "Formulas / SmartGrid",
+      "total": 7,
+      "complete": 5,
+      "partial": 2,
+      "missing": 0,
+      "completionPercent": 86
+    },
+    {
+      "category": "payouts",
+      "displayName": "Payouts",
+      "total": 3,
+      "complete": 2,
+      "partial": 1,
+      "missing": 0,
+      "completionPercent": 83
+    },
+    {
+      "category": "organization",
+      "displayName": "Organization",
+      "total": 3,
+      "complete": 1,
+      "partial": 2,
+      "missing": 0,
+      "completionPercent": 67
+    },
+    {
+      "category": "data-quality",
+      "displayName": "Data Quality",
+      "total": 5,
+      "complete": 1,
+      "partial": 2,
+      "missing": 2,
+      "completionPercent": 40
+    }
+  ],
+  "items": [
+    {
+      "id": "plan-setup.plan-name",
+      "name": "Plan name defined",
+      "category": "plan-setup",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Plan: \"Brightspeed FY2026 Unified Compensation Plan\"",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.period-type",
+      "name": "Period type defined",
+      "category": "plan-setup",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Period: mixed",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.effective-dates",
+      "name": "Effective dates identified",
+      "category": "plan-setup",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Date refs: 2025, 2026, FY2026",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.components",
+      "name": "Payout components defined",
+      "category": "plan-setup",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Components: D2D Partner Commission (weekly), Indirect Partner Commission (weekly), Outbound/OTM Partner Commission (monthly), Digital Partner Commission (weekly/monthly), MDU AE Units Contracted (monthly), MDU TSR Units Sold (monthly), MDU TSR Penetration (monthly), MDU Management Attainment (monthly), MDU 5-Contract Bonus (monthly), Cancel Chargebacks, Disconnect Chargebacks, Compliance Waivers",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.multi-plan-decision",
+      "name": "Multi-plan structure decided",
+      "category": "plan-setup",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "9 roles detected: AE, TSR (MDU), TSR (SFU), TSR, Manager",
+      "gapDescription": "Multiple roles found but no decision on single vs. multi-plan structure",
+      "suggestedAction": "Decide: single plan with role-based components, or separate plans per role (AE, TSR (MDU), TSR (SFU), TSR, Manager, Director, Natl AE, SDR, manager)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.roles-per-component",
+      "name": "Roles mapped to components",
+      "category": "plan-setup",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "9 roles, 12 components",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-workbooks.rate-tables-exist",
+      "name": "Rate tables defined",
+      "category": "data-workbooks",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "6 rate table worksheets, 12 rate rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "d2d-speed-rate-table",
+        "indirect-speed-rate-table",
+        "outbound-speed-rate-table",
+        "digital-partner-rate-matrix",
+        "partner-vas-voice-rate-table",
+        "mdu-ae-contract-type-rate-table",
+        "mdu-tsr-compensation-formulas",
+        "mdu-management-compensation-formulas",
+        "d2d-partner-group-mapping",
+        "rate-selection-logic-unified",
+        "d2d-internal-director-comp",
+        "bcr-employee-formula"
+      ]
+    },
+    {
+      "id": "data-workbooks.tier-completeness",
+      "name": "Rate tier data complete",
+      "category": "data-workbooks",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "44 tier issues found",
+      "gapDescription": "d2d-speed-rate-table: tier 1 missing rate; d2d-speed-rate-table: tier 2 missing rate; d2d-speed-rate-table: tier 2 missing threshold; d2d-speed-rate-table: tier 3 missing rate; d2d-speed-rate-table: tier 3 missing threshold; d2d-speed-rate-table: tier 4 missing rate; d2d-speed-rate-table: tier 4 missing threshold; d2d-speed-rate-table: tier 5 missing rate; d2d-speed-rate-table: tier 5 missing threshold; d2d-speed-rate-table: tier 6 missing rate; d2d-speed-rate-table: tier 6 missing threshold; d2d-speed-rate-table: tier 7 missing rate; d2d-speed-rate-table: tier 7 missing threshold; d2d-speed-rate-table: tier 8 missing rate; d2d-speed-rate-table: tier 8 missing threshold; d2d-speed-rate-table: tier 9 missing rate; d2d-speed-rate-table: tier 9 missing threshold; indirect-speed-rate-table: tier 1 missing rate; indirect-speed-rate-table: tier 2 missing rate; indirect-speed-rate-table: tier 2 missing threshold; indirect-speed-rate-table: tier 3 missing rate; indirect-speed-rate-table: tier 3 missing threshold; indirect-speed-rate-table: tier 4 missing rate; indirect-speed-rate-table: tier 4 missing threshold; indirect-speed-rate-table: tier 5 missing rate; indirect-speed-rate-table: tier 5 missing threshold; indirect-speed-rate-table: tier 6 missing rate; indirect-speed-rate-table: tier 6 missing threshold; outbound-speed-rate-table: tier 1 missing rate; outbound-speed-rate-table: tier 2 missing rate; outbound-speed-rate-table: tier 2 missing threshold; outbound-speed-rate-table: tier 3 missing rate; outbound-speed-rate-table: tier 3 missing threshold; outbound-speed-rate-table: tier 4 missing rate; outbound-speed-rate-table: tier 4 missing threshold; digital-partner-rate-matrix: no tiers; partner-vas-voice-rate-table: no tiers; mdu-ae-contract-type-rate-table: no tiers; mdu-tsr-compensation-formulas: no tiers; mdu-management-compensation-formulas: no tiers; d2d-partner-group-mapping: no tiers; rate-selection-logic-unified: no tiers; d2d-internal-director-comp: no tiers; bcr-employee-formula: no tiers",
+      "suggestedAction": "Fill in missing rate values and tier thresholds",
+      "sourceRuleIds": [
+        "d2d-speed-rate-table",
+        "indirect-speed-rate-table",
+        "outbound-speed-rate-table",
+        "digital-partner-rate-matrix",
+        "partner-vas-voice-rate-table",
+        "mdu-ae-contract-type-rate-table",
+        "mdu-tsr-compensation-formulas",
+        "mdu-management-compensation-formulas",
+        "d2d-partner-group-mapping",
+        "rate-selection-logic-unified",
+        "d2d-internal-director-comp",
+        "bcr-employee-formula"
+      ]
+    },
+    {
+      "id": "data-workbooks.column-definitions",
+      "name": "Worksheet columns typed",
+      "category": "data-workbooks",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "8 worksheets all have typed columns",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-workbooks.lookup-tables",
+      "name": "Lookup/mapping tables exist",
+      "category": "data-workbooks",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "1 lookup worksheets, 5 attribute worksheets",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-workbooks.sample-data",
+      "name": "Sample data available",
+      "category": "data-workbooks",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "All 8 worksheets have sample data",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "employee-assumptions.quota-defined",
+      "name": "Quota targets defined",
+      "category": "employee-assumptions",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "6 quota columns, 3 quota rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "quota-mdu-individual-targets",
+        "quota-mdu-management-targets",
+        "processing-period-rules"
+      ]
+    },
+    {
+      "id": "employee-assumptions.tsi-defined",
+      "name": "TSI/OTE/variable comp defined",
+      "category": "employee-assumptions",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "TSI/OTE columns: Annual TSI, Monthly TSI",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "employee-assumptions.base-rate-derivable",
+      "name": "Base commission rate derivable",
+      "category": "employee-assumptions",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "Rate derivable from 0 columns + 12 rate rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "d2d-speed-rate-table",
+        "indirect-speed-rate-table",
+        "outbound-speed-rate-table",
+        "digital-partner-rate-matrix",
+        "partner-vas-voice-rate-table",
+        "mdu-ae-contract-type-rate-table",
+        "mdu-tsr-compensation-formulas",
+        "mdu-management-compensation-formulas",
+        "d2d-partner-group-mapping",
+        "rate-selection-logic-unified",
+        "d2d-internal-director-comp",
+        "bcr-employee-formula"
+      ]
+    },
+    {
+      "id": "employee-assumptions.all-roles-covered",
+      "name": "All roles have assumptions",
+      "category": "employee-assumptions",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "8/9 roles covered",
+      "gapDescription": "Missing assumptions for: SDR",
+      "suggestedAction": "Provide quota/TSI/rate assumptions for: SDR",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "employee-assumptions.no-missing-values",
+      "name": "No TBD/placeholder values",
+      "category": "employee-assumptions",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "No placeholder values in assumptions",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.territory-mapping",
+      "name": "Territory mapping defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "1 territory worksheets, 1 territory rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "territory-wirecenter-geographic"
+      ]
+    },
+    {
+      "id": "global-attributes.partner-mapping",
+      "name": "Partner/channel mapping",
+      "category": "global-attributes",
+      "priority": "optional",
+      "status": "complete",
+      "evidence": "Partner worksheets: Partner Group Mapping, Sales ID to Partner Mapping, Partner Hierarchy",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.product-mapping",
+      "name": "Product mapping defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "Product data: Digital Product Name Mapping",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.role-hierarchy",
+      "name": "Role/org hierarchy defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Hierarchy referenced in insights but no formal structure",
+      "gapDescription": "Manager/hierarchy references exist but no formal hierarchy worksheet",
+      "suggestedAction": "Create org hierarchy attribute worksheet for roll-up calculations",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "formulas.commission-calc",
+      "name": "Commission calculation logic",
+      "category": "formulas",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "3 commission formulas, 12 rate rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "d2d-speed-rate-table",
+        "indirect-speed-rate-table",
+        "outbound-speed-rate-table",
+        "digital-partner-rate-matrix",
+        "partner-vas-voice-rate-table",
+        "mdu-ae-contract-type-rate-table",
+        "mdu-tsr-compensation-formulas",
+        "mdu-management-compensation-formulas",
+        "d2d-partner-group-mapping",
+        "rate-selection-logic-unified",
+        "d2d-internal-director-comp",
+        "bcr-employee-formula"
+      ]
+    },
+    {
+      "id": "formulas.attainment-calc",
+      "name": "Attainment calculation defined",
+      "category": "formulas",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Attainment formulas: quota-target, quota-target",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "quota-mdu-individual-targets",
+        "quota-mdu-management-targets",
+        "processing-period-rules"
+      ]
+    },
+    {
+      "id": "formulas.accelerator",
+      "name": "Accelerator/decelerator logic",
+      "category": "formulas",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "1 rules but no formula recommendation",
+      "gapDescription": "Accelerator rules exist but no formula recommendation",
+      "suggestedAction": "Add formula recommendation for accelerator calculation",
+      "sourceRuleIds": [
+        "decelerator-outbound-below-quota"
+      ]
+    },
+    {
+      "id": "formulas.qualifier-gates",
+      "name": "Qualifier/gate logic",
+      "category": "formulas",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "7 qualifier rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "commission-crediting-basis",
+        "qualifier-copper-exclusion-d2d",
+        "qualifier-digital-product-mapping",
+        "qualifier-compliance-gate",
+        "qualifier-d2d-partner-eligibility",
+        "qualifier-variable-data-change-rule",
+        "qualifier-order-type-eligibility"
+      ]
+    },
+    {
+      "id": "formulas.clawback",
+      "name": "Clawback logic",
+      "category": "formulas",
+      "priority": "optional",
+      "status": "complete",
+      "evidence": "2 clawback rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "clawback-cancel-rules",
+        "clawback-disconnect-rules"
+      ]
+    },
+    {
+      "id": "formulas.cap-floor",
+      "name": "Cap/floor limits defined",
+      "category": "formulas",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "3 cap/floor rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "cap-mdu-by-role",
+        "cap-partner-channels-none",
+        "inside-wire-protection-zero-rate"
+      ]
+    },
+    {
+      "id": "formulas.crediting-basis",
+      "name": "Crediting basis defined",
+      "category": "formulas",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "Crediting referenced in rules but no explicit formula",
+      "gapDescription": "Crediting basis mentioned but not formally defined",
+      "suggestedAction": "Explicitly define crediting basis (booked, recognized, installed, etc.)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "payouts.processing-period",
+      "name": "Processing period defined",
+      "category": "payouts",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Period: mixed",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "payouts.payment-timing",
+      "name": "Payment timing/frequency",
+      "category": "payouts",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "Payment timing referenced in plan data",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "payouts.payout-components",
+      "name": "Components map to plan",
+      "category": "payouts",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "12 components defined but no formula mapping",
+      "gapDescription": "Components exist but no formulas map to them",
+      "suggestedAction": "Create formula recommendations that reference payout components",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.roles-identified",
+      "name": "Roles identified",
+      "category": "organization",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Roles: AE, TSR (MDU), TSR (SFU), TSR, Manager, Director, Natl AE, SDR, manager",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.hierarchy",
+      "name": "Management hierarchy",
+      "category": "organization",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Management roles found: Manager, Director, manager",
+      "gapDescription": "Management roles exist but formal hierarchy not structured",
+      "suggestedAction": "Define formal reporting hierarchy for roll-up calculations",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.user-groups",
+      "name": "User groups/segments",
+      "category": "organization",
+      "priority": "optional",
+      "status": "partial",
+      "evidence": "Groups referenced but no dedicated attribute",
+      "gapDescription": "User groups mentioned but no structured group mapping",
+      "suggestedAction": "Create user group/segment attribute worksheet",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-quality.no-placeholders",
+      "name": "No placeholder values",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "missing",
+      "evidence": "4 placeholders in 3 rules",
+      "gapDescription": "quota-mdu-individual-targets: roles.TSR_SFU.note; decelerator-outbound-below-quota: effect; d2d-internal-director-comp: bonus, status",
+      "suggestedAction": "Resolve 4 placeholder values with actual data",
+      "sourceRuleIds": [
+        "quota-mdu-individual-targets",
+        "decelerator-outbound-below-quota",
+        "d2d-internal-director-comp"
+      ]
+    },
+    {
+      "id": "data-quality.no-contradictions",
+      "name": "No rule contradictions",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "missing",
+      "evidence": "1 contradictions",
+      "gapDescription": "commission-crediting-basis: Consolidation.xlsx note 'Currently Issued but moving to Install' for D2D creates directional ambiguity. The conflict resolution assumes this is outdated, but if it is a forward-looking plan note dated after 9/7/2025, it would mean D2D is expected to revert to Installed ba",
+      "suggestedAction": "Resolve contradicting rules before building",
+      "sourceRuleIds": [
+        "commission-crediting-basis"
+      ]
+    },
+    {
+      "id": "data-quality.cross-refs-resolved",
+      "name": "Cross-references resolved",
+      "category": "data-quality",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "10 cross-references established",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "d2d-speed-rate-table",
+        "digital-partner-rate-matrix",
+        "clawback-cancel-rules",
+        "quota-mdu-individual-targets",
+        "mdu-tsr-compensation-formulas",
+        "outbound-speed-rate-table",
+        "commission-crediting-basis",
+        "territory-wirecenter-geographic",
+        "qualifier-compliance-gate",
+        "mdu-management-compensation-formulas"
+      ]
+    },
+    {
+      "id": "data-quality.low-confidence",
+      "name": "No low-confidence rules",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "3 rules below 0.7 confidence",
+      "gapDescription": "decelerator-outbound-below-quota (0.6): Outbound Partner channel applies a penalty for performance b; draw-recoverable (0.6): Recoverable draw exists for certain Employee plans. OTM part; d2d-internal-director-comp (0.65): D2D Director internal employee compensation with three weigh",
+      "suggestedAction": "Review low-confidence rules — provide clearer source data or confirm correctness",
+      "sourceRuleIds": [
+        "decelerator-outbound-below-quota",
+        "draw-recoverable",
+        "d2d-internal-director-comp"
+      ]
+    },
+    {
+      "id": "data-quality.source-verified",
+      "name": "Source data verified",
+      "category": "data-quality",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "4/9 source checks failed",
+      "gapDescription": "rate-accuracy-digital-rate-table: Digital.xlsx Digital Rate Table source data shows Sales ID 20,001,125 and 20,001,126 at $475 New Install Fiber / $380 New Install Copper, and 20,001,129 and 20,001,135 at $350 / $250. The extracted rule states Fiber new-install bounties range from $90 (Acquisition) ",
+      "suggestedAction": "Review and correct source data mismatches",
+      "sourceRuleIds": []
+    }
+  ],
+  "blockers": [
+    {
+      "id": "data-workbooks.tier-completeness",
+      "name": "Rate tier data complete",
+      "category": "data-workbooks",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "44 tier issues found",
+      "gapDescription": "d2d-speed-rate-table: tier 1 missing rate; d2d-speed-rate-table: tier 2 missing rate; d2d-speed-rate-table: tier 2 missing threshold; d2d-speed-rate-table: tier 3 missing rate; d2d-speed-rate-table: tier 3 missing threshold; d2d-speed-rate-table: tier 4 missing rate; d2d-speed-rate-table: tier 4 missing threshold; d2d-speed-rate-table: tier 5 missing rate; d2d-speed-rate-table: tier 5 missing threshold; d2d-speed-rate-table: tier 6 missing rate; d2d-speed-rate-table: tier 6 missing threshold; d2d-speed-rate-table: tier 7 missing rate; d2d-speed-rate-table: tier 7 missing threshold; d2d-speed-rate-table: tier 8 missing rate; d2d-speed-rate-table: tier 8 missing threshold; d2d-speed-rate-table: tier 9 missing rate; d2d-speed-rate-table: tier 9 missing threshold; indirect-speed-rate-table: tier 1 missing rate; indirect-speed-rate-table: tier 2 missing rate; indirect-speed-rate-table: tier 2 missing threshold; indirect-speed-rate-table: tier 3 missing rate; indirect-speed-rate-table: tier 3 missing threshold; indirect-speed-rate-table: tier 4 missing rate; indirect-speed-rate-table: tier 4 missing threshold; indirect-speed-rate-table: tier 5 missing rate; indirect-speed-rate-table: tier 5 missing threshold; indirect-speed-rate-table: tier 6 missing rate; indirect-speed-rate-table: tier 6 missing threshold; outbound-speed-rate-table: tier 1 missing rate; outbound-speed-rate-table: tier 2 missing rate; outbound-speed-rate-table: tier 2 missing threshold; outbound-speed-rate-table: tier 3 missing rate; outbound-speed-rate-table: tier 3 missing threshold; outbound-speed-rate-table: tier 4 missing rate; outbound-speed-rate-table: tier 4 missing threshold; digital-partner-rate-matrix: no tiers; partner-vas-voice-rate-table: no tiers; mdu-ae-contract-type-rate-table: no tiers; mdu-tsr-compensation-formulas: no tiers; mdu-management-compensation-formulas: no tiers; d2d-partner-group-mapping: no tiers; rate-selection-logic-unified: no tiers; d2d-internal-director-comp: no tiers; bcr-employee-formula: no tiers",
+      "suggestedAction": "Fill in missing rate values and tier thresholds",
+      "sourceRuleIds": [
+        "d2d-speed-rate-table",
+        "indirect-speed-rate-table",
+        "outbound-speed-rate-table",
+        "digital-partner-rate-matrix",
+        "partner-vas-voice-rate-table",
+        "mdu-ae-contract-type-rate-table",
+        "mdu-tsr-compensation-formulas",
+        "mdu-management-compensation-formulas",
+        "d2d-partner-group-mapping",
+        "rate-selection-logic-unified",
+        "d2d-internal-director-comp",
+        "bcr-employee-formula"
+      ]
+    },
+    {
+      "id": "employee-assumptions.all-roles-covered",
+      "name": "All roles have assumptions",
+      "category": "employee-assumptions",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "8/9 roles covered",
+      "gapDescription": "Missing assumptions for: SDR",
+      "suggestedAction": "Provide quota/TSI/rate assumptions for: SDR",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "formulas.crediting-basis",
+      "name": "Crediting basis defined",
+      "category": "formulas",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "Crediting referenced in rules but no explicit formula",
+      "gapDescription": "Crediting basis mentioned but not formally defined",
+      "suggestedAction": "Explicitly define crediting basis (booked, recognized, installed, etc.)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-quality.no-placeholders",
+      "name": "No placeholder values",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "missing",
+      "evidence": "4 placeholders in 3 rules",
+      "gapDescription": "quota-mdu-individual-targets: roles.TSR_SFU.note; decelerator-outbound-below-quota: effect; d2d-internal-director-comp: bonus, status",
+      "suggestedAction": "Resolve 4 placeholder values with actual data",
+      "sourceRuleIds": [
+        "quota-mdu-individual-targets",
+        "decelerator-outbound-below-quota",
+        "d2d-internal-director-comp"
+      ]
+    },
+    {
+      "id": "data-quality.no-contradictions",
+      "name": "No rule contradictions",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "missing",
+      "evidence": "1 contradictions",
+      "gapDescription": "commission-crediting-basis: Consolidation.xlsx note 'Currently Issued but moving to Install' for D2D creates directional ambiguity. The conflict resolution assumes this is outdated, but if it is a forward-looking plan note dated after 9/7/2025, it would mean D2D is expected to revert to Installed ba",
+      "suggestedAction": "Resolve contradicting rules before building",
+      "sourceRuleIds": [
+        "commission-crediting-basis"
+      ]
+    },
+    {
+      "id": "data-quality.low-confidence",
+      "name": "No low-confidence rules",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "3 rules below 0.7 confidence",
+      "gapDescription": "decelerator-outbound-below-quota (0.6): Outbound Partner channel applies a penalty for performance b; draw-recoverable (0.6): Recoverable draw exists for certain Employee plans. OTM part; d2d-internal-director-comp (0.65): D2D Director internal employee compensation with three weigh",
+      "suggestedAction": "Review low-confidence rules — provide clearer source data or confirm correctness",
+      "sourceRuleIds": [
+        "decelerator-outbound-below-quota",
+        "draw-recoverable",
+        "d2d-internal-director-comp"
+      ]
+    }
+  ],
+  "quickWins": [
+    {
+      "id": "plan-setup.multi-plan-decision",
+      "name": "Multi-plan structure decided",
+      "category": "plan-setup",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "9 roles detected: AE, TSR (MDU), TSR (SFU), TSR, Manager",
+      "gapDescription": "Multiple roles found but no decision on single vs. multi-plan structure",
+      "suggestedAction": "Decide: single plan with role-based components, or separate plans per role (AE, TSR (MDU), TSR (SFU), TSR, Manager, Director, Natl AE, SDR, manager)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.role-hierarchy",
+      "name": "Role/org hierarchy defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Hierarchy referenced in insights but no formal structure",
+      "gapDescription": "Manager/hierarchy references exist but no formal hierarchy worksheet",
+      "suggestedAction": "Create org hierarchy attribute worksheet for roll-up calculations",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "formulas.accelerator",
+      "name": "Accelerator/decelerator logic",
+      "category": "formulas",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "1 rules but no formula recommendation",
+      "gapDescription": "Accelerator rules exist but no formula recommendation",
+      "suggestedAction": "Add formula recommendation for accelerator calculation",
+      "sourceRuleIds": [
+        "decelerator-outbound-below-quota"
+      ]
+    },
+    {
+      "id": "payouts.payout-components",
+      "name": "Components map to plan",
+      "category": "payouts",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "12 components defined but no formula mapping",
+      "gapDescription": "Components exist but no formulas map to them",
+      "suggestedAction": "Create formula recommendations that reference payout components",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.hierarchy",
+      "name": "Management hierarchy",
+      "category": "organization",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Management roles found: Manager, Director, manager",
+      "gapDescription": "Management roles exist but formal hierarchy not structured",
+      "suggestedAction": "Define formal reporting hierarchy for roll-up calculations",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.user-groups",
+      "name": "User groups/segments",
+      "category": "organization",
+      "priority": "optional",
+      "status": "partial",
+      "evidence": "Groups referenced but no dedicated attribute",
+      "gapDescription": "User groups mentioned but no structured group mapping",
+      "suggestedAction": "Create user group/segment attribute worksheet",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-quality.source-verified",
+      "name": "Source data verified",
+      "category": "data-quality",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "4/9 source checks failed",
+      "gapDescription": "rate-accuracy-digital-rate-table: Digital.xlsx Digital Rate Table source data shows Sales ID 20,001,125 and 20,001,126 at $475 New Install Fiber / $380 New Install Copper, and 20,001,129 and 20,001,135 at $350 / $250. The extracted rule states Fiber new-install bounties range from $90 (Acquisition) ",
+      "suggestedAction": "Review and correct source data mismatches",
+      "sourceRuleIds": []
+    }
+  ],
+  "counts": {
+    "total": 38,
+    "complete": 25,
+    "partial": 11,
+    "missing": 2,
+    "notApplicable": 0
+  }
+}

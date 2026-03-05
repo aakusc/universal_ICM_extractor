@@ -1,0 +1,1145 @@
+{
+  "id": "1772564183162-glxh3vo",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560418168-vo8ud6j",
+  "fileName": "Requirements.xlsx",
+  "extractedAt": "2026-03-03T18:56:23.162Z",
+  "classification": {
+    "fileType": "policy-doc",
+    "summary": "Brightspeed FY2026 ICM Business Requirements Document covering Partner and Employee compensation plans across D2D, Indirect, Outbound, Dig Partners, and Employee channels",
+    "relevantSheets": [
+      "Checklist",
+      "Functional Requirements",
+      "Business Requirements ",
+      "Check List",
+      "Data Requirements"
+    ],
+    "irrelevantSheets": [
+      "How-ToFAQ",
+      "Format Guide (v1 - incomplete)",
+      "Pilot Feedback",
+      "Summary",
+      "Acronym",
+      "Reports",
+      "Requested Reports",
+      "Questions"
+    ]
+  },
+  "rules": [
+    {
+      "id": "rate-table-d2d-new-install",
+      "concept": "rate-table",
+      "description": "D2D Partner channel new install commission rates by internet speed tier, ranging from $350 to $625 per unit",
+      "parameters": {
+        "channel": "D2D",
+        "orderType": "New Install",
+        "rateType": "per-unit-by-speed",
+        "minRate": 350,
+        "maxRate": 625,
+        "currency": "USD",
+        "creditingBasis": "Issued (changed from Installed effective 9/7)",
+        "lookupKeys": [
+          "Technology",
+          "Channel",
+          "Product Name",
+          "Order Type"
+        ]
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!D30:F33",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "D2D​ | 13​ | Prior to 9/6: Installed​ | $350 - $625​ | $350 - $625​ | $15 - $50​"
+        }
+      }
+    },
+    {
+      "id": "rate-table-d2d-migration",
+      "concept": "rate-table",
+      "description": "D2D Partner channel migration commission rates by internet speed tier, ranging from $350 to $625 per unit",
+      "parameters": {
+        "channel": "D2D",
+        "orderType": "Migration",
+        "rateType": "per-unit-by-speed",
+        "minRate": 350,
+        "maxRate": 625,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!E30",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "D2D | Migration | $350 - $625 by Speed Rate per unit"
+        }
+      }
+    },
+    {
+      "id": "rate-table-d2d-voip-vas",
+      "concept": "rate-table",
+      "description": "D2D Partner channel VOIP & VAS (Value Added Service) commission rates ranging from $15 to $50 per unit",
+      "parameters": {
+        "channel": "D2D",
+        "orderType": "VOIP & VAS",
+        "rateType": "per-unit",
+        "minRate": 15,
+        "maxRate": 50,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!F30",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "VOIP & VAS: $15 - $50"
+        }
+      }
+    },
+    {
+      "id": "rate-table-indirect-new-install",
+      "concept": "rate-table",
+      "description": "Indirect Partner channel new install commission rates by speed tier, ranging from $300 to $575 per unit",
+      "parameters": {
+        "channel": "Indirect",
+        "orderType": "New Install",
+        "rateType": "per-unit-by-speed",
+        "minRate": 300,
+        "maxRate": 575,
+        "currency": "USD",
+        "creditingBasis": "Installed"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!D32:F32",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Indirect​ | 10​ | Installed​ | $300 - $575​ | $250 - $375​ | $15 - $50​"
+        }
+      }
+    },
+    {
+      "id": "rate-table-indirect-migration",
+      "concept": "rate-table",
+      "description": "Indirect Partner channel migration commission rates by speed tier, ranging from $250 to $375 per unit",
+      "parameters": {
+        "channel": "Indirect",
+        "orderType": "Migration",
+        "rateType": "per-unit-by-speed",
+        "minRate": 250,
+        "maxRate": 375,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!E32",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Indirect | Migration | $250 - $375 by Speed Rate per unit"
+        }
+      }
+    },
+    {
+      "id": "rate-table-indirect-voip-vas",
+      "concept": "rate-table",
+      "description": "Indirect Partner channel VOIP & VAS commission rates ranging from $15 to $50 per unit",
+      "parameters": {
+        "channel": "Indirect",
+        "orderType": "VOIP & VAS",
+        "rateType": "per-unit",
+        "minRate": 15,
+        "maxRate": 50,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!F32",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Indirect | VOIP & VAS | $15 - $50"
+        }
+      }
+    },
+    {
+      "id": "rate-table-outbound-new-install",
+      "concept": "rate-table",
+      "description": "Outbound Partner channel new install commission rates by speed tier, ranging from $450 to $700 per unit",
+      "parameters": {
+        "channel": "Outbound",
+        "orderType": "New Install",
+        "rateType": "per-unit-by-speed",
+        "minRate": 450,
+        "maxRate": 700,
+        "currency": "USD",
+        "creditingBasis": "Issued"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!D33:F33",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Outbound​ | 5​ | Issued​ | $450 - $700​ | $125 - $185​ | $15 - $50​"
+        }
+      }
+    },
+    {
+      "id": "rate-table-outbound-migration",
+      "concept": "rate-table",
+      "description": "Outbound Partner channel migration commission rates by speed tier, ranging from $125 to $185 per unit",
+      "parameters": {
+        "channel": "Outbound",
+        "orderType": "Migration",
+        "rateType": "per-unit-by-speed",
+        "minRate": 125,
+        "maxRate": 185,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!E33",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Outbound | Migration | $125 - $185 by Speed Rate per unit"
+        }
+      }
+    },
+    {
+      "id": "rate-table-outbound-voip-vas",
+      "concept": "rate-table",
+      "description": "Outbound Partner channel VOIP & VAS commission rates ranging from $15 to $50 per unit",
+      "parameters": {
+        "channel": "Outbound",
+        "orderType": "VOIP & VAS",
+        "rateType": "per-unit",
+        "minRate": 15,
+        "maxRate": 50,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!F33",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Outbound | VOIP & VAS | $15 - $50"
+        }
+      }
+    },
+    {
+      "id": "rate-table-dig-acquisition",
+      "concept": "rate-table",
+      "description": "Dig Partners channel acquisition flat rate of $90 per unit",
+      "parameters": {
+        "channel": "Dig Partners",
+        "orderType": "Acquisition",
+        "rateType": "flat-per-unit",
+        "rate": 90,
+        "currency": "USD",
+        "creditingBasis": "Installed"
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!D35:D38",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Dig Partners | Acquisition: $90 | Branded: $170 - $250 | Non-Branded: $230 - $500 | Non-Paid Media: $230 - $475"
+        }
+      }
+    },
+    {
+      "id": "rate-table-dig-branded",
+      "concept": "rate-table",
+      "description": "Dig Partners channel branded new install rates ranging from $170 to $250 per unit",
+      "parameters": {
+        "channel": "Dig Partners",
+        "orderType": "Branded",
+        "rateType": "per-unit-by-speed",
+        "minRate": 170,
+        "maxRate": 250,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!D36",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Branded: $170 - $250"
+        }
+      }
+    },
+    {
+      "id": "rate-table-dig-non-branded",
+      "concept": "rate-table",
+      "description": "Dig Partners channel non-branded new install rates ranging from $230 to $500 per unit",
+      "parameters": {
+        "channel": "Dig Partners",
+        "orderType": "Non-Branded",
+        "rateType": "per-unit-by-speed",
+        "minRate": 230,
+        "maxRate": 500,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!D37",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Non-Branded: $230 - $500"
+        }
+      }
+    },
+    {
+      "id": "rate-table-dig-non-paid-media",
+      "concept": "rate-table",
+      "description": "Dig Partners channel non-paid media new install rates ranging from $230 to $475 per unit",
+      "parameters": {
+        "channel": "Dig Partners",
+        "orderType": "Non-Paid Media",
+        "rateType": "per-unit-by-speed",
+        "minRate": 230,
+        "maxRate": 475,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!D38",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Non-Paid Media: $230 - $475"
+        }
+      }
+    },
+    {
+      "id": "rate-table-dig-migration",
+      "concept": "rate-table",
+      "description": "Dig Partners channel migration flat rate of $150 per unit for all migration types",
+      "parameters": {
+        "channel": "Dig Partners",
+        "orderType": "Migration",
+        "rateType": "flat-per-unit",
+        "rate": 150,
+        "currency": "USD"
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!E35",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Dig Partners | Migration | All: $150"
+        }
+      }
+    },
+    {
+      "id": "rate-table-dig-voip-vas",
+      "concept": "rate-table",
+      "description": "Dig Partners channel VOIP & VAS commission rates ranging from $35 to $80 per unit",
+      "parameters": {
+        "channel": "Dig Partners",
+        "orderType": "VOIP & VAS",
+        "rateType": "per-unit",
+        "minRate": 35,
+        "maxRate": 80,
+        "currency": "USD"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!F35",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Dig Partners | VOIP & VAS | $35 - $80"
+        }
+      }
+    },
+    {
+      "id": "decelerator-outbound-below-quota",
+      "concept": "decelerator",
+      "description": "Outbound Partner channel applies a penalty for performance below quota threshold",
+      "parameters": {
+        "channel": "Outbound",
+        "condition": "below quota",
+        "effect": "Penalty applied (exact reduction amount not specified in this document)"
+      },
+      "confidence": 0.7,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!D34",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Outbound | Penalty applied for below quota"
+        }
+      }
+    },
+    {
+      "id": "accelerator-renewal-tier1",
+      "concept": "accelerator",
+      "description": "Renewal plan (Removed for FY26) achievement band at 100%-125% attainment earns 1.25x multiplier on Quarterly Growth ARR component",
+      "parameters": {
+        "planName": "Growth - Renewal",
+        "component": "Quarterly Growth ARR",
+        "weight": 0.3,
+        "tiers": [
+          {
+            "minAttainment": 0,
+            "maxAttainment": 1,
+            "multiplier": 1
+          },
+          {
+            "minAttainment": 1,
+            "maxAttainment": 1.25,
+            "multiplier": 1.25
+          },
+          {
+            "minAttainment": 1.25,
+            "maxAttainment": 1.5,
+            "multiplier": 1.25
+          }
+        ],
+        "period": "Annual",
+        "payoutFrequency": "Monthly",
+        "status": "Removed for FY26"
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!H-I (Plan 2 Renewal rows)",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "0% - 100% multiplier 1 | >100% and <=125% multiplier 1.25 | >125% and <=150% multiplier 1.25"
+        }
+      }
+    },
+    {
+      "id": "qualifier-d2d-partner-eligibility",
+      "concept": "qualifier",
+      "description": "D2D Partner plan eligibility requires: opportunity must have install date in payment period, partner must be Active, products must have rate effective on install date, and partner must be assigned to a compensation plan",
+      "parameters": {
+        "planId": 1,
+        "channel": "D2D",
+        "conditions": [
+          "Opportunity must have an install date in the payment period",
+          "Partner must be Active at time opportunity is closed (Agent status is not relevant)",
+          "Opportunity must be installed within the period being calculated for payout",
+          "Products must be assigned a rate effective on the install date",
+          "Partner must be assigned to a compensation plan at the time of credit eligibility"
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!N3",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "To be eligible for credit and payment on a closed opportunity, the following conditions must be met: Opportunity Status: The opportunity must have and install Date in the payment period date; Partner Status: The Partner must be Active..."
+        }
+      }
+    },
+    {
+      "id": "qualifier-outbound-deal-reg-eligibility",
+      "concept": "qualifier",
+      "description": "Outbound plan eligibility for Deal Reg component requires territory assignment match, closed-won in period, NRD exclusion, exclude-from-compensation check, Partner Registration with approved status, and reseller name interchangeability rules",
+      "parameters": {
+        "planId": 3,
+        "channel": "Outbound",
+        "conditions": [
+          "Opp is assigned to same territory as rep",
+          "Opp is closed won in period",
+          "Opp close date >= plan effective date and <= plan end date",
+          "Rep must not be on NRD on the close date",
+          "Exclude opportunities with 'Exclude from Compensation' Boolean = true",
+          "Opp has related Partner Registration__c object",
+          "Partner Registration Record Type = Deal Registration",
+          "Partner Registration Record Status = Approve",
+          "DR TYPE check on related PartnerRegistration__c"
+        ],
+        "resellerInterchangeability": {
+          "CDW-USA": "CDWG - Government",
+          "Connection": "GovConnection",
+          "MoreDirect": [
+            "Connection",
+            "GovConnection"
+          ]
+        },
+        "eligibleOppTypes": [
+          "New Sale",
+          "New Logo (Transactional, Amendment, Renewal)",
+          "Cross Sell"
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!N (Plan 3 row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "This is for the Deal Reg component: a. Opp is assigned to same territory as rep, b. Opp is closed won in period..."
+        }
+      }
+    },
+    {
+      "id": "qualifier-renewal-eligibility",
+      "concept": "qualifier",
+      "description": "Renewal plan (Removed FY26) eligibility requires closed-won status, active employee, territory assignment, plan enrollment, NRD exclusion, New Logo = False, and Related_Return__c blank",
+      "parameters": {
+        "planId": "2-renewal",
+        "conditions": [
+          "Opportunity must be in Closed - Won status",
+          "Employee must be Active at time of close",
+          "Opportunity must be closed within the period",
+          "Payee must be assigned to the territory associated with the opportunity",
+          "Payee must be assigned to a compensation plan",
+          "Rep must not be on NRD on the close date",
+          "Exclude opportunities with 'Exclude from Compensation' Boolean = true",
+          "Rep ID must be in Owner at Close field",
+          "Opp types: Amendments, Renewals, Transaction (closed won) or Renewals (closed lost)",
+          "New Logo = False",
+          "Related_Return__c = blank"
+        ],
+        "status": "Removed for FY26"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!N (Plan 2 Renewal row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "To be eligible for plan credit and payment on a closed opportunity... Employee Status: Active... New Logo = False (checkbox on Opp), Related_Return__c = blank"
+        }
+      }
+    },
+    {
+      "id": "clawback-d2d-90day-cancellation",
+      "concept": "clawback",
+      "description": "D2D Partner plan claws back commission for cancellations occurring within 90 days. The cancellation amount is subtracted from weekly payout calculations.",
+      "parameters": {
+        "planId": 1,
+        "channel": "D2D",
+        "clawbackWindow": 90,
+        "windowUnit": "days",
+        "chargebackTypes": [
+          "Vol Discos (Installed)",
+          "Cancels (Issued)",
+          "RCC Compliance Failure"
+        ],
+        "method": "Subtract cancellation amount from weekly commission payout"
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!Y3 and Checklist!G30",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Calculate the payout, for weekly amount, and then subtract the amount for cancellation between last 90 days"
+        }
+      }
+    },
+    {
+      "id": "clawback-indirect-vol-discos",
+      "concept": "clawback",
+      "description": "Indirect Partner plan charges back for voluntary disconnects",
+      "parameters": {
+        "planId": 2,
+        "channel": "Indirect",
+        "chargebackTypes": [
+          "Vol Discos"
+        ]
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!G32",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Indirect | Chargebacks: Vol Discos"
+        }
+      }
+    },
+    {
+      "id": "clawback-outbound-full",
+      "concept": "clawback",
+      "description": "Outbound plan claws back the entire commission amount in the following month(s). Chargebacks include cancels.",
+      "parameters": {
+        "planId": 3,
+        "channel": "Outbound",
+        "method": "Entire amount clawed back in following month/months",
+        "chargebackTypes": [
+          "Cancels"
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!W (Plan 3) and Checklist!G33",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Entire amount will be clawed back in the following month/months."
+        }
+      }
+    },
+    {
+      "id": "clawback-dig-partners-full",
+      "concept": "clawback",
+      "description": "Dig Partners plan claws back the entire commission amount in the following month(s). Chargebacks include voluntary disconnects.",
+      "parameters": {
+        "planId": 4,
+        "channel": "Dig Partners",
+        "method": "Entire amount clawed back in following month/months",
+        "chargebackTypes": [
+          "Vol Discos"
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!W (Plan 4) and Checklist!G35",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Entire amount will be clawed back in the following month/months."
+        }
+      }
+    },
+    {
+      "id": "clawback-renewal-full",
+      "concept": "clawback",
+      "description": "Renewal plan (Removed FY26) claws back entire commission amount in following month(s)",
+      "parameters": {
+        "planId": "2-renewal",
+        "method": "Entire amount clawed back in following month/months",
+        "status": "Removed for FY26"
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!W (Plan 2 Renewal row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Entire amount will be clawed back in the following month/months."
+        }
+      }
+    },
+    {
+      "id": "cap-indirect-none",
+      "concept": "cap",
+      "description": "Indirect Partner plan has no payout cap",
+      "parameters": {
+        "planId": 2,
+        "channel": "Indirect",
+        "capAmount": null,
+        "capType": "No Cap"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!U (Plan 2 row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "No Cap"
+        }
+      }
+    },
+    {
+      "id": "cap-outbound-none",
+      "concept": "cap",
+      "description": "Outbound Partner plan has no payout cap",
+      "parameters": {
+        "planId": 3,
+        "channel": "Outbound",
+        "capAmount": null,
+        "capType": "No Cap"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!U (Plan 3 row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "No Cap"
+        }
+      }
+    },
+    {
+      "id": "cap-dig-partners-none",
+      "concept": "cap",
+      "description": "Dig Partners plan has no payout cap",
+      "parameters": {
+        "planId": 4,
+        "channel": "Dig Partners",
+        "capAmount": null,
+        "capType": "No Cap"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!U (Plan 4 row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "No Cap"
+        }
+      }
+    },
+    {
+      "id": "cap-renewal-none",
+      "concept": "cap",
+      "description": "Renewal plan (Removed FY26) has no payout cap",
+      "parameters": {
+        "planId": "2-renewal",
+        "capAmount": null,
+        "capType": "No Cap",
+        "status": "Removed for FY26"
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!U (Plan 2 Renewal row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "No Cap"
+        }
+      }
+    },
+    {
+      "id": "rate-table-bcr-formula",
+      "concept": "rate-table",
+      "description": "Base Commission Rate (BCR) formula for Employee plans: BCR = Target Variable Pay in USD × GARR Weighting ÷ Annual GARR Quota",
+      "parameters": {
+        "formula": "BCR = Target Variable Pay (USD) × GARR Weighting ÷ Annual GARR Quota",
+        "applicablePlans": "Employee plans",
+        "calculationCurrency": "USD"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Business Requirements !B17",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Business Requirements ",
+          "evidence": "BCR: Base Commission Rate (BCR) is calculated in accordance with the Policy: BCR = Target Variable Pay in USD × GARR Weighting ÷ Annual GARR Quota"
+        }
+      }
+    },
+    {
+      "id": "quota-target-outbound-attainment",
+      "concept": "quota-target",
+      "description": "Outbound plan attainment is calculated as ARR divided by Quota",
+      "parameters": {
+        "planId": 3,
+        "channel": "Outbound",
+        "attainmentFormula": "ARR / Quota = Attainment",
+        "payoutFormula": "Attainment * Weighted Variable = Payout"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!P (Plan 3 row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "ARR / Quota = Attainment; Attainment * Weighted Variable = Payout"
+        }
+      }
+    },
+    {
+      "id": "spif-sales-engineer-enterprise",
+      "concept": "spif",
+      "description": "Sales Engineer - Enterprise has a SPIFF component with annual period",
+      "parameters": {
+        "planGroup": "Sales Engineering (Active)",
+        "planName": "Sales Engineer - Enterprise",
+        "period": "Annual",
+        "hasSPIFF": true
+      },
+      "confidence": 0.75,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!A23:D23",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Sales Engineering (Active) | Sales Engineer - Enterprise | Annual | X"
+        }
+      }
+    },
+    {
+      "id": "spif-sales-engineer-smb",
+      "concept": "spif",
+      "description": "Sales Engineer - SMB has a SPIFF component with semi-annual period",
+      "parameters": {
+        "planGroup": "Sales Engineering (Active)",
+        "planName": "Sales Engineer - SMB",
+        "period": "Semi Annual",
+        "hasSPIFF": true
+      },
+      "confidence": 0.75,
+      "sourceRef": {
+        "vendorRuleId": "Checklist!A24:D24",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Checklist",
+          "evidence": "Sales Engineering (Active) | Sales Engineer - SMB | Semi Annual | X"
+        }
+      }
+    },
+    {
+      "id": "spif-edu-kicker",
+      "concept": "spif",
+      "description": "EDU Kicker provides additional commission for EDU-flagged opportunities. Operates as mutually exclusive with standard kickers: Services Kicker OR Services Kicker EDU (not both), New Logo Kicker OR New Logo Kicker EDU (not both), Multi Year Kicker OR Multi Year Kicker EDU (not both). Only Opp Owner receives EDU Kicker for Customer Success and QBR plans.",
+      "parameters": {
+        "kickerTypes": [
+          {
+            "standard": "Services Kicker",
+            "edu": "Services Kicker EDU",
+            "logic": "mutually exclusive OR"
+          },
+          {
+            "standard": "New Logo Kicker",
+            "edu": "New Logo Kicker EDU",
+            "logic": "mutually exclusive OR"
+          },
+          {
+            "standard": "Multi Year Kicker",
+            "edu": "Multi Year Kicker EDU",
+            "logic": "mutually exclusive OR"
+          }
+        ],
+        "eligibilityFilter": "Opp Owner ID where EDU Kicker field = True on Global Attributes",
+        "applicablePlans": [
+          "Customer Success Plan",
+          "QBR Plan"
+        ]
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Business Requirements !B27:B33",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Business Requirements ",
+          "evidence": "EDU kicker: Services Kicker OR Services Kicker EDU - but not both; New Logo Kicker OR New Logo Kicker EDU - but not both; Multi Year Kicker OR Multi Year Kicker EDU - but not both"
+        }
+      }
+    },
+    {
+      "id": "spif-pacing-kicker",
+      "concept": "spif",
+      "description": "Pacing Kicker is not subject to true-ups. Note: discrepancy identified between Planned Doc and CIQ setup for Indirect plan.",
+      "parameters": {
+        "trueUpExclusion": true,
+        "note": "Pacing Kicker is not subject for True-ups"
+      },
+      "confidence": 0.7,
+      "sourceRef": {
+        "vendorRuleId": "Business Requirements !B20",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Business Requirements ",
+          "evidence": "Pacing Kicker is not subject for Tureups"
+        }
+      }
+    },
+    {
+      "id": "rate-table-sdr-mentor-flat",
+      "concept": "rate-table",
+      "description": "SDR Mentors receive a flat rate commission with multiplier hard-coded at 1 (no acceleration). Rate is calculated based on plan tiers.",
+      "parameters": {
+        "role": "SDR Mentor",
+        "rateType": "flat",
+        "multiplier": 1,
+        "acceleration": false,
+        "note": "Flat Rate is being calculated based on Multiplier and its 1, based on Plan Tiers"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Business Requirements !B36:C38",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Business Requirements ",
+          "evidence": "SDR: Mentors get a flat rate, don't get acceleration. Flat Rate is being calculated, based on Multiplier and its 1, based on Plan Tiers"
+        }
+      }
+    },
+    {
+      "id": "rate-table-sdr-manager-flat",
+      "concept": "rate-table",
+      "description": "SDR Manager receives the same rate as Opp Found By with multiplier hard-coded at 1 (no acceleration)",
+      "parameters": {
+        "role": "SDR Manager",
+        "rateType": "flat",
+        "multiplier": 1,
+        "rateSource": "Same Rate as Opp Found By",
+        "acceleration": false
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Business Requirements !B37:C38",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Business Requirements ",
+          "evidence": "Same for Manager - Same Rate as Opp Found by and 1 as Multiplier. Multiplier is hard coded as 1"
+        }
+      }
+    },
+    {
+      "id": "split-sdr-rollup",
+      "concept": "split",
+      "description": "Only SDR plans have rollup crediting to manager",
+      "parameters": {
+        "applicablePlans": [
+          "SDR"
+        ],
+        "rollupType": "Manager rollup",
+        "note": "Only SDR's have Roll up"
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "Business Requirements !B39",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Business Requirements ",
+          "evidence": "Only SDR's have Roll up"
+        }
+      }
+    },
+    {
+      "id": "draw-recoverable",
+      "concept": "draw",
+      "description": "Recoverable draw exists for certain plans (details not fully specified in this document)",
+      "parameters": {
+        "drawType": "Recoverable",
+        "note": "Mentioned in Business Requirements but detailed terms not specified in this document"
+      },
+      "confidence": 0.55,
+      "sourceRef": {
+        "vendorRuleId": "Business Requirements !A41 and Check List!B43",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Business Requirements ",
+          "evidence": "Recoverable Draw"
+        }
+      }
+    },
+    {
+      "id": "qualifier-variable-data-change-rule",
+      "concept": "qualifier",
+      "description": "Variable data change effective dating rule: changes on or before the 12th of the month are backdated to the 1st; changes on or after the 13th are effective from the 1st of the following month. If only non-structural variable changes, prorate by business day.",
+      "parameters": {
+        "cutoffDay": 12,
+        "beforeCutoff": "Backdate to 1st of current month",
+        "afterCutoff": "Effective from 1st of following month",
+        "variableOnlyChange": "Prorate by business day: (old variable / biz days in month * biz days on old) + (new variable / biz days in month * biz days on new)",
+        "applicableChanges": [
+          "plan",
+          "role",
+          "territory",
+          "variable"
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!R3",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "If a variable changes on or before the 12th of the month, the change will be backdated to the 1st of the month. If the change occurs on or after the 13th, it will be effective from the 1st of the following month. If ONLY variable changes then we prorate the change by business day."
+        }
+      }
+    },
+    {
+      "id": "qualifier-d2d-rate-lookup-logic",
+      "concept": "rate-table",
+      "description": "D2D rate lookup is determined by matching Install Date to period, Technology (e.g., Fibre), Channel (D2D), Product Name (e.g., Fiber 1 GB), and Order Type (e.g., Migration)",
+      "parameters": {
+        "lookupDimensions": [
+          "Install Date (period match)",
+          "Technology",
+          "Channel",
+          "Product Name",
+          "Order Type"
+        ],
+        "calculationType": "lookup",
+        "planId": 1
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!P3",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "if Install Date(Feb 1) is between Feb 1 and Feb 8 and Technology is Fibre and Channel is D2D and Product Name is Fiber 1 GB and ORDER Type is Migration : look up rate"
+        }
+      }
+    },
+    {
+      "id": "qualifier-d2d-trueup-rule",
+      "concept": "qualifier",
+      "description": "D2D Partner plan true-up: continues until plan assignment changes or fiscal year ends. Previous quarter true-up no longer exists; only current quarter true-up exists.",
+      "parameters": {
+        "planId": 1,
+        "channel": "D2D",
+        "trueUpScope": "Current quarter only",
+        "trueUpTermination": [
+          "Plan assignment change",
+          "Fiscal year end"
+        ],
+        "note": "Previous quarter true-up will no longer exist"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!Y3",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "True Up: until the plan assignment changes or the Fiscal year. True Up: previous quarter true will no longer exist. Only the current quarter true up exists"
+        }
+      }
+    },
+    {
+      "id": "qualifier-adjustment-partner-criteria",
+      "concept": "qualifier",
+      "description": "Manual upload rep attainment adjustments for Partner plans require: Vendor ID mapping, adjustment date in period, date within plan period bounds, and vendor must be active on adjustment date",
+      "parameters": {
+        "applicablePlans": [
+          "D2D Partner"
+        ],
+        "conditions": [
+          "Adjustment has Vendor ID in upload to map to Plan",
+          "Adjustment date is in period",
+          "Adjustment date >= plan period effective date and <= plan period end date",
+          "Vendor must be active on the adjustment date"
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!V (Plan 1 row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Manual Upload Rep Attainment Adjustments must follow this criteria: a. Adjustment has Vendor ID in upload to map to Plan, b. Adjustment date is in period..."
+        }
+      }
+    },
+    {
+      "id": "qualifier-adjustment-employee-criteria",
+      "concept": "qualifier",
+      "description": "Manual upload rep attainment adjustments for Employee/Outbound plans require: rep ID mapping, adjustment date in period, date within plan bounds, and rep must not be on NRD on adjustment date",
+      "parameters": {
+        "applicablePlans": [
+          "Indirect",
+          "Outbound",
+          "Dig Partners"
+        ],
+        "conditions": [
+          "Adjustment has rep ID in upload to map to rep",
+          "Adjustment date is in period",
+          "Adjustment date >= plan effective date and <= plan end date",
+          "Rep must not be on NRD on the adjustment date"
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!V (Plan 2-4 rows)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Manual Upload Rep Attainment Adjustments must follow this criteria: a. Adjustment has rep ID in upload to map to rep in Spiff, b. Adjustment date is in period, c. Adjustment date must be >= plan effective date..."
+        }
+      }
+    },
+    {
+      "id": "territory-outbound-assignment",
+      "concept": "territory",
+      "description": "Outbound plan territory-based attainment adjustments require territory mapping, territory assignment match, date in period, rep not on NRD",
+      "parameters": {
+        "planId": 3,
+        "channel": "Outbound",
+        "adjustmentConditions": [
+          "Adjustment has territory in upload to map to territory assignment",
+          "Territory Adjustment is for the territory the rep is assigned to",
+          "Adjustment date is in period",
+          "Adjustment date >= plan effective date and <= plan end date",
+          "Rep must not be on NRD on the adjustment date"
+        ],
+        "creditingType": "Based on Territory Assignment"
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!X (Plan 3 row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Manual Upload Territory Attainment Adjustments must follow this criteria: a. Adjustment has territory in upload to map to territory assignment..."
+        }
+      }
+    },
+    {
+      "id": "rate-table-d2d-payout-formula",
+      "concept": "rate-table",
+      "description": "D2D Partner payout formula: Sum of commission payout + payment adjustments + NRD payments + any previous period commission owed",
+      "parameters": {
+        "planId": 1,
+        "channel": "D2D",
+        "payoutFormula": "Sum commission payout + payment adjustments + NRD payments + any previous period commission owe"
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!R3",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Payout = Sum commission payout + payment adjustments + NRD payments + any previous period commission owe"
+        }
+      }
+    },
+    {
+      "id": "qualifier-renewal-attainment-flat-rate",
+      "concept": "rate-table",
+      "description": "Renewal plan (Removed FY26) uses flat rate calculation method with crediting based on territory assignment",
+      "parameters": {
+        "planId": "2-renewal",
+        "calculationType": "Flat Rate",
+        "creditingType": "Based on Territory Assignment",
+        "status": "Removed for FY26"
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!T (Plan 2 Renewal row)",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Flat Rate; Based on Territory Assignment"
+        }
+      }
+    },
+    {
+      "id": "quota-target-renewal-growth-arr",
+      "concept": "quota-target",
+      "description": "Renewal plan (Removed FY26) component weighted at 30% on Quarterly Growth ARR with annual eligibility period and monthly payout",
+      "parameters": {
+        "planId": "2-renewal",
+        "component": "Quarterly Growth ARR",
+        "weight": 0.3,
+        "eligibilityPeriod": "Annual",
+        "payoutFrequency": "Monthly",
+        "status": "Removed for FY26"
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "Functional Requirements!G-K (Plan 2 Renewal row)",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Functional Requirements",
+          "evidence": "Growth - Renewal | Quarterly Growth ARR | 0.3 | Annual | Monthly"
+        }
+      }
+    }
+  ],
+  "insights": "1) CRITICAL GAP: Exact rate tables by internet speed/product are NOT included in this BRD - they are referenced as external documents (see Questions row 4 linking to a SharePoint rate table workbook). The rate ranges shown ($350-$625 etc.) represent min/max bounds but individual speed-tier rates must be cross-referenced from the external rate card. 2) The Renewal plan (Plan ID 2) is explicitly marked 'Removed for FY26' but its structure is documented - confirm whether to exclude from implementation. 3) Employee plan details (MDU, D2D Employee, Management plans) are listed in the Checklist but lack detailed functional requirements in the Functional Requirements sheet - these appear incomplete. 4) Pacing Kicker is mentioned as having a discrepancy between the Planned Doc and CIQ setup for the Indirect plan. 5) The Outbound 'penalty for below quota' decelerator lacks specific rate/multiplier values. 6) Recoverable Draw is mentioned but no terms (amount, recovery period, recovery method) are specified. 7) Historical data question (#9 in Questions sheet) about 90-day chargeback lookback period is flagged as not yet sent. 8) D2D crediting basis changed from 'Installed' to 'Issued' effective 9/7 per Questions row 12. 9) SDR rollup crediting and manager commission logic needs cross-referencing with actual plan documents. 10) Currency conversion uses 'Constant Currency' exchange rate set at beginning of year from Snowflake data workbook - affects all non-USD payouts."
+}

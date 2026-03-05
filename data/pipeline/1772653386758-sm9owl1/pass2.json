@@ -1,0 +1,1338 @@
+{
+  "id": "1772658853420-90a9fh7",
+  "projectId": "1772653386758-sm9owl1",
+  "synthesizedAt": "2026-03-04T21:14:13.420Z",
+  "rules": [
+    {
+      "id": "universal-acceleration-rate-table",
+      "concept": "rate-table",
+      "description": "Universal 5-tier acceleration table: 1× (0–100%), 1.25× (100–125%), 1.5× (125–150%), 2× (150–200%), 2.25× (200%+) applied to all roles' tiered components.",
+      "parameters": {
+        "type": "tiered",
+        "tiers": [
+          {
+            "min_attainment": 0,
+            "max_attainment": 1,
+            "multiplier": 1
+          },
+          {
+            "min_attainment": 1,
+            "max_attainment": 1.25,
+            "multiplier": 1.25
+          },
+          {
+            "min_attainment": 1.25,
+            "max_attainment": 1.5,
+            "multiplier": 1.5
+          },
+          {
+            "min_attainment": 1.5,
+            "max_attainment": 2,
+            "multiplier": 2
+          },
+          {
+            "min_attainment": 2,
+            "max_attainment": null,
+            "multiplier": 2.25
+          }
+        ],
+        "applicable_roles": [
+          "AE",
+          "AEAM Hybrid",
+          "AM",
+          "CSM",
+          "ISR",
+          "Partner-Channel",
+          "RM",
+          "SDR",
+          "SE"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "Instructions!A21:A25",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "retention-payout-model",
+      "concept": "rate-table",
+      "description": "Retention scaled payout: floor = 2×TargetRate−1; below floor → 0%; at floor → 50%; at 100% → 150% cap; linear interpolation between thresholds.",
+      "parameters": {
+        "type": "scaled",
+        "floor_formula": "2 * target_rate - 1",
+        "payout_below_floor": 0,
+        "payout_at_floor": 0.5,
+        "payout_at_target": 1,
+        "payout_at_ceiling": 1.5,
+        "cap_multiplier": 1.5,
+        "applicable_roles": [
+          "AM",
+          "AEAM Hybrid",
+          "RM",
+          "CSM"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "AM Calculator!G8:G9 + CSM Calculator!G9",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "ae-multi-year-acceleration",
+      "concept": "accelerator",
+      "description": "Multi-year deal bonus: incremental ARR × BCR × duration multiplier (1.2× for 24mo, 1.35× for 36mo, 1.5× for 48mo, 2× for 60mo+).",
+      "parameters": {
+        "type": "duration-based",
+        "tiers": [
+          {
+            "duration": "24 months",
+            "multiplier": 1.2
+          },
+          {
+            "duration": "36 months",
+            "multiplier": 1.35
+          },
+          {
+            "duration": "48 months",
+            "multiplier": 1.5
+          },
+          {
+            "duration": "60+ months",
+            "multiplier": 2
+          }
+        ],
+        "applicable_roles": [
+          "AE",
+          "AEAM Hybrid",
+          "ISR"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "Instructions!H21:H25",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "ae-renewal-multi-year-flat-rate",
+      "concept": "rate-table",
+      "description": "AE/AEAM Hybrid renewal multi-year deal bonus at flat 0.50% of prior ARR.",
+      "parameters": {
+        "type": "flat",
+        "rate": 0.005,
+        "basis": "Renewal Multi-Year Previous ARR",
+        "applicable_roles": [
+          "AE",
+          "AEAM Hybrid"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "AE Calculator!G27",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "services-bookings-half-bcr",
+      "concept": "rate-table",
+      "description": "Services bookings earn 50% of the role's primary BCR; Channel roles earn 50% of both Sourced and Fulfilled BCRs.",
+      "parameters": {
+        "type": "flat",
+        "rate_modifier": 0.5,
+        "basis": "Primary component BCR",
+        "channel_dual_bcr": true,
+        "applicable_roles": [
+          "All"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A24",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "ae-nnb-comp-split-100",
+      "concept": "split",
+      "description": "AE (Named/Ent/MM, SMB-Media): 100% Net New Bookings, annual timing.",
+      "parameters": {
+        "role": "AE",
+        "timing": "Annual",
+        "components": [
+          {
+            "name": "Net New Bookings",
+            "weight": 1
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A4:G5",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "aeam-hybrid-comp-split",
+      "concept": "split",
+      "description": "AEAM Hybrid: non-OTT 80/20 NNB+Expansion/Retention; OTT 60/40 NNB+Expansion/Retention; annual timing.",
+      "parameters": {
+        "role": "AEAM Hybrid",
+        "timing": "Annual",
+        "variants": [
+          {
+            "segment": "non-OTT",
+            "components": [
+              {
+                "name": "NNB+Expansion",
+                "weight": 0.8
+              },
+              {
+                "name": "Retention",
+                "weight": 0.2
+              }
+            ]
+          },
+          {
+            "segment": "OTT",
+            "components": [
+              {
+                "name": "NNB+Expansion",
+                "weight": 0.6
+              },
+              {
+                "name": "Retention",
+                "weight": 0.4
+              }
+            ]
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A7:A8",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "am-comp-split",
+      "concept": "split",
+      "description": "AM: non-OTT 80/20 Expansion/Retention; OTT 60/40 Expansion/Retention; annual timing.",
+      "parameters": {
+        "role": "AM",
+        "timing": "Annual",
+        "variants": [
+          {
+            "segment": "non-OTT",
+            "components": [
+              {
+                "name": "Expansion",
+                "weight": 0.8
+              },
+              {
+                "name": "Retention",
+                "weight": 0.2
+              }
+            ]
+          },
+          {
+            "segment": "OTT",
+            "components": [
+              {
+                "name": "Expansion",
+                "weight": 0.6
+              },
+              {
+                "name": "Retention",
+                "weight": 0.4
+              }
+            ]
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A9:A10",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "isr-comp-split",
+      "concept": "split",
+      "description": "ISR: 60% Closed Won Opps / 40% Net New Bookings, quarterly timing.",
+      "parameters": {
+        "role": "ISR",
+        "timing": "Quarterly",
+        "components": [
+          {
+            "name": "Closed Won Opps",
+            "weight": 0.6
+          },
+          {
+            "name": "Net New Bookings",
+            "weight": 0.4
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A11",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "sdr-comp-split",
+      "concept": "split",
+      "description": "SDR: 80% SQOs (quarterly) / 20% Regional NNB (annual).",
+      "parameters": {
+        "role": "SDR",
+        "components": [
+          {
+            "name": "SQOs",
+            "weight": 0.8,
+            "timing": "Quarterly"
+          },
+          {
+            "name": "Net New Bookings",
+            "weight": 0.2,
+            "timing": "Annual"
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A13",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "rm-comp-split",
+      "concept": "split",
+      "description": "RM: 80% Retention / 20% Expansion, annual timing.",
+      "parameters": {
+        "role": "RM",
+        "timing": "Annual",
+        "components": [
+          {
+            "name": "Retention",
+            "weight": 0.8
+          },
+          {
+            "name": "Expansion",
+            "weight": 0.2
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A14",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "csm-comp-split",
+      "concept": "split",
+      "description": "CSM: 80% Retention / 20% Expansion, annual timing, regional crediting.",
+      "parameters": {
+        "role": "CSM",
+        "timing": "Annual",
+        "crediting": "Regional",
+        "components": [
+          {
+            "name": "Retention",
+            "weight": 0.8
+          },
+          {
+            "name": "Expansion",
+            "weight": 0.2
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A15",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "channel-comp-splits",
+      "concept": "split",
+      "description": "Channel: Sourced/Fulfilled weights vary by segment — Strategic 100/0, R&D 40/60, Regional-60/40, Regional-50/50.",
+      "parameters": {
+        "role": "Channel",
+        "timing": "Annual",
+        "variants": [
+          {
+            "segment": "Strategic",
+            "sourced_weight": 1,
+            "fulfilled_weight": 0
+          },
+          {
+            "segment": "R&D",
+            "sourced_weight": 0.4,
+            "fulfilled_weight": 0.6
+          },
+          {
+            "segment": "Regional 60/40",
+            "sourced_weight": 0.6,
+            "fulfilled_weight": 0.4
+          },
+          {
+            "segment": "Regional 50/50",
+            "sourced_weight": 0.5,
+            "fulfilled_weight": 0.5
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A16:A19",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "se-comp-split",
+      "concept": "split",
+      "description": "SE: 100% Regional Bookings, annual timing.",
+      "parameters": {
+        "role": "SE",
+        "timing": "Annual",
+        "components": [
+          {
+            "name": "Regional Bookings",
+            "weight": 1
+          }
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A21",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "isr-sdr-manager-comp-split",
+      "concept": "split",
+      "description": "ISR/SDR Manager: 25% Closed Won (ISR rollup), 25% NNB (ISR rollup), 50% SQOs (SDR rollup), quarterly.",
+      "parameters": {
+        "role": "ISR/SDR Manager",
+        "timing": "Quarterly",
+        "components": [
+          {
+            "name": "Closed Won Opps",
+            "weight": 0.25
+          },
+          {
+            "name": "Net New Bookings",
+            "weight": 0.25
+          },
+          {
+            "name": "SQOs",
+            "weight": 0.5
+          }
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A12",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "csm-se-manager-comp-split",
+      "concept": "split",
+      "description": "CSM/SE Manager: 75% Retention (CSM rollup), 12.5% Expansion (regional), 12.5% Regional Bookings (regional), annual.",
+      "parameters": {
+        "role": "CSM/SE Manager",
+        "timing": "Annual",
+        "components": [
+          {
+            "name": "Retention",
+            "weight": 0.75
+          },
+          {
+            "name": "Expansion",
+            "weight": 0.125
+          },
+          {
+            "name": "Regional Bookings",
+            "weight": 0.125
+          }
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A20",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "csm-rm-quarterly-retention-draw",
+      "concept": "draw",
+      "description": "CSM/RM retention draw: 75% of quarterly retention variable in Q1–Q3; Q4 annual true-up.",
+      "parameters": {
+        "draw_rate": 0.75,
+        "draw_quarters": [
+          "Q1",
+          "Q2",
+          "Q3"
+        ],
+        "true_up_quarter": "Q4",
+        "applicable_roles": [
+          "CSM",
+          "RM"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "CSM Calculator!G17:G19",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "aeam-am-quarterly-retention-draw",
+      "concept": "draw",
+      "description": "AEAM Hybrid/AM retention draw: 50% of quarterly retention variable in Q1–Q3; Q4 annual true-up.",
+      "parameters": {
+        "draw_rate": 0.5,
+        "draw_quarters": [
+          "Q1",
+          "Q2",
+          "Q3"
+        ],
+        "true_up_quarter": "Q4",
+        "applicable_roles": [
+          "AEAM Hybrid",
+          "AM"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "AEAM Hybrid Calculator!G33:G35",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "january-flat-draw",
+      "concept": "draw",
+      "description": "January 2026: flat draw = 1/12 annual vOTE for all roles; February offline estimated commission; March true-up required.",
+      "parameters": {
+        "draw_amount": "1/12 annual vOTE",
+        "draw_month": "January 2026",
+        "march_true_up": true,
+        "applicable_roles": [
+          "All"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A27",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "isr-passup-flat-spif",
+      "concept": "spif",
+      "description": "ISR earns $50 flat per opportunity passed to an AE, regardless of outcome.",
+      "parameters": {
+        "type": "flat_per_unit",
+        "amount": 50,
+        "unit": "per passed opportunity",
+        "applicable_roles": [
+          "ISR"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "ISR Calculator!G42",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "isr-passup-closed-won-spif",
+      "concept": "spif",
+      "description": "ISR earns 2% of closed deal value on passed-up opportunities that close won.",
+      "parameters": {
+        "type": "percentage",
+        "rate": 0.02,
+        "basis": "Closed deal value",
+        "applicable_roles": [
+          "ISR"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "ISR Calculator!G43",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "services-exclusion-qualifier",
+      "concept": "qualifier",
+      "description": "Services bookings are excluded from NNB quota credit; paid separately at 50% BCR.",
+      "parameters": {
+        "condition": "Services bookings excluded from NNB credit",
+        "separate_payout": true,
+        "applicable_roles": [
+          "AE",
+          "AEAM Hybrid",
+          "SE"
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A5:I5",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "multi-year-bcr-qualifier",
+      "concept": "qualifier",
+      "description": "Multi-year deal bonus requires contract duration ≥24 months to qualify for duration-based BCR multiplier.",
+      "parameters": {
+        "condition": "Deal duration >= 24 months",
+        "applicable_roles": [
+          "AE",
+          "AM",
+          "AEAM Hybrid",
+          "ISR"
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A25",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "channel-regional-crediting",
+      "concept": "territory",
+      "description": "Channel credit assignment changed from rep-based to region-based for FY26.",
+      "parameters": {
+        "assignment_type": "Region-based",
+        "applicable_roles": [
+          "Channel"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!I16:I19",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "csm-regional-crediting",
+      "concept": "territory",
+      "description": "CSM crediting changed from rep-based to regional for FY26.",
+      "parameters": {
+        "assignment_type": "Regional",
+        "applicable_roles": [
+          "CSM"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!I15",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "bcr-quota-change-proration",
+      "concept": "quota-target",
+      "description": "Mid-period goal changes must support fixed or prorated BCR/quota adjustment options.",
+      "parameters": {
+        "options": [
+          "Fixed",
+          "Prorated"
+        ],
+        "trigger": "Goal change mid-period",
+        "applicable_roles": [
+          "All"
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "2026 Plan Summary!A28",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "retention-cap-150pct",
+      "concept": "cap",
+      "description": "Retention component payout capped at 150% of retention variable when actual retention ≥ 100%.",
+      "parameters": {
+        "cap_multiplier": 1.5,
+        "cap_basis": "Retention Variable",
+        "applicable_roles": [
+          "AM",
+          "AEAM Hybrid",
+          "RM",
+          "CSM"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "CSM Calculator!G9",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {}
+      }
+    },
+    {
+      "id": "retention-floor-zero",
+      "concept": "floor",
+      "description": "Retention payout drops to 0% below the floor rate (2×TargetRate−1); acts as a minimum threshold gate.",
+      "parameters": {
+        "floor_formula": "2 * target_rate - 1",
+        "payout_below_floor": 0,
+        "applicable_roles": [
+          "AM",
+          "AEAM Hybrid",
+          "RM",
+          "CSM"
+        ]
+      },
+      "confidence": 1,
+      "sourceRef": {
+        "vendorRuleId": "AM Calculator!G8:G9",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {}
+      }
+    }
+  ],
+  "crossReferences": [
+    {
+      "ruleId": "universal-acceleration-rate-table",
+      "relatedRuleIds": [
+        "ae-nnb-comp-split-100",
+        "aeam-hybrid-comp-split",
+        "am-comp-split",
+        "isr-comp-split",
+        "sdr-comp-split",
+        "rm-comp-split",
+        "csm-comp-split",
+        "channel-comp-splits",
+        "se-comp-split"
+      ],
+      "relationship": "The universal tier table is applied to every role's tiered commission component; each split rule defines which components use it."
+    },
+    {
+      "ruleId": "retention-payout-model",
+      "relatedRuleIds": [
+        "retention-cap-150pct",
+        "retention-floor-zero",
+        "csm-rm-quarterly-retention-draw",
+        "aeam-am-quarterly-retention-draw"
+      ],
+      "relationship": "Retention payout model defines the scaled curve; cap and floor are boundaries within it; draws provide quarterly advances against the annual retention payout."
+    },
+    {
+      "ruleId": "ae-multi-year-acceleration",
+      "relatedRuleIds": [
+        "multi-year-bcr-qualifier",
+        "ae-renewal-multi-year-flat-rate"
+      ],
+      "relationship": "Multi-year qualifier gates eligibility; acceleration applies duration multiplier to new deals; renewal flat rate handles renewal multi-year separately at 0.5%."
+    },
+    {
+      "ruleId": "services-bookings-half-bcr",
+      "relatedRuleIds": [
+        "services-exclusion-qualifier"
+      ],
+      "relationship": "Services exclusion removes services from NNB quota credit; services half-BCR defines how they are compensated separately."
+    },
+    {
+      "ruleId": "channel-comp-splits",
+      "relatedRuleIds": [
+        "channel-regional-crediting",
+        "services-bookings-half-bcr"
+      ],
+      "relationship": "Channel splits define component weights per segment; regional crediting determines how deals are assigned; services half-BCR applies dual BCR for Channel."
+    },
+    {
+      "ruleId": "csm-comp-split",
+      "relatedRuleIds": [
+        "csm-regional-crediting",
+        "csm-rm-quarterly-retention-draw"
+      ],
+      "relationship": "CSM split defines 80/20 retention/expansion; regional crediting governs deal assignment; quarterly draw provides advance on retention component."
+    },
+    {
+      "ruleId": "isr-comp-split",
+      "relatedRuleIds": [
+        "isr-passup-flat-spif",
+        "isr-passup-closed-won-spif",
+        "isr-sdr-manager-comp-split"
+      ],
+      "relationship": "ISR split defines core components; pass-up SPIFs are additive incentives; ISR/SDR Manager rolls up ISR metrics."
+    },
+    {
+      "ruleId": "january-flat-draw",
+      "relatedRuleIds": [
+        "csm-rm-quarterly-retention-draw",
+        "aeam-am-quarterly-retention-draw"
+      ],
+      "relationship": "January flat draw is a transitional one-time draw for all roles; role-specific retention draws are the ongoing quarterly mechanism."
+    }
+  ],
+  "conflicts": [
+    {
+      "description": "AEAM/AM retention draw rate (50%) differs from CSM/RM retention draw rate (75%) — intentional design, not a conflict.",
+      "ruleIds": [
+        "csm-rm-quarterly-retention-draw",
+        "aeam-am-quarterly-retention-draw"
+      ],
+      "resolution": "Both rates confirmed in separate calculator sheets; AEAM/AM at 50% and CSM/RM at 75% are intentionally different. AEAM/AM have larger expansion components so lower retention draws are expected.",
+      "confidence": 1
+    },
+    {
+      "description": "ISR/SDR Manager and CSM/SE Manager calculator sheets are absent from the workbook despite being in the Plan Summary.",
+      "ruleIds": [
+        "isr-sdr-manager-comp-split",
+        "csm-se-manager-comp-split"
+      ],
+      "resolution": "Manager plans taken from Plan Summary at 0.95 confidence; calculator-level validation pending. Plan Summary notes these are 'included only if time allows.'",
+      "confidence": 0.95
+    }
+  ],
+  "captivateiqConfig": {
+    "planStructure": {
+      "planName": "Vimeo FY26 Revenue Compensation Plan",
+      "periodType": "monthly",
+      "payoutComponents": [
+        "NNB Commission (AE, AEAM, ISR, SDR, SE, Channel)",
+        "Expansion Commission (AM, AEAM, RM, CSM)",
+        "Retention Payout (AM, AEAM, RM, CSM)",
+        "Retention Quarterly Draw (AM, AEAM, RM, CSM)",
+        "Multi-Year Deal Bonus (AE, AEAM, ISR)",
+        "Renewal Multi-Year Bonus (AE, AEAM)",
+        "Services Commission (All)",
+        "ISR Pass-Up Flat Incentive",
+        "ISR Pass-Up Closed Won Incentive",
+        "Channel Fulfilled Commission",
+        "January Flat Draw (All)",
+        "Manager Rollup Payout (ISR/SDR Mgr, CSM/SE Mgr)"
+      ],
+      "notes": "Monthly periods aggregate into quarterly (ISR, SDR) and annual (all other roles) measurement windows. Retention draws pay Q1–Q3 with Q4 true-up. January 2026 is a flat draw month requiring March true-up. BCR proration toggle (fixed vs prorated) needed for mid-period goal changes."
+    },
+    "dataWorksheets": [
+      {
+        "name": "Universal Acceleration Tiers",
+        "description": "5-tier commission rate multiplier schedule applied to all tiered components.",
+        "concept": "rate-table",
+        "columns": [
+          {
+            "name": "Tier",
+            "type": "text"
+          },
+          {
+            "name": "Min Attainment",
+            "type": "percent"
+          },
+          {
+            "name": "Max Attainment",
+            "type": "percent"
+          },
+          {
+            "name": "Rate Multiplier",
+            "type": "number"
+          }
+        ],
+        "sampleRows": [
+          {
+            "Tier": "Tier 1",
+            "Min Attainment": 0,
+            "Max Attainment": 1,
+            "Rate Multiplier": 1
+          },
+          {
+            "Tier": "Tier 2",
+            "Min Attainment": 1,
+            "Max Attainment": 1.25,
+            "Rate Multiplier": 1.25
+          }
+        ],
+        "apiPayload": {}
+      },
+      {
+        "name": "Multi-Year Deal Multipliers",
+        "description": "Duration-based BCR multipliers for multi-year contracts ≥24 months.",
+        "concept": "accelerator",
+        "columns": [
+          {
+            "name": "Contract Duration",
+            "type": "text"
+          },
+          {
+            "name": "BCR Multiplier",
+            "type": "number"
+          }
+        ],
+        "sampleRows": [
+          {
+            "Contract Duration": "24 months",
+            "BCR Multiplier": 1.2
+          },
+          {
+            "Contract Duration": "60+ months",
+            "BCR Multiplier": 2
+          }
+        ],
+        "apiPayload": {}
+      },
+      {
+        "name": "Retention Payout Schedule",
+        "description": "Scaled retention payout curve: floor→50%, target→100%, ceiling→150%.",
+        "concept": "rate-table",
+        "columns": [
+          {
+            "name": "Threshold",
+            "type": "text"
+          },
+          {
+            "name": "Retention Rate",
+            "type": "percent"
+          },
+          {
+            "name": "Payout Percent",
+            "type": "percent"
+          }
+        ],
+        "sampleRows": [
+          {
+            "Threshold": "Below Floor",
+            "Retention Rate": "<floor",
+            "Payout Percent": 0
+          },
+          {
+            "Threshold": "At Floor",
+            "Retention Rate": "floor",
+            "Payout Percent": 0.5
+          }
+        ],
+        "apiPayload": {}
+      },
+      {
+        "name": "Role Component Weights",
+        "description": "Defines component weights per role/segment combination for OTC allocation.",
+        "concept": "split",
+        "columns": [
+          {
+            "name": "Role",
+            "type": "text"
+          },
+          {
+            "name": "Segment",
+            "type": "text"
+          },
+          {
+            "name": "Component",
+            "type": "text"
+          },
+          {
+            "name": "Weight",
+            "type": "percent"
+          },
+          {
+            "name": "Measurement Period",
+            "type": "text"
+          }
+        ],
+        "sampleRows": [
+          {
+            "Role": "AE",
+            "Segment": "Named/Ent/MM",
+            "Component": "Net New Bookings",
+            "Weight": 1,
+            "Measurement Period": "Annual"
+          },
+          {
+            "Role": "AM",
+            "Segment": "non-OTT",
+            "Component": "Expansion",
+            "Weight": 0.8,
+            "Measurement Period": "Annual"
+          }
+        ],
+        "apiPayload": {}
+      },
+      {
+        "name": "Channel Segment Configuration",
+        "description": "Channel Sourced/Fulfilled weight allocation by partner segment.",
+        "concept": "split",
+        "columns": [
+          {
+            "name": "Segment",
+            "type": "text"
+          },
+          {
+            "name": "Sourced Weight",
+            "type": "percent"
+          },
+          {
+            "name": "Fulfilled Weight",
+            "type": "percent"
+          }
+        ],
+        "sampleRows": [
+          {
+            "Segment": "Strategic",
+            "Sourced Weight": 1,
+            "Fulfilled Weight": 0
+          },
+          {
+            "Segment": "R&D",
+            "Sourced Weight": 0.4,
+            "Fulfilled Weight": 0.6
+          }
+        ],
+        "apiPayload": {}
+      },
+      {
+        "name": "ISR Pass-Up Rates",
+        "description": "ISR pass-up incentive rates: flat per-opp and percentage on closed-won.",
+        "concept": "spif",
+        "columns": [
+          {
+            "name": "Incentive Type",
+            "type": "text"
+          },
+          {
+            "name": "Rate",
+            "type": "number"
+          },
+          {
+            "name": "Basis",
+            "type": "text"
+          }
+        ],
+        "sampleRows": [
+          {
+            "Incentive Type": "Flat per Pass-Up",
+            "Rate": 50,
+            "Basis": "Per opportunity passed"
+          },
+          {
+            "Incentive Type": "Closed Won Bonus",
+            "Rate": 0.02,
+            "Basis": "Closed deal value"
+          }
+        ],
+        "apiPayload": {}
+      },
+      {
+        "name": "Retention Draw Rates",
+        "description": "Quarterly retention draw rates by role group.",
+        "concept": "draw",
+        "columns": [
+          {
+            "name": "Role Group",
+            "type": "text"
+          },
+          {
+            "name": "Quarterly Draw Rate",
+            "type": "percent"
+          },
+          {
+            "name": "True-Up Quarter",
+            "type": "text"
+          }
+        ],
+        "sampleRows": [
+          {
+            "Role Group": "CSM/RM",
+            "Quarterly Draw Rate": 0.75,
+            "True-Up Quarter": "Q4"
+          },
+          {
+            "Role Group": "AEAM/AM",
+            "Quarterly Draw Rate": 0.5,
+            "True-Up Quarter": "Q4"
+          }
+        ],
+        "apiPayload": {}
+      }
+    ],
+    "employeeAssumptionColumns": [
+      {
+        "name": "Annual OTC (Variable Comp)",
+        "type": "currency",
+        "description": "Total annual on-target commission.",
+        "concept": "quota-target",
+        "exampleValue": 120000
+      },
+      {
+        "name": "Role",
+        "type": "text",
+        "description": "Compensation role assignment.",
+        "concept": "split",
+        "exampleValue": "AE"
+      },
+      {
+        "name": "Segment",
+        "type": "text",
+        "description": "Business segment for weight determination.",
+        "concept": "split",
+        "exampleValue": "Named/Ent/MM"
+      },
+      {
+        "name": "Annual NNB Quota",
+        "type": "currency",
+        "description": "Annual Net New Bookings quota.",
+        "concept": "quota-target",
+        "exampleValue": 950000
+      },
+      {
+        "name": "Annual Expansion Quota",
+        "type": "currency",
+        "description": "Annual Expansion quota.",
+        "concept": "quota-target",
+        "exampleValue": 500000
+      },
+      {
+        "name": "Target Retention Rate",
+        "type": "percent",
+        "description": "Target gross retention rate.",
+        "concept": "quota-target",
+        "exampleValue": 0.92
+      },
+      {
+        "name": "Quarterly SQO Quota",
+        "type": "number",
+        "description": "Quarterly SQO count target for SDRs.",
+        "concept": "quota-target",
+        "exampleValue": 8
+      },
+      {
+        "name": "Quarterly Closed Won Opp Quota",
+        "type": "number",
+        "description": "Quarterly closed won opp count for ISRs.",
+        "concept": "quota-target",
+        "exampleValue": 12
+      },
+      {
+        "name": "Quarterly NNB Quota (ISR)",
+        "type": "currency",
+        "description": "Quarterly NNB dollar quota for ISR C2.",
+        "concept": "quota-target",
+        "exampleValue": 75000
+      },
+      {
+        "name": "Sourced Bookings Quota",
+        "type": "currency",
+        "description": "Annual sourced bookings quota for Channel.",
+        "concept": "quota-target",
+        "exampleValue": 1000000
+      },
+      {
+        "name": "Fulfilled Bookings Quota",
+        "type": "currency",
+        "description": "Annual fulfilled bookings quota for Channel.",
+        "concept": "quota-target",
+        "exampleValue": 800000
+      },
+      {
+        "name": "Annual Bookings Quota (SE/SDR)",
+        "type": "currency",
+        "description": "Annual regional bookings quota for SE/SDR.",
+        "concept": "quota-target",
+        "exampleValue": 2000000
+      },
+      {
+        "name": "Retention Variable",
+        "type": "currency",
+        "description": "OTC allocated to retention component.",
+        "concept": "quota-target",
+        "exampleValue": 24000
+      },
+      {
+        "name": "Region",
+        "type": "text",
+        "description": "Assigned region for regional crediting.",
+        "concept": "territory",
+        "exampleValue": "US-East"
+      },
+      {
+        "name": "BCR Proration Method",
+        "type": "text",
+        "description": "Fixed or Prorated on mid-period goal changes.",
+        "concept": "quota-target",
+        "exampleValue": "Prorated"
+      }
+    ],
+    "attributeWorksheets": [
+      {
+        "name": "Role-Segment Assignment",
+        "description": "Maps reps to role, segment, and component weights.",
+        "concept": "split",
+        "pkType": "employee",
+        "columns": [
+          {
+            "name": "Employee ID",
+            "type": "text"
+          },
+          {
+            "name": "Role",
+            "type": "text"
+          },
+          {
+            "name": "Segment",
+            "type": "text"
+          },
+          {
+            "name": "C1 Weight",
+            "type": "number"
+          },
+          {
+            "name": "C2 Weight",
+            "type": "number"
+          },
+          {
+            "name": "C1 Measurement Period",
+            "type": "text"
+          },
+          {
+            "name": "C2 Measurement Period",
+            "type": "text"
+          }
+        ],
+        "apiPayload": {}
+      },
+      {
+        "name": "Regional Territory Map",
+        "description": "Maps accounts to regions for CSM, Channel, SE, SDR crediting.",
+        "concept": "territory",
+        "pkType": "account",
+        "columns": [
+          {
+            "name": "Account ID",
+            "type": "text"
+          },
+          {
+            "name": "Region",
+            "type": "text"
+          },
+          {
+            "name": "Assigned Rep ID",
+            "type": "text"
+          },
+          {
+            "name": "Credit Type",
+            "type": "text"
+          }
+        ],
+        "apiPayload": {}
+      },
+      {
+        "name": "Manager Rollup Hierarchy",
+        "description": "Manager-to-rep rollup for ISR/SDR and CSM/SE Manager plans.",
+        "concept": "split",
+        "pkType": "employee",
+        "columns": [
+          {
+            "name": "Manager Employee ID",
+            "type": "text"
+          },
+          {
+            "name": "Manager Role",
+            "type": "text"
+          },
+          {
+            "name": "Direct Report Employee ID",
+            "type": "text"
+          },
+          {
+            "name": "Direct Report Role",
+            "type": "text"
+          }
+        ],
+        "apiPayload": {}
+      }
+    ],
+    "formulaRecommendations": [
+      {
+        "concept": "rate-table",
+        "description": "Tiered commission using universal acceleration table.",
+        "logicExplanation": "Calculate attainment, determine BCR, apply marginal rate multiplier per tier on incremental bookings within each band.",
+        "pseudoFormula": "BCR = ComponentVariable / ComponentQuota;\nAttainment = ActualBookings / ComponentQuota;\nPayout = SUM_OVER_TIERS(MIN(ActualBookings, TierMax*Quota) - MAX(0, TierMin*Quota)) * BCR * TierMultiplier;",
+        "captivateiqNotes": "SmartGrid with TIER_LOOKUP referencing Universal Acceleration Tiers. MARGINAL tier mode. BCR from Employee Assumptions."
+      },
+      {
+        "concept": "rate-table",
+        "description": "Retention scaled payout with floor and cap.",
+        "logicExplanation": "Compute floor = 2×TargetRate−1. Below floor: 0%. At/above 100%: 150%. Otherwise interpolate linearly.",
+        "pseudoFormula": "Floor = 2*TargetRetentionRate - 1;\nIF ActualRetention < Floor THEN PayoutPct = 0\nELSE IF ActualRetention >= 1 THEN PayoutPct = 1.5\nELSE PayoutPct = 0.5 + (ActualRetention - Floor)/(1 - Floor)*0.5;\nRetentionPayout = PayoutPct * RetentionVariable;",
+        "captivateiqNotes": "Custom SmartGrid formula (continuous curve, not discrete tiers). Helper column for Floor. Reference Target Retention Rate from Assumptions."
+      },
+      {
+        "concept": "draw",
+        "description": "Quarterly retention draw with Q4 true-up.",
+        "logicExplanation": "Q1–Q3: pay DrawRate × (RetentionVariable/4). Q4: MAX(0, AnnualRetentionPayout − 3×QuarterlyDraw).",
+        "pseudoFormula": "QuarterlyDraw = DrawRate * (RetentionVariable / 4);\nIF Quarter IN (Q1,Q2,Q3) THEN Payout = QuarterlyDraw\nELSE Payout = MAX(0, AnnualRetentionPayout - 3*QuarterlyDraw);",
+        "captivateiqNotes": "Period Group logic for Q1–Q3 vs Q4. DrawRate from Retention Draw Rates worksheet. Track cumulative draws in running-total column."
+      },
+      {
+        "concept": "accelerator",
+        "description": "Multi-year deal bonus calculation.",
+        "logicExplanation": "For deals ≥24 months: bonus = IncrementalARR × BCR × DurationMultiplier. Renewal MY: PriorARR × 0.5%.",
+        "pseudoFormula": "IF DealDuration >= 24 THEN Multiplier = LOOKUP(DealDuration, MultiYearTable); Bonus = ARR * BCR * Multiplier;\nRenewalMYBonus = PriorARR * 0.005;",
+        "captivateiqNotes": "VLOOKUP against Multi-Year Deal Multipliers. Deal-level transaction field for DealDuration required. Separate payout line for renewal MY."
+      },
+      {
+        "concept": "rate-table",
+        "description": "Services commission at half BCR.",
+        "logicExplanation": "Services excluded from NNB quota credit, earn 50% of primary BCR. Channel: 50% of both Sourced and Fulfilled BCRs.",
+        "pseudoFormula": "ServicesBCR = PrimaryBCR * 0.5;\nServicesComm = ServicesBookings * ServicesBCR;\nChannelServicesComm = (SourcedSvcs * SourcedBCR/2) + (FulfilledSvcs * FulfilledBCR/2);",
+        "captivateiqNotes": "Separate payout line filtered by booking_type='Services'. Channel needs two sub-lines for Sourced/Fulfilled services."
+      },
+      {
+        "concept": "spif",
+        "description": "ISR pass-up incentive (flat + percentage).",
+        "logicExplanation": "$50 per passed opp + 2% of closed-won deal value on passed opps.",
+        "pseudoFormula": "PassUpFlat = CountPassedOpps * 50;\nPassUpCW = SUM(ClosedWonPassedDealValues) * 0.02;\nTotal = PassUpFlat + PassUpCW;",
+        "captivateiqNotes": "Requires Passed Opportunities transaction source with PassedDate, DealValue, ClosedWonFlag. Two payout lines."
+      },
+      {
+        "concept": "draw",
+        "description": "January 2026 flat draw and March true-up.",
+        "logicExplanation": "January = vOTE/12 flat draw. February offline. March true-up reconciles Jan+Feb against actual.",
+        "pseudoFormula": "JanuaryPayout = AnnualVOTE / 12;\nMarchTrueUp = ActualQ1Commission - JanuaryPayout - FebruaryEstimate;",
+        "captivateiqNotes": "January draw as manual adjustment. February offline tracked as prior-period adjustment. March references both. Use Prior Period Adjustments column."
+      },
+      {
+        "concept": "split",
+        "description": "Manager rollup commission calculation.",
+        "logicExplanation": "ISR/SDR Mgr: sum direct report metrics. CSM/SE Mgr: regional aggregation (not sum-of-reps).",
+        "pseudoFormula": "ISRSDRMgr: MgrMetrics = SUM(DirectReports.Metrics);\nCSMSEMgr: MgrRetention = RegionalRate; MgrExpansion = RegionalTotal;",
+        "captivateiqNotes": "CaptivateIQ hierarchical rollup via Manager Rollup Hierarchy. CSM/SE Mgr uses region-level aggregation. Manager quotas set independently in Assumptions."
+      }
+    ]
+  },
+  "insights": "The Vimeo FY26 Revenue Compensation Plan is a comprehensive multi-role plan covering 9 IC roles and 2 manager roles. It is unified by a single 5-tier acceleration schedule (1×/1.25×/1.5×/2×/2.25×) applied across all tiered components, with roles differentiated by their component mix (NNB, Expansion, Retention, SQOs, Closed Won Opps) and segment-specific weighting (OTT vs non-OTT, Channel partner type). The retention component uses a fundamentally different scaled payout curve with a dynamic floor and 150% cap rather than the discrete tier structure used elsewhere.\n\nKey CaptivateIQ implementation complexities include: (1) dual draw structures where CSM/RM receive 75% quarterly retention draws versus 50% for AEAM/AM, all with Q4 true-ups; (2) the January 2026 transitional flat draw requiring March true-up across all roles; (3) multi-year deal bonuses requiring deal-level contract duration data; (4) Channel roles with segment-variable Sourced/Fulfilled splits and dual-BCR services calculations; and (5) manager plans using hierarchical rollups or regional aggregation rather than individual deal crediting.\n\nAll 54 rules come from a single authoritative workbook with high internal consistency. The two manager configurations carry 0.95 confidence due to absent calculator sheets. The FY26 shift to regional crediting for CSM and Channel is a significant change requiring the Regional Territory Map to be fully configured before go-live. The 28 consolidated rules map to 7 data worksheets, 15 employee assumption columns, 3 attribute worksheets, and 8 formula recommendations in CaptivateIQ."
+}

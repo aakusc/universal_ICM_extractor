@@ -1,0 +1,836 @@
+{
+  "id": "1772563884990-vzbvxv9",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560402727-o5leu2g",
+  "fileName": "Digital.xlsx",
+  "extractedAt": "2026-03-03T18:51:24.990Z",
+  "classification": {
+    "fileType": "rate-table",
+    "summary": "Digital channel partner commission rate table mapping ~94 Sales IDs across 10 product types with flat per-unit bounties, revised 12/8/2025",
+    "relevantSheets": [
+      "Digital Rate Table",
+      "Digital Rate Table - Normalized",
+      "Digital Product Name Mapping"
+    ],
+    "irrelevantSheets": []
+  },
+  "rules": [
+    {
+      "id": "digital-rate-matrix-overview",
+      "concept": "rate-table",
+      "description": "Master flat-rate commission matrix: each Sales ID (partner × channel × tier) earns a fixed dollar bounty per sale, varying by product category. Ten product columns span New Installs (Fiber/Copper), Migrations, Voice (4G Voice, Residence Voice, Digital Voice Standard), and VAS (Total Home Tech Support, Wi-Fi Extender, Wi-Fi Protection, Inside Wire Protection). Rates are not tiered by volume — they are flat per-unit bounties that differ by partner and tier.",
+      "parameters": {
+        "structureType": "matrix",
+        "dimensions": {
+          "rows": "Sales ID (partner + channel + team + tier)",
+          "columns": [
+            "New Install Fiber",
+            "New Install Copper",
+            "Migrations (Including Seamless Migrations)",
+            "New Install Brightspeed 4G Voice",
+            "Residence Voice Line",
+            "Digital Voice - Standard",
+            "Total Home Tech Support",
+            "Wi-Fi Extender",
+            "Wi-Fi Protection",
+            "Inside Wire Protection"
+          ]
+        },
+        "channels": [
+          "Digital (Dot.Digital)",
+          "DAP"
+        ],
+        "partners": [
+          "Updater",
+          "Infinity",
+          "Red Ventures",
+          "Centerfield",
+          "Clearlink",
+          "Commission Junction"
+        ],
+        "totalSalesIds": 94,
+        "currency": "USD",
+        "rateType": "flat per-unit bounty",
+        "effectiveDate": "2025-12-08"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A2:P96",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "Revised 12/8/2025 — Sales ID, Partner, Channel, Name, Team, Goal Group columns followed by 10 rate columns"
+        }
+      }
+    },
+    {
+      "id": "rate-updater-nonbrand-dotdigital",
+      "concept": "rate-table",
+      "description": "Updater Non-Brand Dot.Digital tiers (Sales IDs 20001122–20001124): highest bounties in the table — $500 Fiber, $400 Copper new installs. All three tiers share identical rates despite tier numbering.",
+      "parameters": {
+        "partner": "Updater",
+        "channel": "Digital",
+        "team": "Dot.Digital",
+        "goalGroup": "Updater NonBrand Dot.Digital",
+        "salesIds": [
+          "20001122",
+          "20001123",
+          "20001124"
+        ],
+        "rates": {
+          "New Install Fiber": 500,
+          "New Install Copper": 400,
+          "Migrations": 150,
+          "New Install Brightspeed 4G Voice": 50,
+          "Residence Voice Line": 50,
+          "Digital Voice - Standard": 50,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A3:P5",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001122 Updater Digital Non_Brand Tier 1 Dot.Digital — 500 400 150 50 50 50 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-updater-npmedia-dotdigital",
+      "concept": "rate-table",
+      "description": "Updater Non-Paid Media Dot.Digital (Sales IDs 20001125–20001126): slightly reduced install bounties ($475 Fiber, $380 Copper) vs. Non-Brand tier. Voice and VAS unchanged.",
+      "parameters": {
+        "partner": "Updater",
+        "channel": "Digital",
+        "team": "Dot.Digital",
+        "goalGroup": "Updater NP Med Dot.Digital",
+        "salesIds": [
+          "20001125",
+          "20001126"
+        ],
+        "rates": {
+          "New Install Fiber": 475,
+          "New Install Copper": 380,
+          "Migrations": 150,
+          "New Install Brightspeed 4G Voice": 50,
+          "Residence Voice Line": 50,
+          "Digital Voice - Standard": 50,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A6:P7",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001125 Updater Digital NP Media Affil Dot.Digital — 475 380 150 50 50 50 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-nonbrand-tier3",
+      "concept": "rate-table",
+      "description": "Non-Branded Tier 3 rate schedule shared across Infinity (20001129), Centerfield (20001135, 20000194): $350 Fiber, $250 Copper. Mid-range partner bounties.",
+      "parameters": {
+        "partners": [
+          "Infinity",
+          "Centerfield"
+        ],
+        "channels": [
+          "Digital",
+          "DAP"
+        ],
+        "goalGroups": [
+          "Infinity Non-Branded Dot.Digital",
+          "Centerfield NonBrand DotDigital",
+          "Centerfield Non-Branded"
+        ],
+        "salesIds": [
+          "20001129",
+          "20001135",
+          "20000194"
+        ],
+        "rates": {
+          "New Install Fiber": 350,
+          "New Install Copper": 250,
+          "Migrations": 150,
+          "New Install Brightspeed 4G Voice": 50,
+          "Residence Voice Line": 50,
+          "Digital Voice - Standard": 50,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A10:P10",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001129 Infinity Digital NonBrand T3 Cart Dot.Digital — 350 250 150 50 50 50 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-npmedia-325-230",
+      "concept": "rate-table",
+      "description": "Non-Paid Media rate schedule at $325/$230 level, used by Infinity NP Media (20001130), Clearlink NP Media Dot.Digital (20001142), and Clearlink NP Media DAP (20000211).",
+      "parameters": {
+        "partners": [
+          "Infinity",
+          "Clearlink"
+        ],
+        "channels": [
+          "Digital",
+          "DAP"
+        ],
+        "goalGroups": [
+          "Infinity NP Media Dot.Digital",
+          "Clearlink NP Media Dot.Digital",
+          "Clearlink Non_Paid Media"
+        ],
+        "salesIds": [
+          "20001130",
+          "20001142",
+          "20000211"
+        ],
+        "rates": {
+          "New Install Fiber": 325,
+          "New Install Copper": 230,
+          "Migrations": 150,
+          "New Install Brightspeed 4G Voice": 50,
+          "Residence Voice Line": 50,
+          "Digital Voice - Standard": 50,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A11:P11",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001130 Infinity Digital Non_Paid Media Dot.Digital — 325 230 150 50 50 50 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-red-ventures-movers",
+      "concept": "rate-table",
+      "description": "Red Ventures Movers Dot.Digital (Sales ID 20001131): unique rate schedule of $325 Fiber / $240 Copper — slightly higher Copper than other $325-Fiber partners.",
+      "parameters": {
+        "partner": "Red Ventures",
+        "channel": "Digital",
+        "team": "Dot.Digital",
+        "goalGroup": "Red Ventures Movers Dot.Digital",
+        "salesIds": [
+          "20001131"
+        ],
+        "rates": {
+          "New Install Fiber": 325,
+          "New Install Copper": 240,
+          "Migrations": 150,
+          "New Install Brightspeed 4G Voice": 50,
+          "Residence Voice Line": 50,
+          "Digital Voice - Standard": 50,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A12:P12",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001131 Red Ventures Digital AllConnect Cart Dot.Digital — 325 240 150 50 50 50 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-npmedia-300-215",
+      "concept": "rate-table",
+      "description": "Centerfield Non-Paid Media rate schedule at $300/$215 level, shared by Dot.Digital (20001134) and DAP channel IDs (20000189, 20000197, 20000198).",
+      "parameters": {
+        "partner": "Centerfield",
+        "channels": [
+          "Digital",
+          "DAP"
+        ],
+        "goalGroups": [
+          "Centerfield NP Media Dot.Digital",
+          "Centerfield Non_Paid Media"
+        ],
+        "salesIds": [
+          "20001134",
+          "20000189",
+          "20000197",
+          "20000198"
+        ],
+        "rates": {
+          "New Install Fiber": 300,
+          "New Install Copper": 215,
+          "Migrations": 150,
+          "New Install Brightspeed 4G Voice": 50,
+          "Residence Voice Line": 50,
+          "Digital Voice - Standard": 50,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A15:P15",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001134 Centerfield Digital NP Media Misc Dot.Digital — 300 215 150 50 50 50 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-branded-250-170",
+      "concept": "rate-table",
+      "description": "Standard Branded rate schedule ($250 Fiber / $170 Copper) — the most widely used schedule in the table. Shared across Infinity, Centerfield, and Clearlink branded tiers in both Digital and DAP channels.",
+      "parameters": {
+        "partners": [
+          "Infinity",
+          "Centerfield",
+          "Clearlink"
+        ],
+        "channels": [
+          "Digital",
+          "DAP"
+        ],
+        "goalGroups": [
+          "Infinity Branded Dot.Digital",
+          "Centerfield Branded Dot.Digital",
+          "Centerfield Branded",
+          "Clearlink Branded Dot.Digital",
+          "ClearLink Branded"
+        ],
+        "salesIds": [
+          "20001127",
+          "20001128",
+          "20001132",
+          "20001133",
+          "20001136",
+          "20001137",
+          "20001138",
+          "20001139",
+          "20001141",
+          "20000190",
+          "20000191",
+          "20000192",
+          "20000193",
+          "20000203",
+          "20000204",
+          "20000205",
+          "20000210",
+          "20000213",
+          "20000214"
+        ],
+        "rates": {
+          "New Install Fiber": 250,
+          "New Install Copper": 170,
+          "Migrations": 150,
+          "New Install Brightspeed 4G Voice": 50,
+          "Residence Voice Line": 50,
+          "Digital Voice - Standard": 50,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A8:P50",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001127 Infinity Digital Brand Tier 1 Dot.Digital — 250 170 150 50 50 50 40 20 20 0 (19 Sales IDs total)"
+        }
+      }
+    },
+    {
+      "id": "rate-commission-junction",
+      "concept": "rate-table",
+      "description": "Commission Junction Dot.Digital (Sales ID 20001354): minimal program — only Fiber new installs earn $125; all other products pay $0. No Copper, Migration, Voice, or VAS commissions.",
+      "parameters": {
+        "partner": "Commission Junction",
+        "channel": "Digital",
+        "team": "Dot.Digital",
+        "goalGroup": "Comm Junction Dot.Digital",
+        "salesIds": [
+          "20001354"
+        ],
+        "rates": {
+          "New Install Fiber": 125,
+          "New Install Copper": 0,
+          "Migrations": 0,
+          "New Install Brightspeed 4G Voice": 0,
+          "Residence Voice Line": 0,
+          "Digital Voice - Standard": 0,
+          "Total Home Tech Support": 0,
+          "Wi-Fi Extender": 0,
+          "Wi-Fi Protection": 0,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A23:P23",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001354 Commission Junction Digital Commission Junct Dot.Digital — 125 0 0 0 0 0 0 0 0 0"
+        }
+      }
+    },
+    {
+      "id": "rate-centerfield-acq-dap",
+      "concept": "rate-table",
+      "description": "Centerfield Acquisition DAP (Sales IDs 20000195–20000196): reduced acquisition-tier bounties at $100 Fiber/$100 Copper/$100 Migration with lower Voice rates ($20) but standard VAS.",
+      "parameters": {
+        "partner": "Centerfield",
+        "channel": "DAP",
+        "team": "Acquisition",
+        "goalGroup": "Centerfield ACQ",
+        "salesIds": [
+          "20000195",
+          "20000196"
+        ],
+        "rates": {
+          "New Install Fiber": 100,
+          "New Install Copper": 100,
+          "Migrations": 100,
+          "New Install Brightspeed 4G Voice": 20,
+          "Residence Voice Line": 20,
+          "Digital Voice - Standard": 20,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A30:P31",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20000195 Centerfield DAP ACQ — 100 100 100 20 20 20 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-clearlink-acq-dotdigital",
+      "concept": "rate-table",
+      "description": "Clearlink ACQ Dot.Digital (Sales ID 20001145): lowest bounty tier at $90 Fiber/$90 Copper but retains $150 Migration rate. Voice at $20.",
+      "parameters": {
+        "partner": "Clearlink",
+        "channel": "Digital",
+        "team": "Dot.Digital",
+        "goalGroup": "Clearlink ACQ Dot.Digital",
+        "salesIds": [
+          "20001145"
+        ],
+        "rates": {
+          "New Install Fiber": 90,
+          "New Install Copper": 90,
+          "Migrations": 150,
+          "New Install Brightspeed 4G Voice": 20,
+          "Residence Voice Line": 20,
+          "Digital Voice - Standard": 20,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A22:P22",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20001145 Clearlink Digital ACQ Dot.Digital — 90 90 150 20 20 20 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-clearlink-acq-dap",
+      "concept": "rate-table",
+      "description": "Clearlink Acquisition DAP (multiple Sales IDs): lowest overall bounties at $90/$90/$90 with $20 Voice. Migration rate is $90 (lower than the Dot.Digital variant's $150).",
+      "parameters": {
+        "partner": "Clearlink",
+        "channel": "DAP",
+        "team": "Acquisition",
+        "goalGroup": "Clearlink ACQ",
+        "salesIds": [
+          "20000199",
+          "20000200",
+          "20000202",
+          "20000206",
+          "20000207",
+          "20000208",
+          "20000209",
+          "20000212"
+        ],
+        "rates": {
+          "New Install Fiber": 90,
+          "New Install Copper": 90,
+          "Migrations": 90,
+          "New Install Brightspeed 4G Voice": 20,
+          "Residence Voice Line": 20,
+          "Digital Voice - Standard": 20,
+          "Total Home Tech Support": 40,
+          "Wi-Fi Extender": 20,
+          "Wi-Fi Protection": 20,
+          "Inside Wire Protection": 0
+        }
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A34:P48",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20000199 ClearLink DAP ACQ Tier 1 — 90 90 90 20 20 20 40 20 20 0"
+        }
+      }
+    },
+    {
+      "id": "rate-clearlink-ooa-invoiced",
+      "concept": "rate-table",
+      "description": "Clearlink Out-of-Area (OOA) DAP (Sales ID 20000201): all product columns show 'invoiced' rather than numeric rates, indicating this partner is paid via separate invoice rather than the standard commission table.",
+      "parameters": {
+        "partner": "Clearlink",
+        "channel": "DAP",
+        "team": "OOA",
+        "goalGroup": "Clearlink OOA",
+        "salesIds": [
+          "20000201"
+        ],
+        "rateType": "invoiced",
+        "rates": {
+          "New Install Fiber": "invoiced",
+          "New Install Copper": "invoiced",
+          "Migrations": "invoiced",
+          "New Install Brightspeed 4G Voice": "invoiced",
+          "Residence Voice Line": "invoiced",
+          "Digital Voice - Standard": "invoiced",
+          "Total Home Tech Support": "invoiced",
+          "Wi-Fi Extender": "invoiced",
+          "Wi-Fi Protection": "invoiced",
+          "Inside Wire Protection": "invoiced"
+        }
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!A36:P36",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "20000201 ClearLink DAP Telco OOA — invoiced invoiced invoiced invoiced invoiced invoiced invoiced invoiced invoiced"
+        }
+      }
+    },
+    {
+      "id": "product-classification-new-install-fiber",
+      "concept": "qualifier",
+      "description": "Product-to-rate-column mapping for New Install Fiber: 12 specific product names (e.g., FIBER INTERNET 1 GIG, BRIGHTSPEED NOW 1 GIG) with Order Type 'NEW INSTALL' and Technology 'Fiber' map to the 'New Install Fiber' rate column.",
+      "parameters": {
+        "orderType": "NEW INSTALL",
+        "technology": "Fiber",
+        "qualifiesForColumn": "New Install Fiber",
+        "matchingProducts": [
+          {
+            "productName": "BRIGHTSPEED NOW 1 GIG",
+            "resultLabel": "Fiber 940mb"
+          },
+          {
+            "productName": "BRIGHTSPEED NOW 200 MBPS",
+            "resultLabel": "Fiber 200mb"
+          },
+          {
+            "productName": "BRIGHTSPEED NOW 500 MBPS",
+            "resultLabel": "Fiber 300mb"
+          },
+          {
+            "productName": "FIBER INTERNET 1 GIG",
+            "resultLabel": "Fiber 940mb"
+          },
+          {
+            "productName": "FIBER INTERNET 100 MBPS",
+            "resultLabel": "Fiber 100mb"
+          },
+          {
+            "productName": "FIBER INTERNET 2 GIG",
+            "resultLabel": "Fiber 2gb"
+          },
+          {
+            "productName": "FIBER INTERNET 200 MBPS",
+            "resultLabel": "Fiber 200mb"
+          },
+          {
+            "productName": "FIBER INTERNET 300 MBPS",
+            "resultLabel": "Fiber 300mb"
+          },
+          {
+            "productName": "FIBER INTERNET 5 GIG",
+            "resultLabel": "Fiber 5gb"
+          },
+          {
+            "productName": "FIBER INTERNET 500 MBPS",
+            "resultLabel": "Fiber 500mb"
+          },
+          {
+            "productName": "FIBER INTERNET 600 MBPS",
+            "resultLabel": "Fiber 600mb"
+          },
+          {
+            "productName": "FIBER INTERNET 8 GIG",
+            "resultLabel": "Fiber 8gb"
+          }
+        ]
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "Digital Product Name Mapping!A2:D13",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Product Name Mapping",
+          "evidence": "NEW INSTALL | Fiber | FIBER INTERNET 1 GIG | Fiber 940mb"
+        }
+      }
+    },
+    {
+      "id": "product-classification-new-install-copper",
+      "concept": "qualifier",
+      "description": "Product-to-rate-column mapping for New Install Copper: 10 DSL/copper product names with Order Type 'NEW INSTALL' and Technology 'Copper' map to the 'New Install Copper' rate column.",
+      "parameters": {
+        "orderType": "NEW INSTALL",
+        "technology": "Copper",
+        "qualifiesForColumn": "New Install Copper",
+        "matchingProducts": [
+          {
+            "productName": "INTERNET 1.5 MBPS",
+            "resultLabel": "Copper 3mb"
+          },
+          {
+            "productName": "INTERNET 10 MBPS",
+            "resultLabel": "Copper 10mb"
+          },
+          {
+            "productName": "INTERNET 15 MBPS",
+            "resultLabel": "Copper 15mb"
+          },
+          {
+            "productName": "INTERNET 20 MBPS",
+            "resultLabel": "Copper 20mb"
+          },
+          {
+            "productName": "INTERNET 3 MBPS",
+            "resultLabel": "Copper 3mb"
+          },
+          {
+            "productName": "INTERNET 30 MBPS",
+            "resultLabel": "Copper 30mb"
+          },
+          {
+            "productName": "INTERNET 40 MBPS",
+            "resultLabel": "Copper 40mb"
+          },
+          {
+            "productName": "INTERNET 6 MBPS",
+            "resultLabel": "Copper 6mb"
+          },
+          {
+            "productName": "INTERNET 60 MBPS",
+            "resultLabel": "Copper 60mb"
+          },
+          {
+            "productName": "INTERNET 80 MBPS",
+            "resultLabel": "Copper 80mb"
+          }
+        ]
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "Digital Product Name Mapping!A14:D23",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Product Name Mapping",
+          "evidence": "NEW INSTALL | Copper | INTERNET 10 MBPS | Copper 10mb"
+        }
+      }
+    },
+    {
+      "id": "product-classification-migration",
+      "concept": "qualifier",
+      "description": "Product-to-rate-column mapping for Migrations: 4 fiber products with Order Type 'MIGRATION' (technology blank) map to the 'Migrations' rate column. Only fiber products appear in the migration list.",
+      "parameters": {
+        "orderType": "MIGRATION",
+        "technology": "blank",
+        "qualifiesForColumn": "Migrations (Including Seamless Migrations)",
+        "matchingProducts": [
+          {
+            "productName": "FIBER INTERNET 1 GIG",
+            "resultLabel": "Fiber 940mb"
+          },
+          {
+            "productName": "FIBER INTERNET 2 GIG",
+            "resultLabel": "Fiber 2gb"
+          },
+          {
+            "productName": "FIBER INTERNET 200 MBPS",
+            "resultLabel": "Fiber 200mb"
+          },
+          {
+            "productName": "FIBER INTERNET 500 MBPS",
+            "resultLabel": "Fiber 500mb"
+          }
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Digital Product Name Mapping!A24:D27",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Product Name Mapping",
+          "evidence": "MIGRATION | (blank) | FIBER INTERNET 1 GIG | Fiber 940mb"
+        }
+      }
+    },
+    {
+      "id": "product-classification-vas-voice",
+      "concept": "qualifier",
+      "description": "Product-to-rate-column mapping for Voice and VAS add-ons: 7 products without Order Type/Technology map to their respective rate columns. Three voice products (Brightspeed 4G Voice, Residence Voice Line, Digital Voice Standard) all map to 'VOIP' label. Four VAS products map individually.",
+      "parameters": {
+        "orderType": "any/blank",
+        "technology": "any/blank",
+        "mappings": [
+          {
+            "productName": "INSIDE WIRE PROTECTION RES",
+            "resultLabel": "Inside Wire Protection",
+            "rateColumn": "Inside Wire Protection"
+          },
+          {
+            "productName": "BRIGHTSPEED TOTAL HOME TECH SUPPORT",
+            "resultLabel": "Total Home Tech Support",
+            "rateColumn": "Total Home Tech Support"
+          },
+          {
+            "productName": "BRIGHTSPEED 4G VOICE",
+            "resultLabel": "VOIP",
+            "rateColumn": "New Install Brightspeed 4G Voice"
+          },
+          {
+            "productName": "RESIDENCE VOICE LINE",
+            "resultLabel": "VOIP",
+            "rateColumn": "Residence Voice Line"
+          },
+          {
+            "productName": "DIGITAL VOICE - STANDARD",
+            "resultLabel": "VOIP",
+            "rateColumn": "Digital Voice - Standard"
+          },
+          {
+            "productName": "WIFI EXTENDER",
+            "resultLabel": "WiFi Extender",
+            "rateColumn": "Wi-Fi Extender"
+          },
+          {
+            "productName": "WIFI PROTECTION",
+            "resultLabel": "WiFi Protection",
+            "rateColumn": "Wi-Fi Protection"
+          }
+        ]
+      },
+      "confidence": 0.94,
+      "sourceRef": {
+        "vendorRuleId": "Digital Product Name Mapping!A28:D34",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Product Name Mapping",
+          "evidence": "BRIGHTSPEED 4G VOICE | VOIP; WIFI EXTENDER | WiFi Extender"
+        }
+      }
+    },
+    {
+      "id": "inside-wire-protection-zero-rate",
+      "concept": "cap",
+      "description": "Inside Wire Protection pays $0 commission across all Sales IDs (effectively excluded from commissionable products). The only exception is the invoiced OOA entry. This product appears in the mapping table but is universally zero-rated.",
+      "parameters": {
+        "product": "Inside Wire Protection",
+        "maxPayout": 0,
+        "appliesTo": "all Sales IDs except invoiced OOA"
+      },
+      "confidence": 0.93,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table!P3:P96",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table",
+          "evidence": "Inside Wire Protection column: 0 across all numeric rows"
+        }
+      }
+    },
+    {
+      "id": "normalized-rate-table",
+      "concept": "rate-table",
+      "description": "The 'Digital Rate Table - Normalized' sheet provides the same rate data in unpivoted (Sales ID, Product Type, Rate) format for system consumption. Product types are normalized to: New Install Fiber, New Install Copper, Migration, VOIP, Total Home Tech Support, WiFi Extender, WiFi Protection, Inside Wire Protection — collapsing three voice columns into one 'VOIP' category.",
+      "parameters": {
+        "format": "normalized/unpivoted",
+        "columns": [
+          "Sales ID",
+          "Product Type",
+          "Rate"
+        ],
+        "normalizedProductTypes": [
+          "New Install Fiber",
+          "New Install Copper",
+          "Migration",
+          "VOIP",
+          "Total Home Tech Support",
+          "WiFi Extender",
+          "WiFi Protection",
+          "Inside Wire Protection"
+        ],
+        "rowsPerSalesId": 8,
+        "totalRows": "~752 (per named range ExternalData_1)",
+        "voiceConsolidation": "Three voice columns (4G Voice, Residence Voice, Digital Voice Standard) consolidated into single 'VOIP' type at same rate"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Digital Rate Table - Normalized!A1:C752",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "Digital Rate Table - Normalized",
+          "evidence": "ExternalData_1 named range; 20001122 | New Install Fiber | 500; 20001122 | VOIP | 50"
+        }
+      }
+    }
+  ],
+  "insights": "1) RATE VARIATION BY PARTNER TIER: Fiber new-install bounties range from $90 (ACQ) to $500 (Updater NonBrand) — a 5.6× spread — indicating significant differentiation by lead source quality and partner economics. 2) MIGRATION vs INSTALL DISPARITY: Migration rates are uniformly $150 (or $90–100 for ACQ tiers) regardless of partner, suggesting migrations are valued independently of partner acquisition cost. 3) INVOICED OOA EXCEPTION: Sales ID 20000201 (Clearlink Telco OOA) breaks the pattern entirely with 'invoiced' rates, likely a separately negotiated arrangement that needs cross-referencing with AP/invoicing data. 4) VOICE CONSOLIDATION AMBIGUITY: The main rate table has three separate voice columns (4G Voice, Residence Voice, Digital Voice Standard) all at identical rates per Sales ID, but the normalized table collapses them into a single 'VOIP' row — unclear if commission is paid once per sale or per voice line when multiple voice products are on one order. 5) INSIDE WIRE PROTECTION: Universally $0 commission — possibly included for tracking/reporting only, or the rate may be defined elsewhere. 6) NAMED RANGE 'ReasonMap' references an external workbook '[2]NR Reason Code Analysis' which likely contains non-revenue reason codes that could disqualify orders — should be obtained for a complete picture. 7) NAMED RANGE 'cleanup' references external '[1]Sheet1' with 2,624 rows, possibly an order cleanup or exception list that may affect commission eligibility. 8) ALL RATES ARE FLAT PER-UNIT: No volume tiers, accelerators, decelerators, quotas, caps, clawbacks, or SPIFs are present in this file — this is purely a rate card. Those mechanics likely reside in a separate plan document. 9) TIER NUMBERING ANOMALY: Updater Non-Brand Tiers 1–3 (20001122–20001124) and some Clearlink Branded tiers all share identical rates despite distinct tier numbering, suggesting tier differentiation may be for tracking/routing rather than compensation differentiation."
+}

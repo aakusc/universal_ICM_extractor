@@ -1,0 +1,621 @@
+{
+  "id": "1772563885259-d74lbv1",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560398019-d3bjjxx",
+  "fileName": "D2D.xlsx",
+  "extractedAt": "2026-03-03T18:51:25.259Z",
+  "classification": {
+    "fileType": "payout-schedule",
+    "summary": "Weekly D2D (door-to-door) channel partner commission calculation workbook for BrightSpeed fiber/internet services with rate lookups, chargebacks, and compliance adjustments",
+    "relevantSheets": [
+      "Lookup",
+      "Issued",
+      "Installed",
+      "Canceled",
+      "Disconnected",
+      "Compliance",
+      "Dashboard",
+      "D2D All Transactions",
+      "Error Check",
+      "Statement"
+    ],
+    "irrelevantSheets": [
+      "Data Fields Product List",
+      "Sheet3",
+      "filter",
+      "IssuedSource",
+      "InstalledSource",
+      "CanceledSource",
+      "DisconnectedSource",
+      "pivot all trans",
+      "Test Summary",
+      "Test Trans",
+      "Sheet1"
+    ]
+  },
+  "rules": [
+    {
+      "id": "speed-rate-table-d2d",
+      "concept": "rate-table",
+      "description": "Tiered commission rate table for fiber internet products by download speed for D2D partner group. Uses XLOOKUP with match-mode -1 (next larger) against MaxSpeed to determine per-unit flat commission.",
+      "parameters": {
+        "type": "tiered",
+        "partnerGroup": "D2D",
+        "lookupMethod": "XLOOKUP on MaxSpeed with match_mode=-1 (exact or next larger)",
+        "tiers": [
+          {
+            "maxSpeed": 0,
+            "maxSpeedLabel": "0 kbps",
+            "rate": 0
+          },
+          {
+            "maxSpeed": 100000,
+            "maxSpeedLabel": "100 Mbps",
+            "rate": 350
+          },
+          {
+            "maxSpeed": 250000,
+            "maxSpeedLabel": "250 Mbps",
+            "rate": 350
+          },
+          {
+            "maxSpeed": 300000,
+            "maxSpeedLabel": "300 Mbps",
+            "rate": 450
+          },
+          {
+            "maxSpeed": 500000,
+            "maxSpeedLabel": "500 Mbps",
+            "rate": 450
+          },
+          {
+            "maxSpeed": 600000,
+            "maxSpeedLabel": "600 Mbps",
+            "rate": 550
+          },
+          {
+            "maxSpeed": 1000000,
+            "maxSpeedLabel": "1 Gbps",
+            "rate": 550
+          },
+          {
+            "maxSpeed": 2000000,
+            "maxSpeedLabel": "2 Gbps",
+            "rate": 625
+          },
+          {
+            "maxSpeed": 5000000,
+            "maxSpeedLabel": "5 Gbps",
+            "rate": 675
+          },
+          {
+            "maxSpeed": 8000000,
+            "maxSpeedLabel": "8 Gbps",
+            "rate": 675
+          },
+          {
+            "maxSpeed": 999999999,
+            "maxSpeedLabel": "Catch-all",
+            "rate": 675
+          }
+        ],
+        "currency": "USD",
+        "unit": "per order line"
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!$D$6:$F$27",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "tbl_speedrate columns: MaxSpeed | PartnerGroup | Rate; e.g. 1000000 | D2D | 550; 2000000 | D2D | 625"
+        }
+      }
+    },
+    {
+      "id": "speed-rate-table-indirect-d2d",
+      "concept": "rate-table",
+      "description": "Tiered commission rate table for fiber internet products by download speed for Indirect-D2D partner group. Higher rates than D2D at 600Mbps–2Gbps tiers.",
+      "parameters": {
+        "type": "tiered",
+        "partnerGroup": "Indirect-D2D",
+        "lookupMethod": "XLOOKUP on MaxSpeed with match_mode=-1 (exact or next larger)",
+        "tiers": [
+          {
+            "maxSpeed": 0,
+            "maxSpeedLabel": "0 kbps",
+            "rate": 0
+          },
+          {
+            "maxSpeed": 100000,
+            "maxSpeedLabel": "100 Mbps",
+            "rate": 350
+          },
+          {
+            "maxSpeed": 250000,
+            "maxSpeedLabel": "250 Mbps",
+            "rate": 350
+          },
+          {
+            "maxSpeed": 300000,
+            "maxSpeedLabel": "300 Mbps",
+            "rate": 450
+          },
+          {
+            "maxSpeed": 500000,
+            "maxSpeedLabel": "500 Mbps",
+            "rate": 450
+          },
+          {
+            "maxSpeed": 600000,
+            "maxSpeedLabel": "600 Mbps",
+            "rate": 600
+          },
+          {
+            "maxSpeed": 1000000,
+            "maxSpeedLabel": "1 Gbps",
+            "rate": 600
+          },
+          {
+            "maxSpeed": 2000000,
+            "maxSpeedLabel": "2 Gbps",
+            "rate": 650
+          },
+          {
+            "maxSpeed": 5000000,
+            "maxSpeedLabel": "5 Gbps",
+            "rate": 675
+          },
+          {
+            "maxSpeed": 8000000,
+            "maxSpeedLabel": "8 Gbps",
+            "rate": 675
+          },
+          {
+            "maxSpeed": 999999999,
+            "maxSpeedLabel": "Catch-all",
+            "rate": 675
+          }
+        ],
+        "currency": "USD",
+        "unit": "per order line"
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!$D$6:$F$27",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "tbl_speedrate: 600000 | Indirect-D2D | 600; 1000000 | Indirect-D2D | 600; 2000000 | Indirect-D2D | 650"
+        }
+      }
+    },
+    {
+      "id": "product-rate-table-vas",
+      "concept": "rate-table",
+      "description": "Flat commission rate table for non-speed-based value-added services and voice products, looked up by product name and partner group via XLOOKUP on RateKey.",
+      "parameters": {
+        "type": "flat",
+        "lookupMethod": "XLOOKUP on RateKey (CONCAT of Product | PartnerGroup) against tbl_productrate",
+        "rates": [
+          {
+            "product": "Digital Voice - Standard",
+            "partnerGroup": "D2D",
+            "rate": 50
+          },
+          {
+            "product": "Digital Voice - Standard",
+            "partnerGroup": "Indirect-D2D",
+            "rate": 50
+          },
+          {
+            "product": "Wifi Extender",
+            "partnerGroup": "D2D",
+            "rate": 35
+          },
+          {
+            "product": "Wifi Extender",
+            "partnerGroup": "Indirect-D2D",
+            "rate": 35
+          },
+          {
+            "product": "Wifi Protection",
+            "partnerGroup": "D2D",
+            "rate": 25
+          },
+          {
+            "product": "Wifi Protection",
+            "partnerGroup": "Indirect-D2D",
+            "rate": 25
+          },
+          {
+            "product": "Brightspeed Total Home Tech Support",
+            "partnerGroup": "D2D",
+            "rate": 50
+          },
+          {
+            "product": "Brightspeed Total Home Tech Support",
+            "partnerGroup": "Indirect-D2D",
+            "rate": 50
+          },
+          {
+            "product": "Residence Voice Line",
+            "partnerGroup": "D2D",
+            "rate": 50
+          },
+          {
+            "product": "Residence Voice Line",
+            "partnerGroup": "Indirect-D2D",
+            "rate": 50
+          },
+          {
+            "product": "Fiber Voice",
+            "partnerGroup": "D2D",
+            "rate": 50
+          },
+          {
+            "product": "Fiber Voice",
+            "partnerGroup": "Indirect-D2D",
+            "rate": 50
+          },
+          {
+            "product": "Brightspeed Fiber Voice",
+            "partnerGroup": "D2D",
+            "rate": 50
+          },
+          {
+            "product": "Brightspeed Fiber Voice",
+            "partnerGroup": "Indirect-D2D",
+            "rate": 50
+          }
+        ],
+        "currency": "USD",
+        "unit": "per order line"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!$C$33:$F$46",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "tbl_productrate: RateKey | Product | PartnerGroup | Rate; e.g. Wifi Extender | D2D | Wifi Extender | D2D | 35"
+        }
+      }
+    },
+    {
+      "id": "rate-selection-logic",
+      "concept": "rate-table",
+      "description": "Rate selection logic: if order has a Download Speed value, use the speed-based rate table (tbl_speedrate); if Download Speed is blank, use the product-based rate table (tbl_productrate). Applied identically across Issued, Installed, Canceled, and Disconnected tabs.",
+      "parameters": {
+        "logic": "IF(DownloadSpeed is blank, XLOOKUP in tbl_productrate by RateKey, XLOOKUP in tbl_speedrate by MaxSpeed filtered to PartnerGroup)",
+        "speedRateTable": "tbl_speedrate",
+        "productRateTable": "tbl_productrate",
+        "rateKeyFormula": "CONCAT(ProductKey, ' | ', PartnerGroup)"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Issued!AH2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "IF(Eligible, LET(grp, PartnerGroup, spd, DownloadSpeed, rate_product=XLOOKUP(RateKey,tbl_productrate...), rate_speed=XLOOKUP(spd, FILTER(tbl_speedrate[MaxSpeed],...), ..., -1), IF(spd='', rate_product, rate_speed)), 0)"
+        }
+      }
+    },
+    {
+      "id": "qualifier-copper-exclusion",
+      "concept": "qualifier",
+      "description": "Copper technology orders are excluded from commission eligibility. Only Fiber technology products are commissionable. Eligibility is set to FALSE when Technology='Copper'.",
+      "parameters": {
+        "field": "Technology",
+        "condition": "NOT_EQUAL",
+        "value": "Copper",
+        "effect": "Eligible = FALSE when Technology = Copper",
+        "failCode": 1,
+        "failReason": "Copper sales excluded"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Issued!AD2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "=IF(tbl_issued[[#This Row],[Technology]]=\"Copper\",FALSE,TRUE)"
+        }
+      }
+    },
+    {
+      "id": "qualifier-channel-d2d-filter",
+      "concept": "qualifier",
+      "description": "Only orders in the D2D sales channel are included in this commission workbook. Source data is filtered to Channel='D2D' before processing.",
+      "parameters": {
+        "field": "Channel",
+        "condition": "EQUALS",
+        "value": "D2D",
+        "effect": "Only D2D channel orders are loaded into processing tabs"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "filter!A2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "filter",
+          "evidence": "=LET(_xlpm.data,FILTER(tbl_disconnected_source[],tbl_disconnected_source[Channel]=\"D2D\"),IF(_xlpm.data=0,\"\",_xlpm.data))"
+        }
+      }
+    },
+    {
+      "id": "qualifier-install-date-cutoff",
+      "concept": "qualifier",
+      "description": "Install-based commission payments are disabled for orders with OrderDate on or after 9/6/2025. All installs for orders placed after this date are marked ineligible (FailCode=2). This effectively transitions the plan from install-pay to issue-pay.",
+      "parameters": {
+        "field": "OrderDate",
+        "condition": "LESS_THAN",
+        "threshold": "2025-09-06",
+        "referenceCell": "Lookup!$E$3",
+        "effect": "Eligible=FALSE for Installed tab when OrderDate >= 9/6/2025",
+        "failCode": 2,
+        "failReason": "Exclude Installs related to Sales prior to 9/6/25"
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "Installed!AG2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Installed",
+          "evidence": "=D2<Lookup!$E$3 where Lookup!$E$3 = 2025-09-06; all installed records show Eligible=false, failCode=2"
+        }
+      }
+    },
+    {
+      "id": "qualifier-cancel-date-cutoff",
+      "concept": "qualifier",
+      "description": "Cancel chargebacks are only eligible when Technology is not Copper AND OrderDate is on or after the reference date (Lookup!$E$3 = 9/6/2025). Orders for copper or placed before 9/6/2025 are excluded from cancel chargebacks.",
+      "parameters": {
+        "conditions": [
+          {
+            "field": "Technology",
+            "operator": "NOT_EQUAL",
+            "value": "Copper"
+          },
+          {
+            "field": "OrderDate",
+            "operator": "GREATER_THAN_OR_EQUAL",
+            "value": "2025-09-06"
+          }
+        ],
+        "combinator": "AND",
+        "failCode": 3,
+        "failReason": "Exclude Cancels related to Sales prior to 9/6/25"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Canceled!AG2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Canceled",
+          "evidence": "=AND(tbl_canceled[[#This Row],[Technology]]<>\"Copper\",tbl_canceled[[#This Row],[OrderDate]]>=Lookup!$E$3)"
+        }
+      }
+    },
+    {
+      "id": "qualifier-disconnect-date-cutoff",
+      "concept": "qualifier",
+      "description": "Disconnect chargebacks are only eligible when the OrderDate is on or after the reference date (Lookup!$E$3 = 9/6/2025).",
+      "parameters": {
+        "field": "OrderDate",
+        "condition": "GREATER_THAN_OR_EQUAL",
+        "threshold": "2025-09-06",
+        "referenceCell": "Lookup!$E$3"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Disconnected!AG2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Disconnected",
+          "evidence": "=tbl_disconnected[[#This Row],[OrderDate]]>=Lookup!$E$3"
+        }
+      }
+    },
+    {
+      "id": "clawback-cancel",
+      "concept": "clawback",
+      "description": "When a previously commissioned order is canceled, the full commission amount is clawed back as a negative charge (chargeback). The chargeback equals the negative of the original rate-table commission. Chargebacks are waived (set to $0) if the cancel reason matches a predefined list of acceptable reasons.",
+      "parameters": {
+        "trigger": "Order status changes to CANCELED",
+        "commissionEvent": "Chargeback Cancel",
+        "calculation": "Negative of rate-table commission amount (CommissionAmountPre = -rate)",
+        "waiverLogic": "CBWaived = TRUE if ConsolidatedReason IN CX_reasons",
+        "finalAmount": "IF(CBWaived, 0, CommissionAmountPre)",
+        "cbWindowLogic": "IF(OrderDate < WeekStart, 'Prior Period', 'Same Period')"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Canceled!AK2:AO2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Canceled",
+          "evidence": "AK2: =-IF(Eligible, LET(rate lookup...), 0); AL2: =ISNUMBER(XMATCH(ConsolidatedReason, CX_reasons)); AM2: =IF(CBWaived, 0, CommissionAmountPre); AO2: ='Chargeback Cancel'"
+        }
+      }
+    },
+    {
+      "id": "clawback-disconnect",
+      "concept": "clawback",
+      "description": "When a previously installed order is disconnected, the full commission amount is clawed back as a negative charge. Unlike cancel chargebacks, disconnect chargebacks are never waived (CBWaived is hardcoded to FALSE).",
+      "parameters": {
+        "trigger": "Order status changes to DISCONNECT",
+        "commissionEvent": "Chargeback Disconnect",
+        "calculation": "Negative of rate-table commission amount",
+        "waiverLogic": "CBWaived = FALSE (always; hardcoded)",
+        "finalAmount": "Always equals CommissionAmountPre (full clawback)",
+        "cbWindowLogic": "IF(OrderDate < WeekStart, 'Prior Period', 'Same Period')",
+        "tracksOriginalInstall": true,
+        "installOrderKeyField": "InstallOrderKey"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Disconnected!AK2:AO2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Disconnected",
+          "evidence": "AK2: =-IF(Eligible, LET(rate lookup...), 0); AL2: =FALSE; AM2: =IF(CBWaived,0,CommissionAmountPre); AO2: ='Chargeback Disconnect'"
+        }
+      }
+    },
+    {
+      "id": "clawback-cancel-waiver-reasons",
+      "concept": "clawback",
+      "description": "Cancel chargebacks are waived (not charged back) when the ConsolidatedReason matches one of 6 predefined acceptable cancel reasons. These represent company-fault or non-customer-initiated cancellations.",
+      "parameters": {
+        "waivedReasons": [
+          "Account Cleanup",
+          "BSW Issue",
+          "Company Miss",
+          "No Facilities",
+          "Product/Speed not Available",
+          "Cancel/Reissue"
+        ],
+        "effect": "CommissionAmount = $0 (chargeback waived)",
+        "failCode": 4,
+        "failReason": "Chargeback Cancel waived",
+        "namedRange": "CX_reasons"
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!$M$17:$M$22",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "CX_reasons = Lookup!$M$17:$M$22: Account Cleanup, BSW Issue, Company Miss, No Facilities, Product/Speed not Available, Cancel/Reissue"
+        }
+      }
+    },
+    {
+      "id": "commission-event-issued-new-install",
+      "concept": "rate-table",
+      "description": "Commission is paid at order issuance for NEW INSTALL orders. This is the primary earning event — commission is paid when the order is issued, not when it is installed.",
+      "parameters": {
+        "trigger": "OrderType = 'NEW INSTALL'",
+        "commissionEvent": "Issued New Install Pay",
+        "timing": "At order issuance (weekly processing)",
+        "rate": "Per speed/product rate table"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Issued!AI2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "=IF(tbl_issued[[#This Row],[OrderType]]=\"NEW INSTALL\",\"Issued New Install Pay\",(IF(tbl_issued[[#This Row],[OrderType]]=\"MIGRATION\",\"Issued Migration Pay\",\"\")))"
+        }
+      }
+    },
+    {
+      "id": "commission-event-issued-migration",
+      "concept": "rate-table",
+      "description": "Commission is paid at order issuance for MIGRATION orders (existing customer upgrading/changing service). Same rate table applies as new installs.",
+      "parameters": {
+        "trigger": "OrderType = 'MIGRATION'",
+        "commissionEvent": "Issued Migration Pay",
+        "timing": "At order issuance (weekly processing)",
+        "rate": "Per speed/product rate table (same as new install)"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Issued!AI2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "=IF(OrderType=\"NEW INSTALL\",\"Issued New Install Pay\",(IF(OrderType=\"MIGRATION\",\"Issued Migration Pay\",\"\")))"
+        }
+      }
+    },
+    {
+      "id": "partner-group-mapping",
+      "concept": "rate-table",
+      "description": "Sales partners are mapped to one of two commission rate groups (D2D or Indirect-D2D) via the tblPartnerGroup lookup table. The partner group determines which column of the speed rate table applies, with Indirect-D2D receiving higher rates at 600Mbps–2Gbps tiers.",
+      "parameters": {
+        "lookupTable": "tblPartnerGroup",
+        "mapping": {
+          "D2D": [
+            "Alchemy",
+            "Americrew",
+            "Coast 2 Coast",
+            "Door Driven",
+            "Embarc Solutions",
+            "Embrase D2D",
+            "Holy Trinity Sales",
+            "HSI Marketing",
+            "J&A Capital Management",
+            "Next Level Edge",
+            "Rasmussen Operations"
+          ],
+          "Indirect-D2D": [
+            "Community Outreach Partnership",
+            "GE",
+            "RSI"
+          ]
+        },
+        "effect": "Determines rate tier used from speed rate table"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!$I$7:$J$20",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "tblPartnerGroup: Alchemy|D2D, RSI|Indirect-D2D, Community Outreach Partnership|Indirect-D2D, GE|Indirect-D2D, etc."
+        }
+      }
+    },
+    {
+      "id": "compliance-ows-waiver",
+      "concept": "qualifier",
+      "description": "Orders flagged by the OWS (Order Workflow System) compliance review are marked 'OWS - Do Not Pay' and their commission is waived. The compliance check is applied as a post-calculation adjustment reducing NetCommissionAmount, tracked as 'Waived due to Compliance' on the Dashboard and Statement.",
+      "parameters": {
+        "source": "Compliance tab / tbl_compliance",
+        "flagValue": "OWS - Do Not Pay",
+        "effect": "CommissionWaived = TRUE; NetCommissionAmount = 0 for flagged orders",
+        "chargebackTypes": [
+          "Cancel Order",
+          "other compliance flags"
+        ],
+        "totalWaivedCurrentPeriod": 48360
+      },
+      "confidence": 0.93,
+      "sourceRef": {
+        "vendorRuleId": "Compliance!A5:H50",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Compliance",
+          "evidence": "Notes column: 'OWS - Do Not Pay'; Chargeback Type: 'Cancel Order'; Applied to issued orders; Dashboard shows Waived due to Compliance amounts"
+        }
+      }
+    },
+    {
+      "id": "processing-period-weekly",
+      "concept": "quota-target",
+      "description": "Commission is processed on a weekly cycle. The processing week is defined by WeekStart (Sunday) and WeekEnd dates stored in the Lookup sheet. Current period: 2/1/2026–2/7/2026.",
+      "parameters": {
+        "periodType": "weekly",
+        "weekStartCell": "Lookup!$E$4",
+        "weekEndCell": "Lookup!$E$5",
+        "currentWeekStart": "2026-02-01",
+        "currentWeekEnd": "2026-02-07",
+        "weekEndFormula": "WeekStart + 6"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!$E$4:$E$5",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "Week Start Date: 2026-02-01; Week End Date: 2026-02-07; WeekEnd = E4+6"
+        }
+      }
+    }
+  ],
+  "insights": "1) The Install-based pay program (Install New Install Pay / Install Migration Pay) is effectively DISABLED for the current period — all Installed records show Eligible=false with FailCode=2 because the cutoff date is 9/6/2025 and all current orders post-date it. Commission has fully transitioned to issue-based (pay-on-order) rather than install-based. 2) Indirect-D2D partners (RSI, GE, Community Outreach Partnership) receive a $50 premium at the 600Mbps and 1Gbps tiers ($600 vs $550) and $25 premium at 2Gbps ($650 vs $625). 3) The CX_reasons waiver list for cancel chargebacks does NOT appear to be applied to disconnect chargebacks (CBWaived=FALSE is hardcoded for disconnects). 4) The Test Summary sheet shows comparison data from an 'Original File' with slightly different component names ('Comp Unit Pay', 'Comp Migration Pay') suggesting this model was migrated from a prior system. 5) The Dashboard shows a net commission of $617,180 for the week across all partners, with Rasmussen Operations being the largest partner (~45% of issued orders). 6) No accelerator, decelerator, draw, SPIF, cap, floor, split, or territory assignment rules were detected — this is a flat per-unit commission structure. 7) The workbook references an external data connection (tbl_AllTransD2D) suggesting source data is imported from an external system before formula-based processing."
+}

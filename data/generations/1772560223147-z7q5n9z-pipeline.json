@@ -1,0 +1,823 @@
+{
+  "plan": {
+    "name": "Brightspeed FY2026 Unified Compensation Plan",
+    "description": "This plan spans 5 distinct channels with different processing frequencies, crediting bases, and rate structures. Recommend implementing as 5 separate CaptivateIQ plans sharing common data sources and attribute worksheets. D2D and Indirect share similar structure (speed-tiered rates, clawback logic) but differ in crediting basis (issued vs installed) and rate levels. Digital Partners use a fundamentally different rate structure (matrix by Sales ID). MDU is an internal employee plan with quota-based attainment.",
+    "period_type": "ANNUAL",
+    "status": "draft"
+  },
+  "periodGroup": {
+    "name": "Brightspeed FY2026 Unified Compensation Plan — Annual Period Group",
+    "period_type": "ANNUAL",
+    "start_date": "2026-01-01",
+    "end_date": "2026-12-31"
+  },
+  "dataWorksheets": [
+    {
+      "label": "D2D Speed Rate Table",
+      "concept": "rate-table",
+      "description": "Speed-tiered internet commission rates for D2D channel with two partner group columns",
+      "workbook": "Rate Tables",
+      "worksheet": {
+        "name": "D2D Speed Rate Table",
+        "description": "Speed-tiered internet commission rates for D2D channel with two partner group columns",
+        "columns": [
+          {
+            "name": "MaxSpeed",
+            "type": "numeric"
+          },
+          {
+            "name": "SpeedLabel",
+            "type": "text"
+          },
+          {
+            "name": "D2D_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "IndirectD2D_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "EffectiveDate",
+            "type": "date"
+          },
+          {
+            "name": "EndDate",
+            "type": "date"
+          }
+        ]
+      },
+      "records": {
+        "records": [
+          {
+            "MaxSpeed": 100000,
+            "SpeedLabel": "≤100 Mbps",
+            "D2D_Rate": 350,
+            "IndirectD2D_Rate": 350,
+            "EffectiveDate": "2025-09-07",
+            "EndDate": "2026-12-31"
+          },
+          {
+            "MaxSpeed": 600000,
+            "SpeedLabel": "≤600 Mbps",
+            "D2D_Rate": 550,
+            "IndirectD2D_Rate": 600,
+            "EffectiveDate": "2025-09-07",
+            "EndDate": "2026-12-31"
+          },
+          {
+            "MaxSpeed": 2000000,
+            "SpeedLabel": "≤2 Gbps",
+            "D2D_Rate": 625,
+            "IndirectD2D_Rate": 650,
+            "EffectiveDate": "2025-09-07",
+            "EndDate": "2026-12-31"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Indirect Speed Rate Table",
+      "concept": "rate-table",
+      "description": "Speed-tiered internet commission rates for Indirect channel with New Install and Migration columns",
+      "workbook": "Rate Tables",
+      "worksheet": {
+        "name": "Indirect Speed Rate Table",
+        "description": "Speed-tiered internet commission rates for Indirect channel with New Install and Migration columns",
+        "columns": [
+          {
+            "name": "MaxSpeed",
+            "type": "numeric"
+          },
+          {
+            "name": "SpeedLabel",
+            "type": "text"
+          },
+          {
+            "name": "NewInstall_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "Migration_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "EffectiveDate",
+            "type": "date"
+          },
+          {
+            "name": "EndDate",
+            "type": "date"
+          }
+        ]
+      },
+      "records": {
+        "records": [
+          {
+            "MaxSpeed": 0,
+            "SpeedLabel": "Copper/base",
+            "NewInstall_Rate": 300,
+            "Migration_Rate": 250,
+            "EffectiveDate": "2025-09-07",
+            "EndDate": "2026-12-31"
+          },
+          {
+            "MaxSpeed": 1000000,
+            "SpeedLabel": "≤1 Gbps",
+            "NewInstall_Rate": 525,
+            "Migration_Rate": 350,
+            "EffectiveDate": "2025-09-07",
+            "EndDate": "2026-12-31"
+          },
+          {
+            "MaxSpeed": 5000000,
+            "SpeedLabel": "≤5 Gbps",
+            "NewInstall_Rate": 625,
+            "Migration_Rate": 425,
+            "EffectiveDate": "2025-09-07",
+            "EndDate": "2026-12-31"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Outbound Speed Rate Table",
+      "concept": "rate-table",
+      "description": "Speed-tiered internet commission rates for Outbound/OTM channel",
+      "workbook": "Rate Tables",
+      "worksheet": {
+        "name": "Outbound Speed Rate Table",
+        "description": "Speed-tiered internet commission rates for Outbound/OTM channel",
+        "columns": [
+          {
+            "name": "MinSpeedValue",
+            "type": "numeric"
+          },
+          {
+            "name": "SpeedTier",
+            "type": "text"
+          },
+          {
+            "name": "NewInstall_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "Migration_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "EffectiveDate",
+            "type": "date"
+          }
+        ]
+      },
+      "records": {
+        "records": [
+          {
+            "MinSpeedValue": 250000,
+            "SpeedTier": "0-300MB",
+            "NewInstall_Rate": 450,
+            "Migration_Rate": 125,
+            "EffectiveDate": "2026-01-01"
+          },
+          {
+            "MinSpeedValue": 1000000,
+            "SpeedTier": "600MB-1Gbps",
+            "NewInstall_Rate": 650,
+            "Migration_Rate": 165,
+            "EffectiveDate": "2026-01-01"
+          },
+          {
+            "MinSpeedValue": 2000000,
+            "SpeedTier": "+1G",
+            "NewInstall_Rate": 700,
+            "Migration_Rate": 185,
+            "EffectiveDate": "2026-01-01"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Digital Partner Rate Matrix",
+      "concept": "rate-table",
+      "description": "Sales ID-level rate assignments for Digital/DAP channel across 10 product columns",
+      "workbook": "Rate Tables",
+      "worksheet": {
+        "name": "Digital Partner Rate Matrix",
+        "description": "Sales ID-level rate assignments for Digital/DAP channel across 10 product columns",
+        "columns": [
+          {
+            "name": "SalesID",
+            "type": "text"
+          },
+          {
+            "name": "Partner",
+            "type": "text"
+          },
+          {
+            "name": "Channel",
+            "type": "text"
+          },
+          {
+            "name": "Team",
+            "type": "text"
+          },
+          {
+            "name": "GoalGroup",
+            "type": "text"
+          },
+          {
+            "name": "NewInstallFiber_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "NewInstallCopper_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "Migration_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "Voice4G_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "ResVoice_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "DigVoice_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "TechSupport_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "WiFiExtender_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "WiFiProtection_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "InsideWire_Rate",
+            "type": "numeric"
+          },
+          {
+            "name": "EffectiveDate",
+            "type": "date"
+          }
+        ]
+      },
+      "records": {
+        "records": [
+          {
+            "SalesID": "20001122",
+            "Partner": "Updater",
+            "Channel": "Digital",
+            "Team": "Dot.Digital",
+            "GoalGroup": "Updater NonBrand Dot.Digital",
+            "NewInstallFiber_Rate": 500,
+            "NewInstallCopper_Rate": 400,
+            "Migration_Rate": 150,
+            "Voice4G_Rate": 50,
+            "ResVoice_Rate": 50,
+            "DigVoice_Rate": 50,
+            "TechSupport_Rate": 40,
+            "WiFiExtender_Rate": 20,
+            "WiFiProtection_Rate": 20,
+            "InsideWire_Rate": 0,
+            "EffectiveDate": "2025-12-08"
+          },
+          {
+            "SalesID": "20001127",
+            "Partner": "Infinity",
+            "Channel": "Digital",
+            "Team": "Dot.Digital",
+            "GoalGroup": "Infinity Branded Dot.Digital",
+            "NewInstallFiber_Rate": 250,
+            "NewInstallCopper_Rate": 170,
+            "Migration_Rate": 150,
+            "Voice4G_Rate": 50,
+            "ResVoice_Rate": 50,
+            "DigVoice_Rate": 50,
+            "TechSupport_Rate": 40,
+            "WiFiExtender_Rate": 20,
+            "WiFiProtection_Rate": 20,
+            "InsideWire_Rate": 0,
+            "EffectiveDate": "2025-12-08"
+          }
+        ]
+      }
+    },
+    {
+      "label": "VAS Voice Rate Table",
+      "concept": "rate-table",
+      "description": "Flat commission rates for VAS and Voice products by channel and partner group",
+      "workbook": "Rate Tables",
+      "worksheet": {
+        "name": "VAS Voice Rate Table",
+        "description": "Flat commission rates for VAS and Voice products by channel and partner group",
+        "columns": [
+          {
+            "name": "Product",
+            "type": "text"
+          },
+          {
+            "name": "Channel",
+            "type": "text"
+          },
+          {
+            "name": "PartnerGroup",
+            "type": "text"
+          },
+          {
+            "name": "OrderType",
+            "type": "text"
+          },
+          {
+            "name": "Rate",
+            "type": "numeric"
+          }
+        ]
+      },
+      "records": {
+        "records": [
+          {
+            "Product": "Digital Voice - Standard",
+            "Channel": "D2D",
+            "PartnerGroup": "D2D",
+            "OrderType": "NEW INSTALL",
+            "Rate": 50
+          },
+          {
+            "Product": "Wifi Extender",
+            "Channel": "D2D",
+            "PartnerGroup": "D2D",
+            "OrderType": "NEW INSTALL",
+            "Rate": 35
+          },
+          {
+            "Product": "Wifi Protection",
+            "Channel": "Indirect",
+            "PartnerGroup": "Indirect",
+            "OrderType": "NEW INSTALL",
+            "Rate": 25
+          },
+          {
+            "Product": "Brightspeed Total Home Tech Support",
+            "Channel": "Indirect",
+            "PartnerGroup": "Indirect",
+            "OrderType": "MIGRATION",
+            "Rate": 50
+          }
+        ]
+      }
+    },
+    {
+      "label": "MDU Contract Type Rate Table",
+      "concept": "rate-table",
+      "description": "MDU AE and Natl AE per-unit rates by contract/agreement type",
+      "workbook": "Rate Tables",
+      "worksheet": {
+        "name": "MDU Contract Type Rate Table",
+        "description": "MDU AE and Natl AE per-unit rates by contract/agreement type",
+        "columns": [
+          {
+            "name": "Role",
+            "type": "text"
+          },
+          {
+            "name": "ContractType",
+            "type": "text"
+          },
+          {
+            "name": "Multiplier",
+            "type": "numeric"
+          },
+          {
+            "name": "EffectiveRate",
+            "type": "numeric"
+          }
+        ]
+      },
+      "records": {
+        "records": [
+          {
+            "Role": "AE",
+            "ContractType": "Access",
+            "Multiplier": 0.7,
+            "EffectiveRate": 6.09
+          },
+          {
+            "Role": "AE",
+            "ContractType": "Exclusive",
+            "Multiplier": 1.1,
+            "EffectiveRate": 9.57
+          },
+          {
+            "Role": "AE",
+            "ContractType": "Bulk",
+            "Multiplier": 1.4,
+            "EffectiveRate": 12.18
+          },
+          {
+            "Role": "Natl AE",
+            "ContractType": "Bulk",
+            "Multiplier": 1.4,
+            "EffectiveRate": 15.554
+          }
+        ]
+      }
+    },
+    {
+      "label": "Cancel Waiver Reasons",
+      "concept": "qualifier",
+      "description": "List of cancel consolidated reason codes that waive chargebacks",
+      "workbook": "Qualifiers",
+      "worksheet": {
+        "name": "Cancel Waiver Reasons",
+        "description": "List of cancel consolidated reason codes that waive chargebacks",
+        "columns": [
+          {
+            "name": "ConsolidatedReason",
+            "type": "text"
+          },
+          {
+            "name": "WaiverEffect",
+            "type": "text"
+          }
+        ]
+      },
+      "records": {
+        "records": [
+          {
+            "ConsolidatedReason": "Account Cleanup",
+            "WaiverEffect": "Chargeback Waived"
+          },
+          {
+            "ConsolidatedReason": "BSW Issue",
+            "WaiverEffect": "Chargeback Waived"
+          },
+          {
+            "ConsolidatedReason": "Company Miss",
+            "WaiverEffect": "Chargeback Waived"
+          },
+          {
+            "ConsolidatedReason": "No Facilities",
+            "WaiverEffect": "Chargeback Waived"
+          },
+          {
+            "ConsolidatedReason": "Product/Speed not Available",
+            "WaiverEffect": "Chargeback Waived"
+          },
+          {
+            "ConsolidatedReason": "Cancel/Reissue",
+            "WaiverEffect": "Chargeback Waived"
+          }
+        ]
+      }
+    },
+    {
+      "label": "MDU Agreement Type Mapping",
+      "concept": "qualifier",
+      "description": "Maps Salesforce Offer Types to commission agreement categories for MDU rate lookup",
+      "workbook": "Qualifiers",
+      "worksheet": {
+        "name": "MDU Agreement Type Mapping",
+        "description": "Maps Salesforce Offer Types to commission agreement categories for MDU rate lookup",
+        "columns": [
+          {
+            "name": "OfferType",
+            "type": "text"
+          },
+          {
+            "name": "AgreementCategory",
+            "type": "text"
+          }
+        ]
+      },
+      "records": {
+        "records": [
+          {
+            "OfferType": "BEA Only",
+            "AgreementCategory": "Access"
+          },
+          {
+            "OfferType": "BAA",
+            "AgreementCategory": "Access"
+          },
+          {
+            "OfferType": "Bulk",
+            "AgreementCategory": "Bulk"
+          },
+          {
+            "OfferType": "Sole Provider",
+            "AgreementCategory": "Exclusive"
+          },
+          {
+            "OfferType": "Shared Marketing",
+            "AgreementCategory": "Shared"
+          },
+          {
+            "OfferType": "Exclusive Marketing",
+            "AgreementCategory": "Exclusive"
+          }
+        ]
+      }
+    }
+  ],
+  "employeeAssumptions": {
+    "_note": "CaptivateIQ employee assumption columns are defined per-plan. Upload these column definitions via the plan settings UI or bulk CSV import. Each row in the uploaded file should have one column per employee identifier.",
+    "columns": [
+      {
+        "name": "Monthly Quota (Units)",
+        "type": "numeric",
+        "description": "Monthly unit target for MDU individual contributors",
+        "concept": "quota-target",
+        "default_value": 383
+      },
+      {
+        "name": "Annual TSI",
+        "type": "currency",
+        "description": "Annual Target Sales Incentive for MDU roles",
+        "concept": "quota-target",
+        "default_value": 40000
+      },
+      {
+        "name": "Monthly TSI",
+        "type": "currency",
+        "description": "Monthly Target Sales Incentive (Annual TSI / 12)",
+        "concept": "quota-target",
+        "default_value": 3333.33
+      },
+      {
+        "name": "Cap Multiplier",
+        "type": "numeric",
+        "description": "Maximum earning multiplier applied to TSI",
+        "concept": "cap",
+        "default_value": 3
+      },
+      {
+        "name": "Role",
+        "type": "text",
+        "description": "Compensation role (AE, Natl AE, TSR MDU, TSR SFU, Sr Manager AE, Sr Manager TSR, Director)",
+        "concept": "qualifier",
+        "default_value": "AE"
+      },
+      {
+        "name": "Channel",
+        "type": "text",
+        "description": "Sales channel assignment (D2D, Indirect, Outbound, Digital, MDU)",
+        "concept": "qualifier",
+        "default_value": "MDU"
+      },
+      {
+        "name": "Partner Group",
+        "type": "text",
+        "description": "Partner rate group for D2D (D2D or Indirect-D2D)",
+        "concept": "rate-table",
+        "default_value": "D2D"
+      },
+      {
+        "name": "Base Per Unit Rate",
+        "type": "currency",
+        "description": "MDU AE/Natl AE base rate before contract type multiplier",
+        "concept": "rate-table",
+        "default_value": 8.7
+      },
+      {
+        "name": "Units Sold Weight",
+        "type": "percent",
+        "description": "TSR component weight for Units Sold",
+        "concept": "quota-target",
+        "default_value": 0.5
+      },
+      {
+        "name": "Penetration Weight",
+        "type": "percent",
+        "description": "TSR component weight for Penetration",
+        "concept": "quota-target",
+        "default_value": 0.5
+      },
+      {
+        "name": "Prior Month Penetration",
+        "type": "percent",
+        "description": "Baseline penetration percentage from prior month for TSR penetration calculation",
+        "concept": "quota-target",
+        "default_value": 0.3678
+      }
+    ]
+  },
+  "attributeWorksheets": [
+    {
+      "name": "Partner Group Mapping",
+      "description": "Maps D2D sales partners to their commission rate group (D2D vs Indirect-D2D)",
+      "concept": "split",
+      "pk_type": "account",
+      "columns": [
+        {
+          "name": "PartnerName",
+          "type": "text"
+        },
+        {
+          "name": "PartnerGroup",
+          "type": "text"
+        },
+        {
+          "name": "EffectiveDate",
+          "type": "date"
+        },
+        {
+          "name": "EndDate",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "name": "Sales ID to Partner Mapping",
+      "description": "Maps Digital/DAP Sales IDs to Partner, Channel, Team, and Goal Group for rate table lookup",
+      "concept": "split",
+      "pk_type": "account",
+      "columns": [
+        {
+          "name": "SalesID",
+          "type": "text"
+        },
+        {
+          "name": "Partner",
+          "type": "text"
+        },
+        {
+          "name": "Channel",
+          "type": "text"
+        },
+        {
+          "name": "Team",
+          "type": "text"
+        },
+        {
+          "name": "GoalGroup",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "Territory WireCenter Assignment",
+      "description": "Maps WireCenter IDs (CLLI codes) to geographic territories, states, and partner coverage",
+      "concept": "territory",
+      "pk_type": "opportunity",
+      "columns": [
+        {
+          "name": "WireCenterID",
+          "type": "text"
+        },
+        {
+          "name": "WireCenterName",
+          "type": "text"
+        },
+        {
+          "name": "State",
+          "type": "text"
+        },
+        {
+          "name": "Territory",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "Digital Product Name Mapping",
+      "description": "Maps source product names to normalized product types and rate table columns for Digital channel",
+      "concept": "qualifier",
+      "pk_type": "opportunity",
+      "columns": [
+        {
+          "name": "OrderType",
+          "type": "text"
+        },
+        {
+          "name": "Technology",
+          "type": "text"
+        },
+        {
+          "name": "SourceProductName",
+          "type": "text"
+        },
+        {
+          "name": "NormalizedProductType",
+          "type": "text"
+        },
+        {
+          "name": "RateColumn",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "Partner Hierarchy",
+      "description": "Multi-level partner/vendor hierarchy for all partner channels with PartnerID, SalesPartner, SubAgent associations",
+      "concept": "split",
+      "pk_type": "account",
+      "columns": [
+        {
+          "name": "Channel",
+          "type": "text"
+        },
+        {
+          "name": "PartnerID",
+          "type": "text"
+        },
+        {
+          "name": "SalesPartner",
+          "type": "text"
+        },
+        {
+          "name": "SubAgent",
+          "type": "text"
+        },
+        {
+          "name": "TierLevel",
+          "type": "text"
+        },
+        {
+          "name": "SalesID",
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "formulaReference": {
+    "_note": "CaptivateIQ SmartGrid formulas are defined in the UI and are NOT accessible via the REST API. Use the pseudo-formulas and CaptivateIQ notes below as a reference when manually building the calculation logic in the plan builder.",
+    "formulas": [
+      {
+        "concept": "rate-table",
+        "description": "D2D/Indirect Internet Rate Lookup",
+        "logic_explanation": "For each order, determine if it has a download speed. If yes, look up the speed-tiered rate from the appropriate rate table filtered by partner group (D2D) or order type (Indirect). If no speed, look up the flat product rate from the VAS/Voice table. D2D uses partner group dimension; Indirect uses order type dimension.",
+        "pseudo_formula": "IF(DownloadSpeed IS BLANK, LOOKUP(Product + '|' + PartnerGroupOrOrderType, VAS_Voice_Rate_Table.Rate), LOOKUP_APPROX(DownloadSpeed, IF(Channel='D2D', D2D_Speed_Rate_Table[PartnerGroup_Column], Indirect_Speed_Rate_Table[OrderType_Column])))",
+        "captivateiq_notes": "Use SmartGrid VLOOKUP with approximate match for speed-tiered rates. Create two lookup columns in the Payout Worksheet — one for speed-based and one for product-based — then use IF to select. Filter the rate table by PartnerGroup or OrderType before lookup."
+      },
+      {
+        "concept": "rate-table",
+        "description": "Digital Partner Rate Lookup",
+        "logic_explanation": "For Digital/DAP channel, lookup is by SalesID. First determine which rate column applies using the Product Name Mapping (OrderType + Technology + ProductName → RateColumn). Then look up the rate from the Digital Partner Rate Matrix at the intersection of SalesID and RateColumn.",
+        "pseudo_formula": "LET(rateColumn = LOOKUP(OrderType + Technology + ProductName, DigitalProductMapping.RateColumn), LOOKUP(SalesID, DigitalPartnerRateMatrix[rateColumn]))",
+        "captivateiq_notes": "Implement as a two-step lookup in SmartGrid. Step 1: Map the product to a rate column using the Product Name Mapping worksheet. Step 2: Retrieve the rate from the Digital Partner Rate Matrix for the given SalesID and rate column. Consider using the normalized (unpivoted) rate table format for simpler VLOOKUP."
+      },
+      {
+        "concept": "qualifier",
+        "description": "Order Eligibility Check",
+        "logic_explanation": "Apply a series of eligibility gates: (1) Technology != 'Copper' for D2D, (2) OrderDate >= 2025-09-06 for all channels, (3) Channel matches plan assignment, (4) Partner is Active, (5) Compliance flag is not 'OWS - Do Not Pay'. Return Eligible=TRUE only if all conditions pass; otherwise set appropriate FailCode.",
+        "pseudo_formula": "Eligible = AND(IF(Channel='D2D', Technology != 'Copper', TRUE), OrderDate >= '2025-09-06', PartnerStatus = 'Active', ComplianceFlag != 'OWS - Do Not Pay')",
+        "captivateiq_notes": "Implement as a calculated boolean column in the Payout Worksheet. Chain multiple IF conditions. Use a FailCode integer column alongside for debugging/audit. Apply as a multiplier (0 or 1) to the commission amount."
+      },
+      {
+        "concept": "clawback",
+        "description": "Cancel/Disconnect Chargeback Calculation",
+        "logic_explanation": "For canceled orders: look up the rate that would have been earned, negate it, then check if the ConsolidatedReason is in the waiver list. If waived, commission = $0. For disconnects: always apply full negative chargeback (no waiver). D2D has a 90-day lookback window. Classify as 'Prior Period' or 'Same Period' based on OrderDate vs WeekStart.",
+        "pseudo_formula": "CommissionAmountPre = -1 * RateLookup(product, speed, orderType); CBWaived = IF(EventType='Cancel', ISIN(ConsolidatedReason, CancelWaiverReasons), FALSE); FinalAmount = IF(CBWaived, 0, CommissionAmountPre); PeriodType = IF(OrderDate < WeekStart, 'Prior Period', 'Same Period')",
+        "captivateiq_notes": "Create separate commission event rows for chargebacks (negative amounts). Use a CommissionEvent column to distinguish 'Chargeback Cancel' from 'Chargeback Disconnect'. Apply waiver logic via MATCH against the Cancel Waiver Reasons data worksheet. For D2D 90-day lookback, filter chargebacks where CancelDate - OrderDate <= 90."
+      },
+      {
+        "concept": "quota-target",
+        "description": "MDU AE Commission Calculation",
+        "logic_explanation": "For each AE/Natl AE deal: map Offer Type to Agreement Category, look up the per-unit rate for the role+agreement, multiply by contracted units. Sum across all deals in the month. Apply 300% TSI cap via MIN function. Add $1,000 bonus if 5+ Exclusive/Bulk contracts with 50+ units each.",
+        "pseudo_formula": "DealCommission = ContractedUnits * LOOKUP(Role + AgreementCategory, MDU_Rate_Table.EffectiveRate); MonthlyTotal = SUM(DealCommissions); BonusContracts = COUNTIFS(AgreementCategory IN ('Exclusive','Bulk'), ContractedUnits >= 50); Bonus = IF(BonusContracts >= 5, 1000, 0); FinalPayout = MIN(MonthlyTotal + Bonus, 3 * MonthlyTSI)",
+        "captivateiq_notes": "Use a SmartGrid formula to map each deal through the agreement type mapping, then look up the rate. Aggregate at the rep-month level. Apply the cap as MIN(calculated, 3 * TSI). The 5-contract bonus requires a COUNTIFS across the rep's monthly deals — implement as a separate calculation row or component."
+      },
+      {
+        "concept": "quota-target",
+        "description": "MDU TSR Commission Calculation",
+        "logic_explanation": "Two components each at 50% TSI: (1) Units Sold: attainment% = units_sold / target, commission = TSI_Sales * attainment%. (2) Penetration: pen_ratio = current_month_pen / prior_month_pen, commission = TSI_Pen * pen_ratio. Total = component1 + component2. Apply 200% TSI cap.",
+        "pseudo_formula": "SalesComm = TSI_Sales * (UnitsSold / MonthlyTarget); PenComm = TSI_Pen * (CurrentMonthPen / PriorMonthPen); TotalComm = MIN(SalesComm + PenComm, 2 * MonthlyTSI)",
+        "captivateiq_notes": "Create two component columns in the Payout Worksheet. TSI_Sales and TSI_Pen are each 50% of Monthly TSI from Employee Assumptions. Prior Month Penetration should be an Employee Assumption column updated monthly. Apply cap at the total level after summing components."
+      },
+      {
+        "concept": "rate-table",
+        "description": "Outbound/OTM Commission with Advance and Clawback",
+        "logic_explanation": "Commission is advanced at order issuance based on the speed-tiered rate table. If the order is subsequently canceled, the full advance is clawed back as a negative amount in the following month's payout. Monthly payout = New Install commissions + Migration commissions - Cancel clawbacks + Dispute adjustments.",
+        "pseudo_formula": "AdvancePayment = LOOKUP_APPROX(DownloadSpeed, OutboundSpeedRateTable[OrderType_Column]); NetPaymentDue = IF(OrderStatus = 'Canceled', -1 * AdvancePayment, AdvancePayment); MonthlyPayout = SUM(NetPaymentDue) BY Vendor",
+        "captivateiq_notes": "Each order generates either a positive commission (new install/migration) or a negative clawback (cancel). Aggregate by vendor/month for the payout worksheet. Track the OriginalPaymentDate to link clawbacks to their original advance period."
+      },
+      {
+        "concept": "qualifier",
+        "description": "Compliance Waiver Post-Processing",
+        "logic_explanation": "After commission is calculated, check the Compliance table for orders flagged 'OWS - Do Not Pay'. If flagged, set CommissionWaived = TRUE and NetCommissionAmount = 0. Track the waived amount separately for reporting.",
+        "pseudo_formula": "ComplianceFlag = LOOKUP(OrderID, ComplianceTable.Flag); NetCommission = IF(ComplianceFlag = 'OWS - Do Not Pay', 0, CommissionAmount); WaivedAmount = CommissionAmount - NetCommission",
+        "captivateiq_notes": "Implement as a final adjustment column in the Payout Worksheet. Join the Compliance data source by OrderID. The waived amount should appear as a separate line item on the partner statement for transparency."
+      }
+    ]
+  },
+  "summary": {
+    "planName": "Brightspeed FY2026 Unified Compensation Plan",
+    "periodType": "ANNUAL",
+    "dataWorksheetCount": 8,
+    "employeeAssumptionCount": 11,
+    "attributeWorksheetCount": 5,
+    "formulaCount": 8,
+    "generatedAt": "2026-03-03T19:47:01.472Z"
+  }
+}

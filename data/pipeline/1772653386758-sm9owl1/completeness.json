@@ -1,0 +1,698 @@
+{
+  "analyzedAt": "2026-03-04T21:45:28.897Z",
+  "overallReadiness": 82,
+  "categorySummaries": [
+    {
+      "category": "plan-setup",
+      "displayName": "Plan Setup",
+      "total": 6,
+      "complete": 5,
+      "partial": 1,
+      "missing": 0,
+      "completionPercent": 92
+    },
+    {
+      "category": "data-workbooks",
+      "displayName": "Data Workbooks",
+      "total": 5,
+      "complete": 4,
+      "partial": 1,
+      "missing": 0,
+      "completionPercent": 90
+    },
+    {
+      "category": "employee-assumptions",
+      "displayName": "Employee Assumptions",
+      "total": 5,
+      "complete": 4,
+      "partial": 1,
+      "missing": 0,
+      "completionPercent": 90
+    },
+    {
+      "category": "global-attributes",
+      "displayName": "Global Attributes",
+      "total": 4,
+      "complete": 1,
+      "partial": 2,
+      "missing": 1,
+      "completionPercent": 50
+    },
+    {
+      "category": "formulas",
+      "displayName": "Formulas / SmartGrid",
+      "total": 6,
+      "complete": 4,
+      "partial": 2,
+      "missing": 0,
+      "completionPercent": 83
+    },
+    {
+      "category": "payouts",
+      "displayName": "Payouts",
+      "total": 3,
+      "complete": 1,
+      "partial": 2,
+      "missing": 0,
+      "completionPercent": 67
+    },
+    {
+      "category": "organization",
+      "displayName": "Organization",
+      "total": 3,
+      "complete": 1,
+      "partial": 2,
+      "missing": 0,
+      "completionPercent": 67
+    },
+    {
+      "category": "data-quality",
+      "displayName": "Data Quality",
+      "total": 5,
+      "complete": 4,
+      "partial": 0,
+      "missing": 1,
+      "completionPercent": 80
+    }
+  ],
+  "items": [
+    {
+      "id": "plan-setup.plan-name",
+      "name": "Plan name defined",
+      "category": "plan-setup",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Plan: \"Vimeo FY26 Revenue Compensation Plan\"",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.period-type",
+      "name": "Period type defined",
+      "category": "plan-setup",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Period: monthly",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.effective-dates",
+      "name": "Effective dates identified",
+      "category": "plan-setup",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Date refs: 2026, FY26",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.components",
+      "name": "Payout components defined",
+      "category": "plan-setup",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Components: NNB Commission (AE, AEAM, ISR, SDR, SE, Channel), Expansion Commission (AM, AEAM, RM, CSM), Retention Payout (AM, AEAM, RM, CSM), Retention Quarterly Draw (AM, AEAM, RM, CSM), Multi-Year Deal Bonus (AE, AEAM, ISR), Renewal Multi-Year Bonus (AE, AEAM), Services Commission (All), ISR Pass-Up Flat Incentive, ISR Pass-Up Closed Won Incentive, Channel Fulfilled Commission, January Flat Draw (All), Manager Rollup Payout (ISR/SDR Mgr, CSM/SE Mgr)",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.multi-plan-decision",
+      "name": "Multi-plan structure decided",
+      "category": "plan-setup",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "12 roles detected: AE, AEAM Hybrid, AM, ISR, SDR",
+      "gapDescription": "Multiple roles found but no decision on single vs. multi-plan structure",
+      "suggestedAction": "Decide: single plan with role-based components, or separate plans per role (AE, AEAM Hybrid, AM, ISR, SDR, RM, CSM, Channel, SE, ISR/SDR Manager, Manager, CSM/SE Manager)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "plan-setup.roles-per-component",
+      "name": "Roles mapped to components",
+      "category": "plan-setup",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "12 roles, 12 components",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-workbooks.rate-tables-exist",
+      "name": "Rate tables defined",
+      "category": "data-workbooks",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "4 rate table worksheets, 4 rate rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "universal-acceleration-rate-table",
+        "retention-payout-model",
+        "ae-renewal-multi-year-flat-rate",
+        "services-bookings-half-bcr"
+      ]
+    },
+    {
+      "id": "data-workbooks.tier-completeness",
+      "name": "Rate tier data complete",
+      "category": "data-workbooks",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "12 tier issues found",
+      "gapDescription": "universal-acceleration-rate-table: tier 1 missing rate; universal-acceleration-rate-table: tier 2 missing rate; universal-acceleration-rate-table: tier 2 missing threshold; universal-acceleration-rate-table: tier 3 missing rate; universal-acceleration-rate-table: tier 3 missing threshold; universal-acceleration-rate-table: tier 4 missing rate; universal-acceleration-rate-table: tier 4 missing threshold; universal-acceleration-rate-table: tier 5 missing rate; universal-acceleration-rate-table: tier 5 missing threshold; retention-payout-model: no tiers; ae-renewal-multi-year-flat-rate: no tiers; services-bookings-half-bcr: no tiers",
+      "suggestedAction": "Fill in missing rate values and tier thresholds",
+      "sourceRuleIds": [
+        "universal-acceleration-rate-table",
+        "retention-payout-model",
+        "ae-renewal-multi-year-flat-rate",
+        "services-bookings-half-bcr"
+      ]
+    },
+    {
+      "id": "data-workbooks.column-definitions",
+      "name": "Worksheet columns typed",
+      "category": "data-workbooks",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "7 worksheets all have typed columns",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-workbooks.lookup-tables",
+      "name": "Lookup/mapping tables exist",
+      "category": "data-workbooks",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "0 lookup worksheets, 3 attribute worksheets",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-workbooks.sample-data",
+      "name": "Sample data available",
+      "category": "data-workbooks",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "All 7 worksheets have sample data",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "employee-assumptions.quota-defined",
+      "name": "Quota targets defined",
+      "category": "employee-assumptions",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "12 quota columns, 1 quota rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "bcr-quota-change-proration"
+      ]
+    },
+    {
+      "id": "employee-assumptions.tsi-defined",
+      "name": "TSI/OTE/variable comp defined",
+      "category": "employee-assumptions",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "TSI/OTE columns: Annual OTC (Variable Comp), Retention Variable",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "employee-assumptions.base-rate-derivable",
+      "name": "Base commission rate derivable",
+      "category": "employee-assumptions",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "Rate derivable from 1 columns + 4 rate rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "universal-acceleration-rate-table",
+        "retention-payout-model",
+        "ae-renewal-multi-year-flat-rate",
+        "services-bookings-half-bcr"
+      ]
+    },
+    {
+      "id": "employee-assumptions.all-roles-covered",
+      "name": "All roles have assumptions",
+      "category": "employee-assumptions",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "7/12 roles covered",
+      "gapDescription": "Missing assumptions for: AEAM Hybrid, CSM, ISR/SDR Manager, Manager, CSM/SE Manager",
+      "suggestedAction": "Provide quota/TSI/rate assumptions for: AEAM Hybrid, CSM, ISR/SDR Manager, Manager, CSM/SE Manager",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "employee-assumptions.no-missing-values",
+      "name": "No TBD/placeholder values",
+      "category": "employee-assumptions",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "No placeholder values in assumptions",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.territory-mapping",
+      "name": "Territory mapping defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "1 territory worksheets, 2 territory rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "channel-regional-crediting",
+        "csm-regional-crediting"
+      ]
+    },
+    {
+      "id": "global-attributes.partner-mapping",
+      "name": "Partner/channel mapping",
+      "category": "global-attributes",
+      "priority": "optional",
+      "status": "missing",
+      "evidence": "Partner/channel referenced but no mapping",
+      "gapDescription": "Plan mentions partners but no partner mapping worksheet defined",
+      "suggestedAction": "Create partner/channel mapping attribute worksheet",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.product-mapping",
+      "name": "Product mapping defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Products referenced but no dedicated mapping",
+      "gapDescription": "Rules reference products but no product mapping worksheet",
+      "suggestedAction": "Create product mapping worksheet for rate differentiation",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.role-hierarchy",
+      "name": "Role/org hierarchy defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Hierarchy referenced in insights but no formal structure",
+      "gapDescription": "Manager/hierarchy references exist but no formal hierarchy worksheet",
+      "suggestedAction": "Create org hierarchy attribute worksheet for roll-up calculations",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "formulas.commission-calc",
+      "name": "Commission calculation logic",
+      "category": "formulas",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "3 commission formulas, 4 rate rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "universal-acceleration-rate-table",
+        "retention-payout-model",
+        "ae-renewal-multi-year-flat-rate",
+        "services-bookings-half-bcr"
+      ]
+    },
+    {
+      "id": "formulas.attainment-calc",
+      "name": "Attainment calculation defined",
+      "category": "formulas",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "Quotas defined but no explicit attainment formula",
+      "gapDescription": "Quota targets exist but attainment calculation formula not specified",
+      "suggestedAction": "Add attainment formula: Attainment % = Actual Revenue / Quota Target",
+      "sourceRuleIds": [
+        "bcr-quota-change-proration"
+      ]
+    },
+    {
+      "id": "formulas.accelerator",
+      "name": "Accelerator/decelerator logic",
+      "category": "formulas",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "1 accel rules + 1 formulas",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "ae-multi-year-acceleration"
+      ]
+    },
+    {
+      "id": "formulas.qualifier-gates",
+      "name": "Qualifier/gate logic",
+      "category": "formulas",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "2 qualifier rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "services-exclusion-qualifier",
+        "multi-year-bcr-qualifier"
+      ]
+    },
+    {
+      "id": "formulas.clawback",
+      "name": "Clawback logic",
+      "category": "formulas",
+      "priority": "optional",
+      "status": "not-applicable",
+      "evidence": "No clawback in plan",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "formulas.cap-floor",
+      "name": "Cap/floor limits defined",
+      "category": "formulas",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "2 cap/floor rules",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "retention-cap-150pct",
+        "retention-floor-zero"
+      ]
+    },
+    {
+      "id": "formulas.crediting-basis",
+      "name": "Crediting basis defined",
+      "category": "formulas",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "Crediting referenced in rules but no explicit formula",
+      "gapDescription": "Crediting basis mentioned but not formally defined",
+      "suggestedAction": "Explicitly define crediting basis (booked, recognized, installed, etc.)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "payouts.processing-period",
+      "name": "Processing period defined",
+      "category": "payouts",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Period: monthly",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "payouts.payment-timing",
+      "name": "Payment timing/frequency",
+      "category": "payouts",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": null,
+      "gapDescription": "No explicit payment timing defined",
+      "suggestedAction": "Specify when commissions are paid (with payroll? separate cycle? arrears?)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "payouts.payout-components",
+      "name": "Components map to plan",
+      "category": "payouts",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "2/12 components mapped to formulas",
+      "gapDescription": "Unmapped components: NNB Commission (AE, AEAM, ISR, SDR, SE, Channel), Expansion Commission (AM, AEAM, RM, CSM), Retention Payout (AM, AEAM, RM, CSM), Multi-Year Deal Bonus (AE, AEAM, ISR), Renewal Multi-Year Bonus (AE, AEAM), Services Commission (All), ISR Pass-Up Flat Incentive, ISR Pass-Up Closed Won Incentive, Channel Fulfilled Commission, Manager Rollup Payout (ISR/SDR Mgr, CSM/SE Mgr)",
+      "suggestedAction": "Add formula recommendations for all payout components",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.roles-identified",
+      "name": "Roles identified",
+      "category": "organization",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "Roles: AE, AEAM Hybrid, AM, ISR, SDR, RM, CSM, Channel, SE, ISR/SDR Manager, Manager, CSM/SE Manager",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.hierarchy",
+      "name": "Management hierarchy",
+      "category": "organization",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Management roles found: ISR/SDR Manager, Manager, CSM/SE Manager",
+      "gapDescription": "Management roles exist but formal hierarchy not structured",
+      "suggestedAction": "Define formal reporting hierarchy for roll-up calculations",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.user-groups",
+      "name": "User groups/segments",
+      "category": "organization",
+      "priority": "optional",
+      "status": "partial",
+      "evidence": "Groups referenced but no dedicated attribute",
+      "gapDescription": "User groups mentioned but no structured group mapping",
+      "suggestedAction": "Create user group/segment attribute worksheet",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-quality.no-placeholders",
+      "name": "No placeholder values",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "No placeholder values found",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-quality.no-contradictions",
+      "name": "No rule contradictions",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "missing",
+      "evidence": "2 contradictions",
+      "gapDescription": "multi-year-bcr-qualifier: AM is listed in applicable_roles but AM has no NNB quota, no multi-year deal input rows in the AM Calculator, and is explicitly absent from ae-multi-year-acceleration. AM's plan structure (Expansion + Retention only) provides no pathway to trigger a duration-based deal bonu",
+      "suggestedAction": "Resolve contradicting rules before building",
+      "sourceRuleIds": [
+        "multi-year-bcr-qualifier",
+        "services-bookings-half-bcr"
+      ]
+    },
+    {
+      "id": "data-quality.cross-refs-resolved",
+      "name": "Cross-references resolved",
+      "category": "data-quality",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "8 cross-references established",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": [
+        "universal-acceleration-rate-table",
+        "retention-payout-model",
+        "ae-multi-year-acceleration",
+        "services-bookings-half-bcr",
+        "channel-comp-splits",
+        "csm-comp-split",
+        "isr-comp-split",
+        "january-flat-draw"
+      ]
+    },
+    {
+      "id": "data-quality.low-confidence",
+      "name": "No low-confidence rules",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "complete",
+      "evidence": "All 28 rules >= 0.7 confidence",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-quality.source-verified",
+      "name": "Source data verified",
+      "category": "data-quality",
+      "priority": "recommended",
+      "status": "complete",
+      "evidence": "1 source checks passed",
+      "gapDescription": null,
+      "suggestedAction": null,
+      "sourceRuleIds": []
+    }
+  ],
+  "blockers": [
+    {
+      "id": "data-workbooks.tier-completeness",
+      "name": "Rate tier data complete",
+      "category": "data-workbooks",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "12 tier issues found",
+      "gapDescription": "universal-acceleration-rate-table: tier 1 missing rate; universal-acceleration-rate-table: tier 2 missing rate; universal-acceleration-rate-table: tier 2 missing threshold; universal-acceleration-rate-table: tier 3 missing rate; universal-acceleration-rate-table: tier 3 missing threshold; universal-acceleration-rate-table: tier 4 missing rate; universal-acceleration-rate-table: tier 4 missing threshold; universal-acceleration-rate-table: tier 5 missing rate; universal-acceleration-rate-table: tier 5 missing threshold; retention-payout-model: no tiers; ae-renewal-multi-year-flat-rate: no tiers; services-bookings-half-bcr: no tiers",
+      "suggestedAction": "Fill in missing rate values and tier thresholds",
+      "sourceRuleIds": [
+        "universal-acceleration-rate-table",
+        "retention-payout-model",
+        "ae-renewal-multi-year-flat-rate",
+        "services-bookings-half-bcr"
+      ]
+    },
+    {
+      "id": "employee-assumptions.all-roles-covered",
+      "name": "All roles have assumptions",
+      "category": "employee-assumptions",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "7/12 roles covered",
+      "gapDescription": "Missing assumptions for: AEAM Hybrid, CSM, ISR/SDR Manager, Manager, CSM/SE Manager",
+      "suggestedAction": "Provide quota/TSI/rate assumptions for: AEAM Hybrid, CSM, ISR/SDR Manager, Manager, CSM/SE Manager",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "formulas.attainment-calc",
+      "name": "Attainment calculation defined",
+      "category": "formulas",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "Quotas defined but no explicit attainment formula",
+      "gapDescription": "Quota targets exist but attainment calculation formula not specified",
+      "suggestedAction": "Add attainment formula: Attainment % = Actual Revenue / Quota Target",
+      "sourceRuleIds": [
+        "bcr-quota-change-proration"
+      ]
+    },
+    {
+      "id": "formulas.crediting-basis",
+      "name": "Crediting basis defined",
+      "category": "formulas",
+      "priority": "required",
+      "status": "partial",
+      "evidence": "Crediting referenced in rules but no explicit formula",
+      "gapDescription": "Crediting basis mentioned but not formally defined",
+      "suggestedAction": "Explicitly define crediting basis (booked, recognized, installed, etc.)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "data-quality.no-contradictions",
+      "name": "No rule contradictions",
+      "category": "data-quality",
+      "priority": "required",
+      "status": "missing",
+      "evidence": "2 contradictions",
+      "gapDescription": "multi-year-bcr-qualifier: AM is listed in applicable_roles but AM has no NNB quota, no multi-year deal input rows in the AM Calculator, and is explicitly absent from ae-multi-year-acceleration. AM's plan structure (Expansion + Retention only) provides no pathway to trigger a duration-based deal bonu",
+      "suggestedAction": "Resolve contradicting rules before building",
+      "sourceRuleIds": [
+        "multi-year-bcr-qualifier",
+        "services-bookings-half-bcr"
+      ]
+    }
+  ],
+  "quickWins": [
+    {
+      "id": "plan-setup.multi-plan-decision",
+      "name": "Multi-plan structure decided",
+      "category": "plan-setup",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "12 roles detected: AE, AEAM Hybrid, AM, ISR, SDR",
+      "gapDescription": "Multiple roles found but no decision on single vs. multi-plan structure",
+      "suggestedAction": "Decide: single plan with role-based components, or separate plans per role (AE, AEAM Hybrid, AM, ISR, SDR, RM, CSM, Channel, SE, ISR/SDR Manager, Manager, CSM/SE Manager)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.product-mapping",
+      "name": "Product mapping defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Products referenced but no dedicated mapping",
+      "gapDescription": "Rules reference products but no product mapping worksheet",
+      "suggestedAction": "Create product mapping worksheet for rate differentiation",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "global-attributes.role-hierarchy",
+      "name": "Role/org hierarchy defined",
+      "category": "global-attributes",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Hierarchy referenced in insights but no formal structure",
+      "gapDescription": "Manager/hierarchy references exist but no formal hierarchy worksheet",
+      "suggestedAction": "Create org hierarchy attribute worksheet for roll-up calculations",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "payouts.payment-timing",
+      "name": "Payment timing/frequency",
+      "category": "payouts",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": null,
+      "gapDescription": "No explicit payment timing defined",
+      "suggestedAction": "Specify when commissions are paid (with payroll? separate cycle? arrears?)",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "payouts.payout-components",
+      "name": "Components map to plan",
+      "category": "payouts",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "2/12 components mapped to formulas",
+      "gapDescription": "Unmapped components: NNB Commission (AE, AEAM, ISR, SDR, SE, Channel), Expansion Commission (AM, AEAM, RM, CSM), Retention Payout (AM, AEAM, RM, CSM), Multi-Year Deal Bonus (AE, AEAM, ISR), Renewal Multi-Year Bonus (AE, AEAM), Services Commission (All), ISR Pass-Up Flat Incentive, ISR Pass-Up Closed Won Incentive, Channel Fulfilled Commission, Manager Rollup Payout (ISR/SDR Mgr, CSM/SE Mgr)",
+      "suggestedAction": "Add formula recommendations for all payout components",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.hierarchy",
+      "name": "Management hierarchy",
+      "category": "organization",
+      "priority": "recommended",
+      "status": "partial",
+      "evidence": "Management roles found: ISR/SDR Manager, Manager, CSM/SE Manager",
+      "gapDescription": "Management roles exist but formal hierarchy not structured",
+      "suggestedAction": "Define formal reporting hierarchy for roll-up calculations",
+      "sourceRuleIds": []
+    },
+    {
+      "id": "organization.user-groups",
+      "name": "User groups/segments",
+      "category": "organization",
+      "priority": "optional",
+      "status": "partial",
+      "evidence": "Groups referenced but no dedicated attribute",
+      "gapDescription": "User groups mentioned but no structured group mapping",
+      "suggestedAction": "Create user group/segment attribute worksheet",
+      "sourceRuleIds": []
+    }
+  ],
+  "counts": {
+    "total": 38,
+    "complete": 24,
+    "partial": 11,
+    "missing": 2,
+    "notApplicable": 1
+  }
+}

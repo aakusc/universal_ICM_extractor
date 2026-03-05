@@ -1,0 +1,209 @@
+{
+  "source": "support.captivateiq.com/hc/en-us + developer docs + platform UI",
+  "scrapedAt": "2026-03-03",
+  "description": "Maps CaptivateIQ platform sections to help center categories and their functions. Defines what each section configures and dependencies between sections.",
+  "sections": [
+    {
+      "id": "sales-planning",
+      "displayName": "Sales Planning",
+      "helpCenterCategory": "Sales Planning",
+      "description": "Configure sales territories, quotas, and capacity planning. Foundation for all compensation calculations.",
+      "configures": ["territory-definitions", "quota-targets", "capacity-models", "sales-team-structure"],
+      "dependsOn": [],
+      "relatedApiResources": ["Employees", "Hierarchies"],
+      "buildRelevance": "high",
+      "articleCountEstimate": 15
+    },
+    {
+      "id": "formula-library",
+      "displayName": "Formula Library",
+      "helpCenterCategory": "Discover formulas to simplify calculations",
+      "description": "Reference library of all SmartGrid formula functions, syntax, examples, and best practices.",
+      "configures": ["smartgrid-formulas", "derived-columns", "calculation-logic"],
+      "dependsOn": ["data-workbooks"],
+      "relatedApiResources": ["Data Worksheets"],
+      "buildRelevance": "critical",
+      "articleCountEstimate": 50
+    },
+    {
+      "id": "manage-data",
+      "displayName": "Manage Data",
+      "helpCenterCategory": "Manage Data",
+      "description": "Import, transform, and manage source data. Includes data connectors, uploads, and data quality tools.",
+      "configures": ["data-imports", "data-connectors", "upload-templates", "data-validation"],
+      "dependsOn": [],
+      "relatedApiResources": ["Uploads", "Data Workbooks", "Data Worksheets", "Transformation Worksheets"],
+      "buildRelevance": "critical",
+      "articleCountEstimate": 20
+    },
+    {
+      "id": "workbooks-worksheets",
+      "displayName": "Workbooks & Worksheets",
+      "helpCenterCategory": "Workbooks & Worksheets",
+      "description": "Create and configure data workbooks and worksheets. Core data model for all CIQ calculations.",
+      "configures": ["workbook-structure", "worksheet-columns", "column-types", "worksheet-relationships"],
+      "dependsOn": ["manage-data"],
+      "relatedApiResources": ["Data Workbooks", "Data Worksheets"],
+      "buildRelevance": "critical",
+      "articleCountEstimate": 25
+    },
+    {
+      "id": "global-attributes",
+      "displayName": "Global Attributes",
+      "helpCenterCategory": "Global Attributes",
+      "description": "Manage shared lookup data: territory mappings, product categories, customer segments, org hierarchies.",
+      "configures": ["attribute-worksheets", "territory-maps", "product-mappings", "customer-segments", "hierarchy-data"],
+      "dependsOn": [],
+      "relatedApiResources": ["Attribute Worksheets", "Hierarchies"],
+      "buildRelevance": "high",
+      "articleCountEstimate": 15
+    },
+    {
+      "id": "components",
+      "displayName": "Components",
+      "helpCenterCategory": "Components",
+      "description": "Define payout components within commission plans. Each component represents a distinct compensation element.",
+      "configures": ["component-definitions", "component-formulas", "component-caps", "component-schedules"],
+      "dependsOn": ["commission-plans", "workbooks-worksheets"],
+      "relatedApiResources": ["Commission Plans"],
+      "buildRelevance": "critical",
+      "articleCountEstimate": 15
+    },
+    {
+      "id": "commission-plans",
+      "displayName": "Commission Plans",
+      "helpCenterCategory": "Commission Plans",
+      "description": "Create and manage commission plans. Plans define the overall structure, periods, and components.",
+      "configures": ["plan-structure", "plan-periods", "plan-components", "employee-assignments", "employee-assumptions"],
+      "dependsOn": ["workbooks-worksheets", "global-attributes"],
+      "relatedApiResources": ["Commission Plans", "Employee Assumptions", "Employees"],
+      "buildRelevance": "critical",
+      "articleCountEstimate": 30
+    },
+    {
+      "id": "statements",
+      "displayName": "Statements",
+      "helpCenterCategory": "Statements",
+      "description": "Configure employee-facing compensation statements showing earnings, attainment, and payout details.",
+      "configures": ["statement-templates", "statement-fields", "statement-visibility"],
+      "dependsOn": ["commission-plans", "components"],
+      "relatedApiResources": [],
+      "buildRelevance": "medium",
+      "articleCountEstimate": 10
+    },
+    {
+      "id": "payouts",
+      "displayName": "Payouts",
+      "helpCenterCategory": "Payouts",
+      "description": "Process and manage payouts. Includes payout calculations, schedules, and integrations with payroll.",
+      "configures": ["payout-processing", "payout-schedules", "payroll-integration", "payout-adjustments"],
+      "dependsOn": ["commission-plans", "components"],
+      "relatedApiResources": ["Payouts"],
+      "buildRelevance": "high",
+      "articleCountEstimate": 15
+    },
+    {
+      "id": "reviews-approvals",
+      "displayName": "Reviews & Approvals",
+      "helpCenterCategory": "Reviews & Approvals",
+      "description": "Configure approval workflows for payouts, disputes, and adjustments.",
+      "configures": ["approval-workflows", "dispute-management", "review-cycles"],
+      "dependsOn": ["payouts"],
+      "relatedApiResources": [],
+      "buildRelevance": "medium",
+      "articleCountEstimate": 10
+    },
+    {
+      "id": "reporting",
+      "displayName": "Reporting",
+      "helpCenterCategory": "Reporting",
+      "description": "Build dashboards and reports for compensation analytics, attainment tracking, and financial forecasting.",
+      "configures": ["report-models", "dashboards", "report-filters", "scheduled-reports"],
+      "dependsOn": ["commission-plans", "payouts"],
+      "relatedApiResources": ["Report Models"],
+      "buildRelevance": "medium",
+      "articleCountEstimate": 20
+    },
+    {
+      "id": "plan-documents",
+      "displayName": "Plan Documents",
+      "helpCenterCategory": "Plan Documents",
+      "description": "Manage compensation plan documents — the legal/policy documents that define plan rules.",
+      "configures": ["document-templates", "document-versioning", "e-signatures"],
+      "dependsOn": ["commission-plans"],
+      "relatedApiResources": [],
+      "buildRelevance": "low",
+      "articleCountEstimate": 8
+    },
+    {
+      "id": "manage-people",
+      "displayName": "Manage People",
+      "helpCenterCategory": "Manage People",
+      "description": "Employee management, role assignments, team structures, and plan enrollments.",
+      "configures": ["employee-records", "role-assignments", "team-structures", "plan-enrollments"],
+      "dependsOn": [],
+      "relatedApiResources": ["Employees", "Hierarchies"],
+      "buildRelevance": "high",
+      "articleCountEstimate": 15
+    },
+    {
+      "id": "jobs-audit-logs",
+      "displayName": "Jobs & Audit Logs",
+      "helpCenterCategory": "Jobs & Audit Logs",
+      "description": "Monitor async jobs (imports, calculations) and review audit trail of all changes.",
+      "configures": ["job-monitoring", "audit-trail", "change-history"],
+      "dependsOn": [],
+      "relatedApiResources": ["Jobs"],
+      "buildRelevance": "low",
+      "articleCountEstimate": 8
+    },
+    {
+      "id": "account-settings",
+      "displayName": "Account Settings",
+      "helpCenterCategory": "Account Settings",
+      "description": "Platform configuration: users, permissions, SSO, integrations, API tokens.",
+      "configures": ["user-management", "permissions", "sso-config", "api-tokens", "integrations"],
+      "dependsOn": [],
+      "relatedApiResources": ["Users"],
+      "buildRelevance": "low",
+      "articleCountEstimate": 12
+    },
+    {
+      "id": "beta-content",
+      "displayName": "Beta Content",
+      "helpCenterCategory": "Beta Content",
+      "description": "Documentation for features currently in beta/preview.",
+      "configures": [],
+      "dependsOn": [],
+      "relatedApiResources": [],
+      "buildRelevance": "low",
+      "articleCountEstimate": 5
+    }
+  ],
+  "buildDependencyOrder": [
+    "1. Global Attributes — territory maps, product mappings (no dependencies)",
+    "2. Manage Data — set up data sources and import templates",
+    "3. Workbooks & Worksheets — create data model structure",
+    "4. Manage People — employee records, roles, hierarchy",
+    "5. Commission Plans — plan structure, periods, assumptions",
+    "6. Components — compensation elements within plans",
+    "7. Formula Library — SmartGrid formulas for calculations",
+    "8. Payouts — processing configuration",
+    "9. Statements — employee-facing views",
+    "10. Reviews & Approvals — workflow configuration",
+    "11. Reporting — dashboards and analytics"
+  ],
+  "criticalForBuild": [
+    "formula-library",
+    "manage-data",
+    "workbooks-worksheets",
+    "components",
+    "commission-plans"
+  ],
+  "scrapingPriority": {
+    "tier1_critical": ["formula-library", "workbooks-worksheets", "commission-plans", "components", "manage-data"],
+    "tier2_important": ["global-attributes", "manage-people", "payouts", "sales-planning"],
+    "tier3_nice": ["statements", "reviews-approvals", "reporting"],
+    "tier4_low": ["plan-documents", "jobs-audit-logs", "account-settings", "beta-content"]
+  }
+}

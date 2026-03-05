@@ -1,0 +1,876 @@
+{
+  "id": "1772564057343-gquue59",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560406093-6s76eyq",
+  "fileName": "MDU.xlsx",
+  "extractedAt": "2026-03-03T18:54:17.343Z",
+  "classification": {
+    "fileType": "comp-plan",
+    "summary": "MDU (Multi-Dwelling Unit) sales compensation plan covering AE, National AE, TSR, Sr. Manager, and Director roles with unit-based and penetration-based incentive structures",
+    "relevantSheets": [
+      "AE Calculator",
+      "Sheet2",
+      "AE Model",
+      "TSR Model",
+      "Dir Model",
+      "AE Feb Model",
+      "AE Jan Model",
+      "TSR Sales Feb Model"
+    ],
+    "irrelevantSheets": [
+      "Summary",
+      "AE Contracts Feb Sample",
+      "TSR Sales Feb Sample",
+      "TSR Pen sample",
+      "Payroll"
+    ]
+  },
+  "rules": [
+    {
+      "id": "ae-rate-table-by-contract-type",
+      "concept": "rate-table",
+      "description": "AE per-unit commission rates vary by contract/agreement type. A base per-unit rate of $8.70 is multiplied by a contract-type multiplier (0.7 Access, 0.9 Shared, 1.1 Exclusive, 1.4 Bulk) to produce the final rate. Commission = Contracted Units × Rate.",
+      "parameters": {
+        "role": "AE",
+        "basePerUnitRate": 8.7,
+        "planMath": "Units × Rate",
+        "tiers": [
+          {
+            "contractType": "Access",
+            "rateMultiplier": 0.7,
+            "ratePerUnit": 6.09
+          },
+          {
+            "contractType": "Shared",
+            "rateMultiplier": 0.9,
+            "ratePerUnit": 7.83
+          },
+          {
+            "contractType": "Exclusive",
+            "rateMultiplier": 1.1,
+            "ratePerUnit": 9.57
+          },
+          {
+            "contractType": "Bulk",
+            "rateMultiplier": 1.4,
+            "ratePerUnit": 12.18
+          }
+        ]
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B12:F18 and AE Model!B40:E47",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "Rate Card: Access AE 6.09, Shared AE 7.83, Exclusive AE 9.57, Bulk AE 12.18; Named range AE_rates = 'AE Model'!$B$40:$E$47"
+        }
+      }
+    },
+    {
+      "id": "natl-ae-rate-table-by-contract-type",
+      "concept": "rate-table",
+      "description": "National AE per-unit commission rates vary by contract/agreement type. A base per-unit rate of $11.11 is multiplied by a contract-type multiplier to produce the final rate. Commission = Contracted Units × Rate.",
+      "parameters": {
+        "role": "Natl AE",
+        "basePerUnitRate": 11.11,
+        "planMath": "Units × Rate",
+        "tiers": [
+          {
+            "contractType": "Access",
+            "rateMultiplier": 0.7,
+            "ratePerUnit": 7.777
+          },
+          {
+            "contractType": "Shared",
+            "rateMultiplier": 0.9,
+            "ratePerUnit": 9.999
+          },
+          {
+            "contractType": "Exclusive",
+            "rateMultiplier": 1.1,
+            "ratePerUnit": 12.221
+          },
+          {
+            "contractType": "Bulk",
+            "rateMultiplier": 1.4,
+            "ratePerUnit": 15.554
+          }
+        ]
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B12:F18 and AE Model!B40:E47",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "Rate Card: Access Natl AE 7.777, Shared Natl AE 9.999, Exclusive Natl AE 12.221, Bulk Natl AE 15.554"
+        }
+      }
+    },
+    {
+      "id": "agreement-type-mapping",
+      "concept": "qualifier",
+      "description": "Offer types from Salesforce are mapped to agreement categories that determine the applicable commission rate. This mapping governs which rate-table tier a deal falls into.",
+      "parameters": {
+        "mapping": [
+          {
+            "offerType": "BEA Only",
+            "agreement": "Access"
+          },
+          {
+            "offerType": "BAA",
+            "agreement": "Access"
+          },
+          {
+            "offerType": "Bulk",
+            "agreement": "Bulk"
+          },
+          {
+            "offerType": "Sole Provider",
+            "agreement": "Exclusive"
+          },
+          {
+            "offerType": "Shared Marketing",
+            "agreement": "Shared"
+          },
+          {
+            "offerType": "Exclusive Marketing",
+            "agreement": "Exclusive"
+          }
+        ],
+        "lookupMethod": "VLOOKUP against AgreeMap named range"
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "AE Feb Model!Q3:R8",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "AE Feb Model",
+          "evidence": "AgreeMap named range: BEA Only→Access, BAA→Access, Bulk→Bulk, Sole Provider→Exclusive, Shared Marketing→Shared, Exclusive Marketing→Exclusive"
+        }
+      }
+    },
+    {
+      "id": "ae-quota-target-monthly",
+      "concept": "quota-target",
+      "description": "Each AE has a monthly quota of 383 contracted units. The quota is flat across all 12 months (4,596 annual). Budget assumption is 27 contracts × 138 units = 3,726 units/month across the team, with a 90% target of 3,353.4 units.",
+      "parameters": {
+        "role": "AE",
+        "monthlyQuota": 383,
+        "annualQuota": 4596,
+        "headcount": 8,
+        "budgetPerMonth": 3726,
+        "targetAt90Pct": 3353.4,
+        "period": "monthly",
+        "flat": true
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B6:P6",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "Per Rep AE 383 per month across Jan-Dec; Budget 27×138=3726; Target @ 90% = 3353.4"
+        }
+      }
+    },
+    {
+      "id": "natl-ae-quota-target-monthly",
+      "concept": "quota-target",
+      "description": "The National AE has a monthly quota of 300 contracted units, flat across all 12 months (3,600 annual).",
+      "parameters": {
+        "role": "Natl AE",
+        "monthlyQuota": 300,
+        "annualQuota": 3600,
+        "headcount": 1,
+        "period": "monthly",
+        "flat": true
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B7:P7",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "Natl AE 300 per month across Jan-Dec; Total 3600"
+        }
+      }
+    },
+    {
+      "id": "sr-mgr-ae-quota-target",
+      "concept": "quota-target",
+      "description": "The AE Sr. Manager target is 3,364 units/month (aggregation of 8 AEs + 1 Natl AE team). Compensation is based on % attainment to this target.",
+      "parameters": {
+        "role": "Sr. Manager (AE)",
+        "monthlyQuota": 3364,
+        "annualQuota": 40368,
+        "planMath": "% Attain to Target",
+        "targetRequired": true
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B8:P8",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "8 AEs + 1 Natl AE Sr. Mgr 3364 per month; plan math = % Attain to Target"
+        }
+      }
+    },
+    {
+      "id": "tsr-mdu-quota-target-seasonal",
+      "concept": "quota-target",
+      "description": "TSR MDU reps have seasonal monthly unit targets: 300 (Jan-Mar), 390 (Apr-Jun), 495 (Jul-Sep), 325 (Oct-Dec). Headcount is 3 TSR MDU reps.",
+      "parameters": {
+        "role": "TSR (MDU)",
+        "headcount": 3,
+        "monthlyTargets": {
+          "jan": 300,
+          "feb": 300,
+          "mar": 300,
+          "apr": 390,
+          "may": 390,
+          "jun": 390,
+          "jul": 495,
+          "aug": 495,
+          "sep": 495,
+          "oct": 325,
+          "nov": 325,
+          "dec": 325
+        },
+        "period": "monthly",
+        "seasonal": true
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "TSR Model!A8:Q8",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "TSR Model",
+          "evidence": "TSR Units Sold (TSR MDU) headcount 3: 300/300/300/390/390/390/495/495/495/325/325/325"
+        }
+      }
+    },
+    {
+      "id": "tsr-sfu-quota-target-seasonal",
+      "concept": "quota-target",
+      "description": "TSR SFU rep has seasonal monthly unit targets: 300 (Jan-Mar), 350 (Apr-Jun), 400 (Jul-Sep), 300 (Oct-Dec). Headcount is 1 TSR SFU rep.",
+      "parameters": {
+        "role": "TSR (SFU)",
+        "headcount": 1,
+        "monthlyTargets": {
+          "jan": 300,
+          "feb": 300,
+          "mar": 300,
+          "apr": 350,
+          "may": 350,
+          "jun": 350,
+          "jul": 400,
+          "aug": 400,
+          "sep": 400,
+          "oct": 300,
+          "nov": 300,
+          "dec": 300
+        },
+        "period": "monthly",
+        "seasonal": true
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "TSR Model!A9:Q9",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "TSR Model",
+          "evidence": "TSR Units Sold (TSR SFU) headcount 1: 300/300/300/350/350/350/400/400/400/300/300/300"
+        }
+      }
+    },
+    {
+      "id": "tsr-team-quota-target-seasonal",
+      "concept": "quota-target",
+      "description": "TSR Team aggregate unit target (used for Sr. Mgr and Director): sum of TSR MDU and SFU targets. Seasonal: 1,200 (Jan-Mar), 1,520 (Apr-Jun), 1,885 (Jul-Sep), 1,275 (Oct-Dec).",
+      "parameters": {
+        "role": "TSR Team (Sr. Mgr, Dir, Sr. Dir)",
+        "monthlyTargets": {
+          "jan": 1200,
+          "feb": 1200,
+          "mar": 1200,
+          "apr": 1520,
+          "may": 1520,
+          "jun": 1520,
+          "jul": 1885,
+          "aug": 1885,
+          "sep": 1885,
+          "oct": 1275,
+          "nov": 1275,
+          "dec": 1275
+        },
+        "formula": "(TSR_MDU_headcount × TSR_MDU_target) + (TSR_SFU_headcount × TSR_SFU_target)",
+        "annualTotal": 17640
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "TSR Model!A7:Q7",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "TSR Model",
+          "evidence": "TSR Units Sold (Team): =($E8*F8)+($E9*F9); 1200/1200/1200/1520/1520/1520/1885/1885/1885/1275/1275/1275"
+        }
+      }
+    },
+    {
+      "id": "ae-tsi-annual",
+      "concept": "quota-target",
+      "description": "AE Target Sales Incentive (TSI) is $40,000 per year ($3,333.33/month). Commission is 100% variable based on units contracted.",
+      "parameters": {
+        "role": "AE",
+        "annualTSI": 40000,
+        "monthlyTSI": 3333.33,
+        "variableWeight": 1,
+        "component": "Units Contracted at 100% TSI"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "AE Calculator!A17 and AE Model!B26:F27",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Calculator",
+          "evidence": "AE Target 40k per year commission; AE Model: AE 100% TSI Units x Rate, TSI = 3333.33"
+        }
+      }
+    },
+    {
+      "id": "natl-ae-tsi",
+      "concept": "quota-target",
+      "description": "National AE Target Sales Incentive (TSI) is $3,333.33/month ($40,000/year). Commission is 100% variable based on units contracted.",
+      "parameters": {
+        "role": "Natl AE",
+        "monthlyTSI": 3333.33,
+        "annualTSI": 40000,
+        "variableWeight": 1,
+        "component": "Units Contracted at 100% TSI"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B27:F27 and AE Feb Model!R17:R25",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "Natl AE 100% TSI Units x Rate; TSI shown as 3333.33 in Feb Model"
+        }
+      }
+    },
+    {
+      "id": "sr-mgr-ae-tsi",
+      "concept": "quota-target",
+      "description": "AE Sr. Manager Target Sales Incentive (TSI) is $5,000/month ($60,000/year). Compensation is 100% of TSI based on % attainment to the aggregate AE team unit target.",
+      "parameters": {
+        "role": "Sr. Manager (AE)",
+        "monthlyTSI": 5000,
+        "annualTSI": 60000,
+        "variableWeight": 1,
+        "planMath": "% Attain to Target"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "AE Feb Model!R28 and AE Jan Model!V42",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Feb Model",
+          "evidence": "Jason Herdrich Sr. Manager TSI = 5000; commission = attain% × TSI"
+        }
+      }
+    },
+    {
+      "id": "tsr-mdu-tsi-components",
+      "concept": "quota-target",
+      "description": "TSR MDU Target Sales Incentive is $2,500/month, split evenly: 50% ($1,250) on Units Sold (% Attain to Target) and 50% ($1,250) on Portfolio Penetration (% MoM Change).",
+      "parameters": {
+        "role": "TSR (MDU)",
+        "monthlyTSI": 2500,
+        "components": [
+          {
+            "name": "Units Sold",
+            "weight": 0.5,
+            "monthlyTSI": 1250,
+            "planMath": "% Attain to Target"
+          },
+          {
+            "name": "Penetration",
+            "weight": 0.5,
+            "monthlyTSI": 1250,
+            "planMath": "% MoM Change"
+          }
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "TSR Model!A12:G12 and TSR Sales Feb Model!H27:L28",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "TSR Model / TSR Sales Feb Model",
+          "evidence": "TSR (MDU) 50% TSI Penetration 50% TSI Units Sold; Feb Model: TSI 2500, TSI Sales 1250, TSI Pen 1250"
+        }
+      }
+    },
+    {
+      "id": "tsr-sfu-tsi-components",
+      "concept": "quota-target",
+      "description": "TSR SFU Target Sales Incentive is $2,500/month, split evenly: 50% ($1,250) on Units Sold (% Attain to Target) and 50% ($1,250) on Portfolio Penetration (% MoM Change).",
+      "parameters": {
+        "role": "TSR (SFU)",
+        "monthlyTSI": 2500,
+        "components": [
+          {
+            "name": "Units Sold",
+            "weight": 0.5,
+            "monthlyTSI": 1250,
+            "planMath": "% Attain to Target"
+          },
+          {
+            "name": "Penetration",
+            "weight": 0.5,
+            "monthlyTSI": 1250,
+            "planMath": "% MoM Change"
+          }
+        ]
+      },
+      "confidence": 0.94,
+      "sourceRef": {
+        "vendorRuleId": "TSR Model!A13:G13 and TSR Sales Feb Model!H31:L31",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "TSR Model / TSR Sales Feb Model",
+          "evidence": "TSR (SFU) 50% TSI Penetration 50% TSI Units Sold; new hire TBD; Feb Model: TSI 2500"
+        }
+      }
+    },
+    {
+      "id": "sr-mgr-tsr-tsi-components",
+      "concept": "quota-target",
+      "description": "TSR Sr. Manager Target Sales Incentive is $4,166.67/month ($50,000/year), split 50% on Units Sold (% Attain to Team Target) and 50% on Portfolio Penetration (% MoM Change). Uses aggregation of the full TSR team.",
+      "parameters": {
+        "role": "Sr. Manager (TSR)",
+        "monthlyTSI": 4166.67,
+        "annualTSI": 50000,
+        "components": [
+          {
+            "name": "Units Sold",
+            "weight": 0.5,
+            "monthlyTSI": 2083.33,
+            "planMath": "% Attain to Target"
+          },
+          {
+            "name": "Penetration",
+            "weight": 0.5,
+            "monthlyTSI": 2083.33,
+            "planMath": "% MoM Change"
+          }
+        ]
+      },
+      "confidence": 0.94,
+      "sourceRef": {
+        "vendorRuleId": "TSR Model!A14:G14 and TSR Sales Feb Model!H34:L34",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "TSR Model / TSR Sales Feb Model",
+          "evidence": "Sr Mgr 50% TSI Penetration 50% TSI Units Sold; TSI 4166.67; Norman Mundy Sr. Mgr"
+        }
+      }
+    },
+    {
+      "id": "director-tsi-components",
+      "concept": "quota-target",
+      "description": "Director/Sr. Director Target Sales Incentive is $5,833.33/month ($70,000/year), split across three components: 50% ($2,916.67) on AE Units Contracted (% Attain to Target), 25% ($1,458.33) on TSR Penetration (% MoM Change), and 25% ($1,458.33) on TSR Units Sold (% Attain to Target).",
+      "parameters": {
+        "role": "Director, Sr. Director",
+        "monthlyTSI": 5833.33,
+        "annualTSI": 70000,
+        "components": [
+          {
+            "name": "AE Units Contracted",
+            "weight": 0.5,
+            "monthlyTSI": 2916.67,
+            "planMath": "% Attain to Target",
+            "target": 3726
+          },
+          {
+            "name": "TSR Penetration",
+            "weight": 0.25,
+            "monthlyTSI": 1458.33,
+            "planMath": "% MoM Change"
+          },
+          {
+            "name": "TSR Units Sold",
+            "weight": 0.25,
+            "monthlyTSI": 1458.33,
+            "planMath": "% Attain to Target",
+            "targetSeasonal": true
+          }
+        ]
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "Dir Model!A8:H9 and Dir Model!A12:A13",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Dir Model",
+          "evidence": "Dir, Sr Dir: 50% TSI Units Contracted, 25% TSI Penetration, 25% TSI Units Sold; Dir TSI = 5833.33; TSI splits: 2916.67 / 1458.33 / 1458.33"
+        }
+      }
+    },
+    {
+      "id": "tsr-penetration-calc",
+      "concept": "rate-table",
+      "description": "TSR Penetration component is calculated using month-over-month (MoM) penetration change ratio. Pen Commission = TSI Penetration × (Current Month Penetration / Prior Month Penetration). A ratio > 1.0 means penetration grew and earns above TSI; < 1.0 means it declined and earns below TSI.",
+      "parameters": {
+        "measure": "Portfolio Penetration",
+        "formula": "Pen Comm = TSI_Pen × (current_month_pen / prior_month_pen)",
+        "baseline": "Prior month penetration percentage",
+        "applicableRoles": [
+          "TSR (MDU)",
+          "TSR (SFU)",
+          "Sr. Manager (TSR)",
+          "Director"
+        ]
+      },
+      "confidence": 0.93,
+      "sourceRef": {
+        "vendorRuleId": "TSR Sales Feb Model!H17:K20 and P17:P20",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "TSR Sales Feb Model",
+          "evidence": "Pen Change = Feb Pen / Jan Pen (e.g., 0.37056/0.36780 = 1.0075); Pen Comm = 1250 × 1.0075 = 1259.39"
+        }
+      }
+    },
+    {
+      "id": "tsr-units-sold-calc",
+      "concept": "rate-table",
+      "description": "TSR Units Sold component is calculated as % attainment to target applied to the TSI allocation. Sales Commission = TSI Sales × (Units Sold / Target).",
+      "parameters": {
+        "measure": "Units Sold",
+        "formula": "Sales Comm = TSI_Sales × (units_sold / target)",
+        "applicableRoles": [
+          "TSR (MDU)",
+          "TSR (SFU)",
+          "Sr. Manager (TSR)",
+          "Director"
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "TSR Sales Feb Model!H27:L31",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "TSR Sales Feb Model",
+          "evidence": "Freddy: TSI Sales 1250, 181 sales, 300 target, 60.3% attain, Sales Comm = 754.17"
+        }
+      }
+    },
+    {
+      "id": "ae-cap-300pct",
+      "concept": "cap",
+      "description": "AE and National AE monthly commission is capped at 300% of TSI ($10,000/month). The cap is enforced via MIN formula in the model.",
+      "parameters": {
+        "applicableRoles": [
+          "AE",
+          "Natl AE"
+        ],
+        "capMultiplier": 3,
+        "capBasis": "TSI",
+        "aeCap": 10000,
+        "natlAECap": 10000
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B26:G28 and AE Feb Model!F17",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "AE: Max 300% of TSI; Natl AE: Max 300% of TSI; Formula: =MIN(3*R17, SUMIF(...))"
+        }
+      }
+    },
+    {
+      "id": "sr-mgr-cap-200pct",
+      "concept": "cap",
+      "description": "Sr. Manager monthly commission is capped at 200% of TSI. For AE Sr. Mgr this is $10,000/month; for TSR Sr. Mgr this is $8,333.33/month.",
+      "parameters": {
+        "applicableRoles": [
+          "Sr. Manager (AE)",
+          "Sr. Manager (TSR)"
+        ],
+        "capMultiplier": 2,
+        "capBasis": "TSI",
+        "aeSrMgrCap": 10000,
+        "tsrSrMgrCap": 8333.33
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B28:G28 and TSR Model!A14:G14",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model / TSR Model",
+          "evidence": "Sr Mgr: Max 200% of TSI"
+        }
+      }
+    },
+    {
+      "id": "tsr-cap-200pct",
+      "concept": "cap",
+      "description": "TSR (MDU and SFU) monthly commission is capped at 200% of TSI ($5,000/month).",
+      "parameters": {
+        "applicableRoles": [
+          "TSR (MDU)",
+          "TSR (SFU)"
+        ],
+        "capMultiplier": 2,
+        "capBasis": "TSI",
+        "capAmount": 5000
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "TSR Model!A12:G13",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "TSR Model",
+          "evidence": "TSR (MDU) Max 200% of TSI; TSR (SFU) Max 200% of TSI"
+        }
+      }
+    },
+    {
+      "id": "director-cap-200pct",
+      "concept": "cap",
+      "description": "Director and Sr. Director monthly commission is capped at 200% of TSI ($11,666.67/month).",
+      "parameters": {
+        "applicableRoles": [
+          "Director",
+          "Sr. Director"
+        ],
+        "capMultiplier": 2,
+        "capBasis": "TSI",
+        "capAmount": 11666.67
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Dir Model!A8:H9",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Dir Model",
+          "evidence": "Dir, Sr Dir: Max 200% of TSI"
+        }
+      }
+    },
+    {
+      "id": "no-floor-all-roles",
+      "concept": "floor",
+      "description": "No minimum earning floor is defined for any role. All roles have 'Min: None', meaning commission can be $0 in a given month.",
+      "parameters": {
+        "applicableRoles": [
+          "AE",
+          "Natl AE",
+          "Sr. Manager",
+          "TSR (MDU)",
+          "TSR (SFU)",
+          "Director"
+        ],
+        "floor": "None"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B26:G28 and TSR Model!A12:G14 and Dir Model!A8:H9",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model / TSR Model / Dir Model",
+          "evidence": "Min: None for all roles"
+        }
+      }
+    },
+    {
+      "id": "five-contract-bonus",
+      "concept": "spif",
+      "description": "AE or National AE earns a $1,000 bonus for executing 5 or more contracts in a month that are Exclusive or Bulk agreement types, with a minimum of 50 contracted units per contract.",
+      "parameters": {
+        "applicableRoles": [
+          "AE",
+          "Natl AE"
+        ],
+        "bonusAmount": 1000,
+        "triggerConditions": {
+          "minContracts": 5,
+          "eligibleContractTypes": [
+            "Exclusive",
+            "Bulk"
+          ],
+          "minUnitsPerContract": 50
+        }
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B21:F21",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "5 Contract Bonus (Exclusive or Bulk): AE 1000, Natl AE 1000; 5 Contracts that are Exclusive or Bulk with a min of 50 Contracted Units per contract"
+        }
+      }
+    },
+    {
+      "id": "ae-no-target-gate",
+      "concept": "qualifier",
+      "description": "AE and National AE plans do NOT require hitting a target threshold to earn commissions. Earnings begin from the first unit contracted. The 'Target Y/N' field is 'N', meaning there is no minimum attainment gate.",
+      "parameters": {
+        "applicableRoles": [
+          "AE",
+          "Natl AE"
+        ],
+        "targetRequired": false,
+        "firstDollarEarning": true
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B26:F28",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "AE: Target Y/N = N; Natl AE: Target Y/N = N"
+        }
+      }
+    },
+    {
+      "id": "sr-mgr-target-gate",
+      "concept": "qualifier",
+      "description": "Sr. Manager compensation requires a target for calculation (% Attain to Target). The 'Target Y/N' field is 'Y'. Commission scales linearly with attainment percentage applied to TSI.",
+      "parameters": {
+        "applicableRoles": [
+          "Sr. Manager"
+        ],
+        "targetRequired": true,
+        "planMath": "% Attain to Target × TSI"
+      },
+      "confidence": 0.94,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B28:F28",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "Sr Mgr: Target Y/N = Y; Plan Math = % Attain to Target"
+        }
+      }
+    },
+    {
+      "id": "eligible-transactions-ae",
+      "concept": "qualifier",
+      "description": "AE and National AE eligible transactions are sourced from an Excel version of a Salesforce report, attributed to the rep, and must be deemed eligible by Steve/Megan (management approval). Only 'Contract Executed' status deals qualify.",
+      "parameters": {
+        "applicableRoles": [
+          "AE",
+          "Natl AE"
+        ],
+        "dataSource": "Salesforce report (Excel export)",
+        "approvers": [
+          "Steve",
+          "Megan"
+        ],
+        "requiredStatus": "Contract Executed",
+        "automatedDelivery": "Last day of month at 11:50pm (±10 mins)"
+      },
+      "confidence": 0.92,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B32:B34 and AE Contracts Feb Sample!A17",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "AE: Excel version of Salesforce report, attributed to rep, and deemed eligible by Steve/Megan; Automated email send: last day of the month at 11:50pm"
+        }
+      }
+    },
+    {
+      "id": "budget-assumptions-units",
+      "concept": "quota-target",
+      "description": "MDU contracted units budget assumes 27 contracts per month × 138 units per contract = 3,726 total contracted units per month (44,712 annual). This is the budget baseline from which targets are derived.",
+      "parameters": {
+        "monthlyContracts": 27,
+        "unitsPerContract": 138,
+        "monthlyUnits": 3726,
+        "annualUnits": 44712,
+        "targetDiscountFactor": 0.9,
+        "monthlyTargetAt90Pct": 3353.4
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Sheet2!A1:D15",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Sheet2",
+          "evidence": "MDU Contracted Units Assumptions: Monthly Quota 27, Units per Contract 138, Total Contracted Units 3726; flat across all 12 months; Total Subs: 44712"
+        }
+      }
+    },
+    {
+      "id": "tsr-penetration-baseline-definition",
+      "concept": "qualifier",
+      "description": "TSR Penetration target is defined as month-over-month improvement: the current month's penetration percentage must exceed the prior month's penetration percentage (baseline). The ratio of new/prior month penetration drives the payout multiplier.",
+      "parameters": {
+        "measure": "Portfolio Penetration",
+        "definition": "> % new month over % prior month (baseline) -- % Change",
+        "breakeven": 1,
+        "aboveBreakeven": "Earns more than allocated TSI",
+        "belowBreakeven": "Earns less than allocated TSI"
+      },
+      "confidence": 0.92,
+      "sourceRef": {
+        "vendorRuleId": "TSR Model!A2:C3",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "TSR Model",
+          "evidence": "TSR Portfolio Penetration: > % new month over % prior month (baseline) -- % Change"
+        }
+      }
+    },
+    {
+      "id": "removed-contract-types",
+      "concept": "qualifier",
+      "description": "Two contract types have been removed from the AE rate card: 'Winback' and 'Exclusive Marketing with BS NOW'. These types were present in the AE Calculator (legacy) but are no longer eligible for commission in the active model.",
+      "parameters": {
+        "removedTypes": [
+          "Winback",
+          "Exclusive Marketing with BS NOW"
+        ],
+        "note": "Legacy rates in AE Calculator (Winback: 1.6x, EM w/ BS NOW: 1.25x) are superseded"
+      },
+      "confidence": 0.93,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B19:B20",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "AE Model",
+          "evidence": "Winback Type removed; Exclusive Marketing with BS NOW removed"
+        }
+      }
+    },
+    {
+      "id": "director-ae-units-target",
+      "concept": "quota-target",
+      "description": "Director's AE Units Contracted target is the full budget of 3,726 units/month (not the 90% target used for the Sr. Mgr). This is explicitly labeled as 'Budget Target' for Director/Sr. Director.",
+      "parameters": {
+        "role": "Director, Sr. Director",
+        "monthlyTarget": 3726,
+        "annualTarget": 44712,
+        "targetBasis": "Budget (100%)"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "AE Model!B9:P9 and Dir Model!C16:D16",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "AE Model / Dir Model",
+          "evidence": "Budget Target Director, Sr. Director: 3726 per month; Dir Model Jan: Target 3726, Attain 2509"
+        }
+      }
+    }
+  ],
+  "insights": "1) The AE Calculator sheet appears to be a legacy/draft model with different rate multipliers (0.5/0.75/1.0/1.25/1.4/1.6) than the finalized AE Model (0.7/0.9/1.1/1.4). The AE Model explicitly notes Winback and 'Exclusive Marketing with BS NOW' types are removed. The active rate card should be sourced from the AE Model sheet. 2) There is a noted next step to 'Align with weightings and categories for accelerators and decelerators' in the AE Calculator, suggesting accelerator/decelerator tiers were planned but are not yet implemented in this workbook — the current plan uses flat per-unit rates by contract type without attainment-based multipliers for AE/Natl AE. 3) The TSR SFU role has a 'new hire TBD' note, indicating the position may not yet be filled or finalized. The data shows 'Name TBD' as a placeholder. 4) The Jan Paid vs. Jan Model columns in the Summary sheet show significant negative variances for most AEs, suggesting the prior pay methodology differed materially from this new model — this may indicate a plan transition. 5) Seasonality adjustments to quotas are noted as under consideration for Q3/Q4 or 2027 for AE targets, but AE targets are currently flat. TSR targets already incorporate seasonality. 6) There is a note to 'Relook the AE territories to give everyone equal opportunity regardless of location', indicating territory assignment rules exist outside this workbook and may need rebalancing. 7) The Sr. Manager AE target of 3,364 differs from the budget of 3,726 — the 3,353.4 figure (90% of budget) is used for the team aggregate target, while individual AE targets of 383 × 8 + 300 × 1 = 3,364 is the sum of individual targets, creating a small discrepancy (3,364 vs 3,353.4) worth clarifying. 8) The 5-contract bonus was earned by Jennifer Raypole in January (5 Exclusive contracts, $1,000 bonus) as validated in the Jan Model data."
+}

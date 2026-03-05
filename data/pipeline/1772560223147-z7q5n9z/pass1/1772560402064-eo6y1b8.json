@@ -1,0 +1,382 @@
+{
+  "id": "1772563829834-muyi933",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560402064-eo6y1b8",
+  "fileName": "DAP.xlsx",
+  "extractedAt": "2026-03-03T18:50:29.834Z",
+  "classification": {
+    "fileType": "deal-data",
+    "summary": "BrightSpeed DAP (Dealer/Agent Partner) channel order transaction data tracking orders through issued, installed, canceled, and disconnected lifecycle stages",
+    "relevantSheets": [],
+    "irrelevantSheets": [
+      "Issued",
+      "Installed",
+      "Canceled",
+      "Disconnected"
+    ]
+  },
+  "rules": [
+    {
+      "id": "dap-channel-partner-split-structure",
+      "concept": "split",
+      "description": "Orders are attributed through a three-level hierarchy: Channel (DAP) → SalesPartner (e.g., INFINITY, CLEARLINK, CENTERFIELD, RED VENTURES, UPDATER, Commission Junction) → SubAgent (tier-specific sub-agents). This implies a multi-party credit/split structure where commissions may flow from BrightSpeed to SalesPartner to SubAgent to individual Agent.",
+      "parameters": {
+        "partners_observed": [
+          {
+            "partnerID": "BS000208",
+            "name": "INFINITY"
+          },
+          {
+            "partnerID": "BS000203",
+            "name": "CLEARLINK"
+          },
+          {
+            "partnerID": "BS000202",
+            "name": "CENTERFIELD"
+          },
+          {
+            "partnerID": "BS000211",
+            "name": "RED VENTURES"
+          },
+          {
+            "partnerID": "BS000214",
+            "name": "UPDATER"
+          },
+          {
+            "partnerID": "BS001095",
+            "name": "Commission Junction"
+          }
+        ],
+        "hierarchy": [
+          "Channel",
+          "SalesPartner",
+          "SubAgent",
+          "AgentID"
+        ]
+      },
+      "confidence": 0.55,
+      "sourceRef": {
+        "vendorRuleId": "Issued!X2:AC50",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "Channel=DAP, PartnerID=BS000208, SalesPartner=INFINITY, SubAgent=INFINITY TIER 3, SalesID=20000303, AgentID=20311"
+        }
+      }
+    },
+    {
+      "id": "dap-territory-wirecenter-assignment",
+      "concept": "territory",
+      "description": "Orders are geographically assigned to WireCenters (identified by WireCenterID and WireCenterName) across multiple US states (AL, AR, GA, IL, IN, KS, LA, MI, MO, NC, OH, PA, SC, TN, TX, VA, WI). WireCenters serve as the territory unit linking customer addresses to service areas and sales partner coverage.",
+      "parameters": {
+        "territory_unit": "WireCenter",
+        "states_observed": [
+          "AL",
+          "AR",
+          "GA",
+          "IL",
+          "IN",
+          "KS",
+          "LA",
+          "MI",
+          "MO",
+          "NC",
+          "OH",
+          "PA",
+          "SC",
+          "TN",
+          "TX",
+          "VA",
+          "WI"
+        ],
+        "sample_wirecenters": [
+          "DOTHAN MAIN",
+          "JACKSONVILLE",
+          "ENTERPRISE",
+          "NICHOLS HUT",
+          "JEFFERSON CITY",
+          "FIFTH STREET",
+          "CARLISLE"
+        ]
+      },
+      "confidence": 0.6,
+      "sourceRef": {
+        "vendorRuleId": "Issued!J1:K50",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "WireCenterID=DTHNALXA, WireCenterName=DOTHAN MAIN; WireCenterID=JCVLARXA, WireCenterName=JACKSONVILLE"
+        }
+      }
+    },
+    {
+      "id": "dap-install-completion-qualifier",
+      "concept": "qualifier",
+      "description": "Orders must reach COMPLETED status and appear on the Installed sheet to be eligible for commission credit. The Installed sheet includes 'PastDueDate' and 'PastOrigDueDate' Y/N flags that may gate eligibility or trigger different payout rules based on whether installation was late.",
+      "parameters": {
+        "qualifying_status": "COMPLETED",
+        "qualifying_sheet": "Installed",
+        "qualifying_order_types": [
+          "NEW INSTALL",
+          "MIGRATION"
+        ],
+        "past_due_flags": {
+          "PastDueDate": "Y/N flag indicating if install occurred after due date",
+          "PastOrigDueDate": "Y/N flag indicating if install occurred after original due date"
+        }
+      },
+      "confidence": 0.6,
+      "sourceRef": {
+        "vendorRuleId": "Installed!G1:H50,AE1:AF50",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Installed",
+          "evidence": "OrderStatus=COMPLETED, OrderType=NEW INSTALL, PastDueDate=Y, PastOrigDueDate=Y (AL1100040368); PastDueDate=N, PastOrigDueDate=N (MO1100075440)"
+        }
+      }
+    },
+    {
+      "id": "dap-product-tier-classification",
+      "concept": "rate-table",
+      "description": "Products are classified by Technology (Fiber vs Copper) and speed tier, which likely maps to different commission rate levels. Observed product tiers include Fiber (100mb, 200mb, 500mb, 600mb, 940mb/1gb, 2gb, 8gb) and Copper (1.5mb, 3mb, 6mb, 10mb, 15mb, 20mb, 30mb, 40mb, 60mb, 80mb), plus value-added services (WiFi Extender, WiFi Protection/Total Home Internet Controls, Voice Line, Inside Wire Protection).",
+      "parameters": {
+        "fiber_tiers": [
+          {
+            "product": "Fiber 100mb",
+            "download_speed": 100000
+          },
+          {
+            "product": "Fiber 200mb",
+            "download_speed": 200000
+          },
+          {
+            "product": "Fiber 500mb",
+            "download_speed": 500000
+          },
+          {
+            "product": "Fiber 600mb",
+            "download_speed": 600000
+          },
+          {
+            "product": "Fiber 940mb",
+            "download_speed": 944500,
+            "note": "BrightSpeed NOW product"
+          },
+          {
+            "product": "Fiber 1gb",
+            "download_speed": 1000000
+          },
+          {
+            "product": "Fiber 2gb",
+            "download_speed": 2000000
+          },
+          {
+            "product": "Fiber 8gb",
+            "download_speed": 8000000
+          }
+        ],
+        "copper_tiers": [
+          {
+            "product": "Copper 1.5mb",
+            "download_speed": 1500
+          },
+          {
+            "product": "Copper 3mb",
+            "download_speed": 3000
+          },
+          {
+            "product": "Copper 6mb",
+            "download_speed": 6000
+          },
+          {
+            "product": "Copper 10mb",
+            "download_speed": 10000
+          },
+          {
+            "product": "Copper 15mb",
+            "download_speed": 15000
+          },
+          {
+            "product": "Copper 20mb",
+            "download_speed": 20000
+          },
+          {
+            "product": "Copper 30mb",
+            "download_speed": 30000
+          },
+          {
+            "product": "Copper 40mb",
+            "download_speed": 40000
+          },
+          {
+            "product": "Copper 60mb",
+            "download_speed": 60000
+          },
+          {
+            "product": "Copper 80mb",
+            "download_speed": 80000
+          }
+        ],
+        "value_added_services": [
+          "Wifi Extender",
+          "Wifi Protection",
+          "Residence Voice Line",
+          "Inside Wire Protection Res"
+        ],
+        "service_brands": [
+          "BS Broadband",
+          "QF Broadband"
+        ],
+        "commission_rates": "NOT PRESENT IN FILE - requires separate rate card"
+      },
+      "confidence": 0.45,
+      "sourceRef": {
+        "vendorRuleId": "Issued!L1:Q50",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "Technology=Fiber, ProductName=FIBER INTERNET 1 GIG, Product=Fiber 1gb, Download Speed=1000000; Technology=Copper, ProductName=INTERNET 15 MBPS, Product=Copper 15mb, Download Speed=15000"
+        }
+      }
+    },
+    {
+      "id": "dap-clawback-disconnect-tracking",
+      "concept": "clawback",
+      "description": "The Disconnected sheet tracks service disconnections linked back to original installation orders (via InstallOrderKey/InstallOrderID) and records the OriginalInstallDate alongside the DisconnectDate. This structure supports a clawback mechanism where commissions paid on installations may be recovered if the customer disconnects within a certain window. Observed disconnect-to-install intervals range from days (same-month rapid churn) to ~5 months.",
+      "parameters": {
+        "tracking_fields": {
+          "DisconnectDate": "Date service was disconnected",
+          "OriginalInstallDate": "Date service was originally installed",
+          "InstallOrderKey": "Links back to the original install order",
+          "InstallOrderID": "Original install order ID"
+        },
+        "clawback_window": "NOT SPECIFIED IN FILE - requires comp plan document",
+        "observed_churn_examples": [
+          {
+            "disconnect": "01/01/2026",
+            "original_install": "12/31/2025",
+            "days_active": 1
+          },
+          {
+            "disconnect": "01/01/2026",
+            "original_install": "12/29/2025",
+            "days_active": 3
+          },
+          {
+            "disconnect": "01/01/2026",
+            "original_install": "07/30/2025",
+            "days_active": 155
+          },
+          {
+            "disconnect": "01/02/2026",
+            "original_install": "10/02/2025",
+            "days_active": 92
+          }
+        ]
+      },
+      "confidence": 0.7,
+      "sourceRef": {
+        "vendorRuleId": "Disconnected!I1:J50,AE1:AF50",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Disconnected",
+          "evidence": "DisconnectDate=01/01/2026, OriginalInstallDate=12/31/2025, InstallOrderKey=NC1100151468_1 (rapid churn); DisconnectDate=01/01/2026, OriginalInstallDate=07/30/2025, InstallOrderKey=AL1100029167_1 (5-month tenure)"
+        }
+      }
+    },
+    {
+      "id": "dap-cancellation-reason-qualifier",
+      "concept": "qualifier",
+      "description": "The Canceled sheet includes a ConsolidatedReason field categorizing why orders were canceled. Certain reasons may affect commission eligibility differently (e.g., 'Duplicate Order' or 'Account Cleanup' vs. 'Buyer's Remorse'). Observed cancellation reasons include: Buyer's Remorse, Buyer's Remorse - Order > 30 Days, Buyer's Remorse - Order > 45 Days, Cancel/Reissue, Account Cleanup, Cancelled per Customer, Customer Reqs Reschedule, Duplicate Order, Invalid Order Residential, Missed appointment, No Access/Not Home, Other, Product/Speed not Available.",
+      "parameters": {
+        "cancellation_reasons": [
+          "Buyer's Remorse",
+          "Buyer's Remorse - Order > 30 Days",
+          "Buyer's Remorse - Order > 45 Days",
+          "Cancel/Reissue",
+          "Account Cleanup",
+          "Cancelled per Customer",
+          "Customer Reqs Reschedule",
+          "Duplicate Order",
+          "Invalid Order Residential",
+          "Missed appointment",
+          "No Access/Not Home",
+          "Other",
+          "Product/Speed not Available"
+        ],
+        "commission_impact": "NOT SPECIFIED IN FILE - requires comp plan document to determine which cancellation reasons trigger commission reversal"
+      },
+      "confidence": 0.55,
+      "sourceRef": {
+        "vendorRuleId": "Canceled!L1:L50",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Canceled",
+          "evidence": "ConsolidatedReason values: Buyer's Remorse, Cancel/Reissue, Other, Account Cleanup, Buyer's Remorse - Order > 45 Days, Duplicate Order, Cancelled per Customer, Customer Reqs Reschedule"
+        }
+      }
+    },
+    {
+      "id": "dap-subagent-tier-structure",
+      "concept": "split",
+      "description": "SubAgent values encode a tier structure (TIER 1, TIER 2, TIER 3, MISC) that likely corresponds to different commission rates or payout levels per sales partner. For example, INFINITY has sub-agents labeled 'INFINITY TIER 1', 'INFINITY TIER 2', 'INFINITY TIER 3', 'INFINITY MISC', 'INFINITY ACQ - DISPLAY', 'INFINITY ACQ - TIER 1'. CLEARLINK has 'CLEARLINK TIER 1', 'CLEARLINK TIER 2', 'CLEARLINK TIER 3' variants with language/market suffixes. Cart-based naming (e.g., 'Infinity Branded Tier 1 Cart', 'ClearLink Branded Tier 2 Cart') suggests online acquisition channels.",
+      "parameters": {
+        "tier_levels": [
+          "TIER 1",
+          "TIER 2",
+          "TIER 3",
+          "MISC"
+        ],
+        "acquisition_types": [
+          "ACQ - DISPLAY",
+          "ACQ - TIER 1",
+          "ACQ BRSPD DOTCOM REDIRECT",
+          "CTL ACQ DOT.COM PX",
+          "MOVERS",
+          "AFFILIATES"
+        ],
+        "cart_types": [
+          "Branded Tier 1 Cart",
+          "Branded Tier 2 Cart",
+          "Non_Branded Tier 3 Cart"
+        ],
+        "commission_rate_per_tier": "NOT SPECIFIED IN FILE - requires rate card"
+      },
+      "confidence": 0.6,
+      "sourceRef": {
+        "vendorRuleId": "Issued!AA1:AA50",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "SubAgent values: INFINITY TIER 1, INFINITY TIER 2, INFINITY TIER 3, INFINITY ACQ - DISPLAY, INFINITY MISC, Infinity Branded Tier 2 Cart, ClearLink Branded Tier 2 Cart, CLEARLINK TIER 3 BRANDED - CLR MKT PX"
+        }
+      }
+    },
+    {
+      "id": "dap-order-type-qualifier",
+      "concept": "qualifier",
+      "description": "Commission eligibility likely varies by OrderType. Observed types are NEW INSTALL (vast majority), MIGRATION (upgrade from existing service), and DISCONNECT. New installs and migrations appear on the Issued/Installed sheets as commissionable events, while disconnects are tracked separately and likely trigger clawback. The Issued sheet named range spans 6,018 rows and Installed spans 4,446 rows, suggesting a significant installation conversion rate.",
+      "parameters": {
+        "commissionable_order_types": [
+          "NEW INSTALL",
+          "MIGRATION"
+        ],
+        "non_commissionable_order_types": [
+          "DISCONNECT"
+        ],
+        "total_issued_orders": 6018,
+        "total_installed_orders": 4446
+      },
+      "confidence": 0.55,
+      "sourceRef": {
+        "vendorRuleId": "Issued!H1:H50,_xlnm._FilterDatabase",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "OrderType=NEW INSTALL (majority), OrderType=MIGRATION (AR1100033105); Named range _xlnm._FilterDatabase=Issued!$A$1:$AC$6018, Installed!$A$1:$AF$4446"
+        }
+      }
+    }
+  ],
+  "insights": "This file is transactional deal data, NOT a compensation plan document. It contains no explicit commission rates, quota targets, payout formulas, or plan terms. The data serves as the input feed for a compensation calculation engine. To extract actual compensation rules, the following companion documents are needed: (1) A DAP Partner Rate Card specifying commission amounts per product tier, technology type, and partner tier level; (2) A clawback policy defining the time window and conditions under which commissions on disconnected services are recovered; (3) A cancellation policy defining which ConsolidatedReason codes trigger commission reversal vs. no-pay; (4) Quota/target definitions per partner or agent if accelerators/decelerators apply; (5) The partner agreement defining the split structure between BrightSpeed, SalesPartner, SubAgent, and individual Agent. The tier structure embedded in SubAgent names (Tier 1/2/3) strongly suggests a tiered rate table exists elsewhere. The PastDueDate/PastOrigDueDate flags on the Installed sheet likely tie to an SLA-based qualifier or penalty. The presence of both BS Broadband and QF Broadband brands suggests potential rate differentiation by service brand."
+}

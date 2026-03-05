@@ -1,0 +1,184 @@
+{
+  "source": "developers.captivateiq.com",
+  "scrapedAt": "2026-03-03",
+  "auth": {
+    "type": "token",
+    "header": "Authorization: Token <value>",
+    "docs": "Token-based authentication. Include in all API requests."
+  },
+  "baseUrl": "https://api.captivateiq.com",
+  "responseFormat": {
+    "envelope": {
+      "object": "string — resource type",
+      "total_count": "number — total matching records",
+      "next": "string|null — next page URL",
+      "previous": "string|null — previous page URL",
+      "data": "array — resource records"
+    }
+  },
+  "endpoints": [
+    {
+      "resource": "Attribute Worksheets",
+      "description": "Manage global attribute worksheets (territory maps, product mappings, hierarchies, etc.)",
+      "ciqSection": "Global Attributes",
+      "methods": [
+        { "method": "GET", "path": "/v1/attribute-worksheets", "description": "List all attribute worksheets" },
+        { "method": "GET", "path": "/v1/attribute-worksheets/{id}", "description": "Retrieve an attribute worksheet" },
+        { "method": "POST", "path": "/v1/attribute-worksheets", "description": "Create an attribute worksheet" },
+        { "method": "PUT", "path": "/v1/attribute-worksheets/{id}", "description": "Update an attribute worksheet" },
+        { "method": "DELETE", "path": "/v1/attribute-worksheets/{id}", "description": "Delete an attribute worksheet" }
+      ],
+      "knownFields": ["id", "name", "description", "columns", "rows"]
+    },
+    {
+      "resource": "Data Workbooks",
+      "description": "Top-level containers for data worksheets. Organize source and derived data.",
+      "ciqSection": "Data",
+      "methods": [
+        { "method": "GET", "path": "/v1/data-workbooks", "description": "List all data workbooks" },
+        { "method": "GET", "path": "/v1/data-workbooks/{id}", "description": "Retrieve a data workbook" },
+        { "method": "POST", "path": "/v1/data-workbooks", "description": "Create a data workbook" },
+        { "method": "PUT", "path": "/v1/data-workbooks/{id}", "description": "Update a data workbook" },
+        { "method": "DELETE", "path": "/v1/data-workbooks/{id}", "description": "Delete a data workbook" }
+      ],
+      "knownFields": ["id", "name", "description", "worksheets"],
+      "notes": "Workbooks contain multiple worksheets. Worksheets have source, derived, and override columns."
+    },
+    {
+      "resource": "Data Worksheets",
+      "description": "Individual worksheets within a workbook. Hold source data, derived calculations, and overrides.",
+      "ciqSection": "Data",
+      "methods": [
+        { "method": "GET", "path": "/v1/data-worksheets", "description": "List all data worksheets" },
+        { "method": "GET", "path": "/v1/data-worksheets/{id}", "description": "Retrieve a data worksheet" },
+        { "method": "POST", "path": "/v1/data-worksheets", "description": "Create a data worksheet" },
+        { "method": "PUT", "path": "/v1/data-worksheets/{id}", "description": "Update a data worksheet" },
+        { "method": "DELETE", "path": "/v1/data-worksheets/{id}", "description": "Delete a data worksheet" }
+      ],
+      "knownFields": ["id", "name", "workbook_id", "columns", "column_types"],
+      "columnTypes": {
+        "source": "Imported from external data — marked with .src suffix in naming convention",
+        "derived": "Calculated using CIQ formulas (SmartGrid) — results of formula evaluation",
+        "override": "Manual overrides — marked with .ovr suffix, paired with .eff (effective) and .fin (final) columns"
+      }
+    },
+    {
+      "resource": "Employee Assumptions",
+      "description": "Per-employee plan parameters: quotas, TSI, OTE, rates, targets, caps, etc.",
+      "ciqSection": "Commission Plans",
+      "methods": [
+        { "method": "GET", "path": "/v1/employee-assumptions", "description": "List employee assumptions" },
+        { "method": "GET", "path": "/v1/employee-assumptions/{id}", "description": "Retrieve employee assumptions" },
+        { "method": "POST", "path": "/v1/employee-assumptions", "description": "Create employee assumptions" },
+        { "method": "PUT", "path": "/v1/employee-assumptions/{id}", "description": "Update employee assumptions" }
+      ],
+      "knownFields": ["id", "employee_id", "plan_id", "columns", "values"],
+      "commonColumns": [
+        { "name": "Quota", "type": "currency", "description": "Quarterly or annual sales target" },
+        { "name": "TSI", "type": "currency", "description": "Total Sales Incentive — variable compensation target" },
+        { "name": "OTE", "type": "currency", "description": "On-Target Earnings — base salary + TSI" },
+        { "name": "Base Rate", "type": "percentage", "description": "Commission rate at target attainment" },
+        { "name": "Cap", "type": "currency", "description": "Maximum payout cap" },
+        { "name": "Draw", "type": "currency", "description": "Guaranteed minimum (recoverable or non-recoverable)" }
+      ]
+    },
+    {
+      "resource": "Employees",
+      "description": "Employee records with metadata, role assignments, and hierarchy.",
+      "ciqSection": "People",
+      "methods": [
+        { "method": "GET", "path": "/v1/employees", "description": "List employees" },
+        { "method": "GET", "path": "/v1/employees/{id}", "description": "Retrieve an employee" },
+        { "method": "POST", "path": "/v1/employees", "description": "Create an employee" },
+        { "method": "PUT", "path": "/v1/employees/{id}", "description": "Update an employee" },
+        { "method": "DELETE", "path": "/v1/employees/{id}", "description": "Delete an employee" }
+      ],
+      "knownFields": ["id", "first_name", "last_name", "email", "employee_id", "role", "manager_id", "start_date", "end_date"]
+    },
+    {
+      "resource": "Hierarchies",
+      "description": "Organizational hierarchies for roll-up calculations and reporting.",
+      "ciqSection": "People",
+      "methods": [
+        { "method": "GET", "path": "/v1/hierarchies", "description": "List hierarchies" },
+        { "method": "GET", "path": "/v1/hierarchies/{id}", "description": "Retrieve a hierarchy" },
+        { "method": "POST", "path": "/v1/hierarchies", "description": "Create a hierarchy" }
+      ],
+      "knownFields": ["id", "name", "type", "nodes"]
+    },
+    {
+      "resource": "Jobs",
+      "description": "Async job tracking for imports, calculations, and bulk operations.",
+      "ciqSection": "System",
+      "methods": [
+        { "method": "GET", "path": "/v1/jobs", "description": "List jobs" },
+        { "method": "GET", "path": "/v1/jobs/{id}", "description": "Retrieve job status" }
+      ],
+      "knownFields": ["id", "status", "type", "created_at", "completed_at", "errors"]
+    },
+    {
+      "resource": "Payouts",
+      "description": "Calculated payout results per employee per period.",
+      "ciqSection": "Payouts",
+      "methods": [
+        { "method": "GET", "path": "/v1/payouts", "description": "List payouts" },
+        { "method": "GET", "path": "/v1/payouts/{id}", "description": "Retrieve a payout" }
+      ],
+      "knownFields": ["id", "employee_id", "plan_id", "period", "amount", "status", "components"]
+    },
+    {
+      "resource": "Commission Plans",
+      "description": "Plan definitions including components, periods, and structure.",
+      "ciqSection": "Commission Plans",
+      "methods": [
+        { "method": "GET", "path": "/v1/plans", "description": "List commission plans" },
+        { "method": "GET", "path": "/v1/plans/{id}", "description": "Retrieve a commission plan" },
+        { "method": "POST", "path": "/v1/plans", "description": "Create a commission plan" },
+        { "method": "PUT", "path": "/v1/plans/{id}", "description": "Update a commission plan" },
+        { "method": "DELETE", "path": "/v1/plans/{id}", "description": "Delete a commission plan" }
+      ],
+      "knownFields": ["id", "name", "description", "period_type", "components", "status", "effective_date"]
+    },
+    {
+      "resource": "Report Models",
+      "description": "Reporting configurations and data models for dashboards.",
+      "ciqSection": "Reporting",
+      "methods": [
+        { "method": "GET", "path": "/v1/report-models", "description": "List report models" },
+        { "method": "GET", "path": "/v1/report-models/{id}", "description": "Retrieve a report model" }
+      ],
+      "knownFields": ["id", "name", "type", "columns", "filters"]
+    },
+    {
+      "resource": "Transformation Worksheets",
+      "description": "Worksheets for data transformation and ETL logic within CIQ.",
+      "ciqSection": "Data",
+      "methods": [
+        { "method": "GET", "path": "/v1/transformation-worksheets", "description": "List transformation worksheets" },
+        { "method": "GET", "path": "/v1/transformation-worksheets/{id}", "description": "Retrieve a transformation worksheet" },
+        { "method": "POST", "path": "/v1/transformation-worksheets", "description": "Create a transformation worksheet" }
+      ],
+      "knownFields": ["id", "name", "workbook_id", "transformation_rules"]
+    },
+    {
+      "resource": "Uploads",
+      "description": "File upload management for importing data into CIQ.",
+      "ciqSection": "Data",
+      "methods": [
+        { "method": "POST", "path": "/v1/uploads", "description": "Upload a file" },
+        { "method": "GET", "path": "/v1/uploads/{id}", "description": "Check upload status" }
+      ],
+      "knownFields": ["id", "filename", "status", "worksheet_id", "row_count", "error_count"]
+    },
+    {
+      "resource": "Users",
+      "description": "Platform user management.",
+      "ciqSection": "Account Settings",
+      "methods": [
+        { "method": "GET", "path": "/v1/users", "description": "List users" },
+        { "method": "GET", "path": "/v1/users/{id}", "description": "Retrieve a user" }
+      ],
+      "knownFields": ["id", "email", "role", "permissions"]
+    }
+  ]
+}

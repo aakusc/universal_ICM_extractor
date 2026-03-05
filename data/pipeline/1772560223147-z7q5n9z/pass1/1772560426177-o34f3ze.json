@@ -1,0 +1,1238 @@
+{
+  "id": "1772564209655-f16d4su",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560426177-o34f3ze",
+  "fileName": "Brightspeed Consolidation.xlsx",
+  "extractedAt": "2026-03-03T18:56:49.655Z",
+  "classification": {
+    "fileType": "comp-plan",
+    "summary": "Brightspeed consolidated compensation plan covering Digital Partner commissions, Outbound/D2D/Indirect channel rate tables by speed tier, and Internal Team component-based compensation structures",
+    "relevantSheets": [
+      "Plan Info",
+      "Rate Tables",
+      "Example",
+      "Plan Info (2)"
+    ],
+    "irrelevantSheets": [
+      "Questions",
+      "Acronym"
+    ]
+  },
+  "rules": [
+    {
+      "id": "digital-partners-acquisition-rate-table",
+      "concept": "rate-table",
+      "description": "Per-install commission rates for the Acquisition team across Digital Partners, varying by product type and partner. Covers Internet (Fiber/Copper), Voice, VAS, and Migrations.",
+      "parameters": {
+        "channel": "Digital",
+        "team": "Acquisition",
+        "rateType": "flat-per-unit",
+        "tiers": [
+          {
+            "product": "Internet - Fiber",
+            "Updater": null,
+            "Infinity": 80,
+            "RedVentures": null,
+            "Centerfield": 100,
+            "Clearlink": 90,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Internet - Copper",
+            "Updater": null,
+            "Infinity": 80,
+            "RedVentures": null,
+            "Centerfield": 100,
+            "Clearlink": 90,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - New Install Brightspeed 4G Voice",
+            "Updater": null,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - Residence Voice Line",
+            "Updater": null,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - Digital Voice Standard",
+            "Updater": null,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Total Home Tech Support",
+            "Updater": null,
+            "Infinity": 40,
+            "RedVentures": null,
+            "Centerfield": 40,
+            "Clearlink": 40,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Wi-Fi Extender",
+            "Updater": null,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Wi-Fi Protection",
+            "Updater": null,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Inside Wire Protection",
+            "Updater": null,
+            "Infinity": 0,
+            "RedVentures": null,
+            "Centerfield": 0,
+            "Clearlink": 0,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Migrations (Including Seamless Migrations)",
+            "Updater": null,
+            "Infinity": 80,
+            "RedVentures": null,
+            "Centerfield": 100,
+            "Clearlink": 90,
+            "CommissionJunction": null
+          }
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!A2:I12",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Acquisition | Internet | Fiber | Infinity=80 | Centerfield=100 | Clearlink=90"
+        }
+      }
+    },
+    {
+      "id": "digital-partners-branded-rate-table",
+      "concept": "rate-table",
+      "description": "Per-install commission rates for the Branded team across Digital Partners. Branded traffic commands higher Internet rates (e.g., Fiber $250) than Acquisition.",
+      "parameters": {
+        "channel": "Digital",
+        "team": "Branded",
+        "rateType": "flat-per-unit",
+        "tiers": [
+          {
+            "product": "Internet - Fiber",
+            "Updater": null,
+            "Infinity": 250,
+            "RedVentures": null,
+            "Centerfield": 250,
+            "Clearlink": 250,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Internet - Copper",
+            "Updater": null,
+            "Infinity": 170,
+            "RedVentures": null,
+            "Centerfield": 170,
+            "Clearlink": 170,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - New Install Brightspeed 4G Voice",
+            "Updater": null,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - Residence Voice Line",
+            "Updater": null,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - Digital Voice Standard",
+            "Updater": null,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Total Home Tech Support",
+            "Updater": null,
+            "Infinity": 40,
+            "RedVentures": null,
+            "Centerfield": 40,
+            "Clearlink": 40,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Wi-Fi Extender",
+            "Updater": null,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Wi-Fi Protection",
+            "Updater": null,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Inside Wire Protection",
+            "Updater": null,
+            "Infinity": 0,
+            "RedVentures": null,
+            "Centerfield": 0,
+            "Clearlink": 0,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Migrations (Including Seamless Migrations)",
+            "Updater": null,
+            "Infinity": 150,
+            "RedVentures": null,
+            "Centerfield": 150,
+            "Clearlink": 150,
+            "CommissionJunction": null
+          }
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!A13:I22",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Branded | Internet | Fiber | Infinity=250 | Centerfield=250 | Clearlink=250"
+        }
+      }
+    },
+    {
+      "id": "digital-partners-non-branded-rate-table",
+      "concept": "rate-table",
+      "description": "Per-install commission rates for Non Branded team. Highest Internet Fiber rate at $500 for Updater partner; all partners pay for all products including Voice/VAS.",
+      "parameters": {
+        "channel": "Digital",
+        "team": "Non Branded",
+        "rateType": "flat-per-unit",
+        "tiers": [
+          {
+            "product": "Internet - Fiber",
+            "Updater": 500,
+            "Infinity": 350,
+            "RedVentures": null,
+            "Centerfield": 350,
+            "Clearlink": 350,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Internet - Copper",
+            "Updater": 400,
+            "Infinity": 250,
+            "RedVentures": null,
+            "Centerfield": 250,
+            "Clearlink": 250,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - New Install Brightspeed 4G Voice",
+            "Updater": 50,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - Residence Voice Line",
+            "Updater": 50,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - Digital Voice Standard",
+            "Updater": 50,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Total Home Tech Support",
+            "Updater": 40,
+            "Infinity": 40,
+            "RedVentures": null,
+            "Centerfield": 40,
+            "Clearlink": 40,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Wi-Fi Extender",
+            "Updater": 20,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Wi-Fi Protection",
+            "Updater": 20,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Inside Wire Protection",
+            "Updater": 0,
+            "Infinity": 0,
+            "RedVentures": null,
+            "Centerfield": 0,
+            "Clearlink": 0,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Migrations (Including Seamless Migrations)",
+            "Updater": 150,
+            "Infinity": 150,
+            "RedVentures": null,
+            "Centerfield": 150,
+            "Clearlink": 150,
+            "CommissionJunction": null
+          }
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!A23:I32",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Non Branded | Internet | Fiber | Updater=500 | Infinity=350 | Centerfield=350 | Clearlink=350"
+        }
+      }
+    },
+    {
+      "id": "digital-partners-non-paid-media-rate-table",
+      "concept": "rate-table",
+      "description": "Per-install commission rates for Non-Paid Media team. Slightly lower than Non Branded (e.g., Fiber $475/$325 vs $500/$350) reflecting organic/non-paid traffic source.",
+      "parameters": {
+        "channel": "Digital",
+        "team": "Non-Paid Media",
+        "rateType": "flat-per-unit",
+        "tiers": [
+          {
+            "product": "Internet - Fiber",
+            "Updater": 475,
+            "Infinity": 325,
+            "RedVentures": null,
+            "Centerfield": 300,
+            "Clearlink": 325,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Internet - Copper",
+            "Updater": 380,
+            "Infinity": 230,
+            "RedVentures": null,
+            "Centerfield": 215,
+            "Clearlink": 230,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - New Install Brightspeed 4G Voice",
+            "Updater": 50,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - Residence Voice Line",
+            "Updater": 50,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Voice - Digital Voice Standard",
+            "Updater": 50,
+            "Infinity": 50,
+            "RedVentures": null,
+            "Centerfield": 50,
+            "Clearlink": 50,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Total Home Tech Support",
+            "Updater": 40,
+            "Infinity": 40,
+            "RedVentures": null,
+            "Centerfield": 40,
+            "Clearlink": 40,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Wi-Fi Extender",
+            "Updater": 20,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Wi-Fi Protection",
+            "Updater": 20,
+            "Infinity": 20,
+            "RedVentures": null,
+            "Centerfield": 20,
+            "Clearlink": 20,
+            "CommissionJunction": null
+          },
+          {
+            "product": "VAS - Inside Wire Protection",
+            "Updater": 0,
+            "Infinity": 0,
+            "RedVentures": null,
+            "Centerfield": 0,
+            "Clearlink": 0,
+            "CommissionJunction": null
+          },
+          {
+            "product": "Migrations (Including Seamless Migrations)",
+            "Updater": 150,
+            "Infinity": 150,
+            "RedVentures": null,
+            "Centerfield": 150,
+            "Clearlink": 150,
+            "CommissionJunction": null
+          }
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!A33:I42",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Non-Paid Media | Internet | Fiber | Updater=475 | Infinity=325 | Centerfield=300 | Clearlink=325"
+        }
+      }
+    },
+    {
+      "id": "outbound-channel-speed-tiered-rate-table",
+      "concept": "rate-table",
+      "description": "Outbound channel commission rates tiered by download speed. New install rates range $450-$700 for Internet; Migration rates range $125-$185. VOIP flat $50; VAS $15-$25.",
+      "parameters": {
+        "channel": "Outbound",
+        "rateType": "tiered-by-speed",
+        "lookupKey": "minSpeedValue",
+        "tiers": [
+          {
+            "speedTier": "0-300MB",
+            "minSpeedValue": 250000,
+            "newInstallRate": 450,
+            "migrationRate": 125
+          },
+          {
+            "speedTier": "300-600MB",
+            "minSpeedValue": 550000,
+            "newInstallRate": 550,
+            "migrationRate": 145
+          },
+          {
+            "speedTier": "600MB-1Gbps",
+            "minSpeedValue": 1000000,
+            "newInstallRate": 650,
+            "migrationRate": 165
+          },
+          {
+            "speedTier": "+1G",
+            "minSpeedValue": 2000000,
+            "newInstallRate": 700,
+            "migrationRate": 185
+          },
+          {
+            "speedTier": "VOIP",
+            "minSpeedValue": null,
+            "newInstallRate": 50,
+            "migrationRate": 50
+          },
+          {
+            "speedTier": "VAS",
+            "minSpeedValue": null,
+            "newInstallRate": "15-25",
+            "migrationRate": "15-25"
+          }
+        ]
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!K2:P9",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Outbound | 0-300MB | 250000 | 450 | 125 ... +1G | 2000000 | 700 | 185"
+        }
+      }
+    },
+    {
+      "id": "d2d-channel-speed-tiered-rate-table",
+      "concept": "rate-table",
+      "description": "Door-to-Door (D2D) channel commission rates tiered by speed. Same rate for New and Migration orders. Internet ranges $350-$625; VOIP flat $50; VAS $15-$25.",
+      "parameters": {
+        "channel": "D2D",
+        "rateType": "tiered-by-speed",
+        "tiers": [
+          {
+            "speedTier": "0-300MB",
+            "newInstallRate": 350,
+            "migrationRate": 350
+          },
+          {
+            "speedTier": "300-600MB",
+            "newInstallRate": 450,
+            "migrationRate": 450
+          },
+          {
+            "speedTier": "600MB-1Gbps",
+            "newInstallRate": 550,
+            "migrationRate": 550
+          },
+          {
+            "speedTier": "+1G",
+            "newInstallRate": 625,
+            "migrationRate": 625
+          },
+          {
+            "speedTier": "VOIP",
+            "newInstallRate": 50,
+            "migrationRate": 50
+          },
+          {
+            "speedTier": "VAS",
+            "newInstallRate": "15-25",
+            "migrationRate": "15-25"
+          }
+        ]
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!K10:P15",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "D2D | 0-300MB | 350 | 350 ... +1G | 625 | 625"
+        }
+      }
+    },
+    {
+      "id": "indirect-channel-speed-tiered-rate-table",
+      "concept": "rate-table",
+      "description": "Indirect channel commission rates tiered by speed with distinct New vs Migration rates. Includes an extra 2G tier (>2,000,000). New ranges $300-$625; Migration $250-$425.",
+      "parameters": {
+        "channel": "Indirect",
+        "rateType": "tiered-by-speed",
+        "lookupKey": "minSpeedValue",
+        "tiers": [
+          {
+            "speedTier": "0-300MB",
+            "minSpeedValue": 250000,
+            "newInstallRate": 300,
+            "migrationRate": 250
+          },
+          {
+            "speedTier": "300-600MB",
+            "minSpeedValue": 550000,
+            "newInstallRate": 400,
+            "migrationRate": 300
+          },
+          {
+            "speedTier": "600MB-1Gbps",
+            "minSpeedValue": 1000000,
+            "newInstallRate": 525,
+            "migrationRate": 350
+          },
+          {
+            "speedTier": "+1G",
+            "minSpeedValue": 2000000,
+            "newInstallRate": 575,
+            "migrationRate": 375
+          },
+          {
+            "speedTier": "2G",
+            "minSpeedValue": ">2,000,000",
+            "newInstallRate": 625,
+            "migrationRate": 425
+          },
+          {
+            "speedTier": "VOIP",
+            "minSpeedValue": null,
+            "newInstallRate": 50,
+            "migrationRate": 50
+          },
+          {
+            "speedTier": "VAS",
+            "minSpeedValue": null,
+            "newInstallRate": "15-25",
+            "migrationRate": "15-25"
+          }
+        ]
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!K16:P22",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Indirect | 0-300MB | 250000 | 300 | 250 ... 2G | >2,000,000 | 625 | 425"
+        }
+      }
+    },
+    {
+      "id": "d2d-system-rate-lookup-table",
+      "concept": "rate-table",
+      "description": "System-level D2D rate lookup table keyed by Min Speed Value and Partner Group (D2D vs Indirect-D2D). This is the operational rate table used for commission calculation, with 12 speed breakpoints per partner group.",
+      "parameters": {
+        "channel": "D2D",
+        "rateType": "matrix-lookup",
+        "lookupKeys": [
+          "minSpeedValue",
+          "partnerGroup"
+        ],
+        "tiers": [
+          {
+            "minSpeedValue": 0,
+            "partnerGroup": "D2D",
+            "rate": 0
+          },
+          {
+            "minSpeedValue": 0,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 0
+          },
+          {
+            "minSpeedValue": 100000,
+            "partnerGroup": "D2D",
+            "rate": 350
+          },
+          {
+            "minSpeedValue": 100000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 350
+          },
+          {
+            "minSpeedValue": 250000,
+            "partnerGroup": "D2D",
+            "rate": 350
+          },
+          {
+            "minSpeedValue": 250000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 350
+          },
+          {
+            "minSpeedValue": 300000,
+            "partnerGroup": "D2D",
+            "rate": 450
+          },
+          {
+            "minSpeedValue": 300000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 450
+          },
+          {
+            "minSpeedValue": 500000,
+            "partnerGroup": "D2D",
+            "rate": 450
+          },
+          {
+            "minSpeedValue": 500000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 450
+          },
+          {
+            "minSpeedValue": 600000,
+            "partnerGroup": "D2D",
+            "rate": 550
+          },
+          {
+            "minSpeedValue": 600000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 600
+          },
+          {
+            "minSpeedValue": 1000000,
+            "partnerGroup": "D2D",
+            "rate": 550
+          },
+          {
+            "minSpeedValue": 1000000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 600
+          },
+          {
+            "minSpeedValue": 2000000,
+            "partnerGroup": "D2D",
+            "rate": 625
+          },
+          {
+            "minSpeedValue": 2000000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 650
+          },
+          {
+            "minSpeedValue": 5000000,
+            "partnerGroup": "D2D",
+            "rate": 675
+          },
+          {
+            "minSpeedValue": 5000000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 675
+          },
+          {
+            "minSpeedValue": 8000000,
+            "partnerGroup": "D2D",
+            "rate": 675
+          },
+          {
+            "minSpeedValue": 8000000,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 675
+          },
+          {
+            "minSpeedValue": 999999999,
+            "partnerGroup": "D2D",
+            "rate": 675
+          },
+          {
+            "minSpeedValue": 999999999,
+            "partnerGroup": "Indirect-D2D",
+            "rate": 675
+          }
+        ],
+        "notes": "Indirect-D2D rates diverge from D2D at 600KB-2MB speed tiers (Indirect-D2D pays $50-$25 more). Above 5MB they converge at $675."
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Rate Tables!A2:E23",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Rate Tables",
+          "evidence": "Min Speed Value | Partner Group Value | Start Date | End Date | Rate — 0/D2D/0, 100000/D2D/350, ... 999999999/Indirect-D2D/675"
+        }
+      }
+    },
+    {
+      "id": "indirect-system-rate-lookup-table",
+      "concept": "rate-table",
+      "description": "System-level Indirect channel rate lookup table keyed by Min Speed Value and Order Type (NEW INSTALL vs MIGRATION). Confirmed by Example sheet with matching values.",
+      "parameters": {
+        "channel": "Indirect",
+        "rateType": "matrix-lookup",
+        "lookupKeys": [
+          "minSpeedValue",
+          "orderType"
+        ],
+        "tiers": [
+          {
+            "minSpeedValue": 0,
+            "orderType": "MIGRATION",
+            "rate": 250
+          },
+          {
+            "minSpeedValue": 0,
+            "orderType": "NEW INSTALL",
+            "rate": 300
+          },
+          {
+            "minSpeedValue": 500000,
+            "orderType": "MIGRATION",
+            "rate": 300
+          },
+          {
+            "minSpeedValue": 500000,
+            "orderType": "NEW INSTALL",
+            "rate": 400
+          },
+          {
+            "minSpeedValue": 1000000,
+            "orderType": "MIGRATION",
+            "rate": 350
+          },
+          {
+            "minSpeedValue": 1000000,
+            "orderType": "NEW INSTALL",
+            "rate": 525
+          },
+          {
+            "minSpeedValue": 2000000,
+            "orderType": "MIGRATION",
+            "rate": 375
+          },
+          {
+            "minSpeedValue": 2000000,
+            "orderType": "NEW INSTALL",
+            "rate": 575
+          },
+          {
+            "minSpeedValue": 5000000,
+            "orderType": "MIGRATION",
+            "rate": 425
+          },
+          {
+            "minSpeedValue": 5000000,
+            "orderType": "NEW INSTALL",
+            "rate": 625
+          },
+          {
+            "minSpeedValue": 999999999,
+            "orderType": "MIGRATION",
+            "rate": 425
+          },
+          {
+            "minSpeedValue": 999999999,
+            "orderType": "NEW INSTALL",
+            "rate": 625
+          }
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Example!A3:E14",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Example",
+          "evidence": "Indirect rate table: 0/MIGRATION/250, 0/NEW INSTALL/300 ... 999999999/NEW INSTALL/625"
+        }
+      }
+    },
+    {
+      "id": "digital-install-rep-level-rate-assignment",
+      "concept": "rate-table",
+      "description": "Individual Sales ID-level rate assignments for Digital channel install commissions. Each Sales ID has product-level rates for Fiber, Copper, Migrations, Voice, and VAS products. Composite key is SalesID + Product + Channel.",
+      "parameters": {
+        "channel": "Digital",
+        "rateType": "rep-level-assignment",
+        "uniqueKey": "SalesID + Product + Channel",
+        "exampleRates": {
+          "salesId": "20001122",
+          "partner": "Updater",
+          "team": "Dot.Digital",
+          "goalGroup": "Updater NonBrand Dot.Digital",
+          "newInstallFiber": 500,
+          "newInstallCopper": 400,
+          "migrations": 150,
+          "newInstall4GVoice": 50,
+          "residenceVoiceLine": 50,
+          "digitalVoiceStandard": 50,
+          "totalHomeTechSupport": 40,
+          "wifiExtender": 20,
+          "wifiProtection": 20,
+          "insideWireProtection": 0
+        },
+        "notes": "Revised 12/8/2025. Currently issued but transitioning to Install-based timing. Full table spans Rate Tables!B47:Q141 per named range."
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Rate Tables!B47:Q141",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "Rate Tables",
+          "evidence": "Sales ID 20001122 | Updater | Digital | Non_Brand Tier 1 Dot.Digital | New Install Fiber=500, Copper=400, Migrations=150, Voice=50, VAS TechSupport=40, WiFi=20"
+        }
+      }
+    },
+    {
+      "id": "internal-mdu-ae-comp-structure",
+      "concept": "rate-table",
+      "description": "MDU Account Executive compensation: 100% weighting on Component 1 (target TBD). Min threshold of 0, max threshold of 3. Bonus is a multiplier based on Type of Contract.",
+      "parameters": {
+        "group": "MDU",
+        "role": "AE",
+        "components": [
+          {
+            "component": 1,
+            "weight": 1,
+            "target": "TBD",
+            "targetType": "Contract"
+          }
+        ],
+        "minThreshold": 0,
+        "maxThreshold": 3,
+        "bonus": "Multiplier based on Type of Contract"
+      },
+      "confidence": 0.7,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!R7:AB7",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "MDU | AE | Component 1=1 | Component 2=0 | Component 3=0 | Target=TBD | Contract | Min=0 | Max=3 | Multiplier based on Type of Contract"
+        }
+      }
+    },
+    {
+      "id": "internal-mdu-tsr-comp-structure",
+      "concept": "rate-table",
+      "description": "MDU Telemarketing Sales Representative compensation: 100% weighting on Component 1 (target TBD). Min threshold of 0, max threshold of 2.",
+      "parameters": {
+        "group": "MDU",
+        "role": "TSR",
+        "components": [
+          {
+            "component": 1,
+            "weight": 1,
+            "target": "TBD"
+          }
+        ],
+        "minThreshold": 0,
+        "maxThreshold": 2
+      },
+      "confidence": 0.7,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!R10:AB10",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "MDU | TSR | Component 1=1 | Component 2=0 | Component 3=0 | Target=TBD | Min=0 | Max=2"
+        }
+      }
+    },
+    {
+      "id": "internal-d2d-director-comp-structure",
+      "concept": "rate-table",
+      "description": "D2D Director compensation with three weighted components: 70% on Gross Sales Target, 15% on Cancel Rate, 15% on Speed Mix. Bonus TBD.",
+      "parameters": {
+        "group": "D2D",
+        "role": "Director",
+        "components": [
+          {
+            "component": 1,
+            "weight": 0.7,
+            "target": "Gross Sales Target"
+          },
+          {
+            "component": 2,
+            "weight": 0.15,
+            "target": "Cancel Rate"
+          },
+          {
+            "component": 3,
+            "weight": 0.15,
+            "target": "Speed Mix"
+          }
+        ],
+        "bonus": "TBD"
+      },
+      "confidence": 0.7,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!R11:AB11",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "D2D | Director | 0.7 | 0.15 | 0.15 | Gross Sales Target | Cancel Rate | Speed Mix | TBD"
+        }
+      }
+    },
+    {
+      "id": "internal-mdu-ae-threshold-cap",
+      "concept": "cap",
+      "description": "MDU AE compensation is capped at a max threshold of 3x (likely 3x quota multiplier). No payout below 0 threshold (floor).",
+      "parameters": {
+        "group": "MDU",
+        "role": "AE",
+        "maxThreshold": 3,
+        "minThreshold": 0,
+        "unit": "multiplier"
+      },
+      "confidence": 0.6,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!Z7:AA7",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Min Threshold=0 | Max Threshold=3"
+        }
+      }
+    },
+    {
+      "id": "internal-mdu-tsr-threshold-cap",
+      "concept": "cap",
+      "description": "MDU TSR compensation is capped at a max threshold of 2x. No payout below 0 threshold (floor).",
+      "parameters": {
+        "group": "MDU",
+        "role": "TSR",
+        "maxThreshold": 2,
+        "minThreshold": 0,
+        "unit": "multiplier"
+      },
+      "confidence": 0.6,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!Z10:AA10",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Min Threshold=0 | Max Threshold=2"
+        }
+      }
+    },
+    {
+      "id": "internal-mdu-ae-contract-type-spif",
+      "concept": "spif",
+      "description": "MDU AE bonus: a multiplier applied based on the Type of Contract secured. Exact multiplier values are not specified in this file.",
+      "parameters": {
+        "group": "MDU",
+        "role": "AE",
+        "bonusType": "Multiplier based on Type of Contract",
+        "values": "not specified"
+      },
+      "confidence": 0.55,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!AB7",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Bonus 1 = Multiplier based on Type of Contract"
+        }
+      }
+    },
+    {
+      "id": "vas-inside-wire-protection-zero-rate",
+      "concept": "rate-table",
+      "description": "Inside Wire Protection product pays $0 commission across all channels and partners. Effectively a non-commissionable product.",
+      "parameters": {
+        "product": "Inside Wire Protection",
+        "rate": 0,
+        "applicability": "all Digital Partners, all teams"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!A11,A21,A31,A41",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "VAS | Inside Wire Protection | 0 across all partners and teams"
+        }
+      }
+    },
+    {
+      "id": "d2d-indirect-speed-rate-divergence",
+      "concept": "accelerator",
+      "description": "Indirect-D2D partner group receives a premium over D2D partner group at the 600KB-2MB speed tiers: $600 vs $550 (at 600KB and 1MB) and $650 vs $625 (at 2MB). Above 5MB both groups converge at $675.",
+      "parameters": {
+        "partnerGroup": "Indirect-D2D",
+        "premiumTiers": [
+          {
+            "minSpeed": 600000,
+            "d2dRate": 550,
+            "indirectD2DRate": 600,
+            "premium": 50
+          },
+          {
+            "minSpeed": 1000000,
+            "d2dRate": 550,
+            "indirectD2DRate": 600,
+            "premium": 50
+          },
+          {
+            "minSpeed": 2000000,
+            "d2dRate": 625,
+            "indirectD2DRate": 650,
+            "premium": 25
+          }
+        ],
+        "convergencePoint": {
+          "minSpeed": 5000000,
+          "rate": 675
+        }
+      },
+      "confidence": 0.75,
+      "sourceRef": {
+        "vendorRuleId": "Rate Tables!A2:E23",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Rate Tables",
+          "evidence": "600000/D2D/550 vs 600000/Indirect-D2D/600; 2000000/D2D/625 vs 2000000/Indirect-D2D/650"
+        }
+      }
+    },
+    {
+      "id": "speed-product-mapping",
+      "concept": "qualifier",
+      "description": "Product-to-speed mapping that determines rate tier eligibility. Products are mapped to download speed values which then drive the rate table lookup. Six product IDs map to speed ranges from <0.5GB to >5GB.",
+      "parameters": {
+        "mappings": [
+          {
+            "productId": 10000,
+            "productName": "<.5 gb",
+            "speedValues": [
+              10000,
+              20000,
+              30000,
+              40000,
+              60000,
+              200000,
+              216100
+            ]
+          },
+          {
+            "productId": 10001,
+            "productName": ".5 gb",
+            "speedValues": [
+              500000,
+              527600,
+              600000,
+              944500
+            ]
+          },
+          {
+            "productId": 10002,
+            "productName": "1 gb",
+            "speedValues": [
+              1000000
+            ]
+          },
+          {
+            "productId": 10003,
+            "productName": "2 gb",
+            "speedValues": [
+              2000000
+            ]
+          },
+          {
+            "productId": 10004,
+            "productName": "5 gb",
+            "speedValues": [
+              5000000
+            ]
+          },
+          {
+            "productId": 10005,
+            "productName": ">5 gb",
+            "speedValues": [
+              8000000
+            ]
+          }
+        ]
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Example!L3:N18",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Example",
+          "evidence": "Product ID 10000 = <.5 gb with speeds 10000-216100; Product ID 10005 = >5 gb with speed 8000000"
+        }
+      }
+    },
+    {
+      "id": "commission-timing-transition",
+      "concept": "qualifier",
+      "description": "Commission timing is transitioning from order-issued basis to install-completed basis. The Rate Tables sheet notes 'Currently Issued but moving to Install', indicating a gate condition change where commissions will only be earned upon successful installation.",
+      "parameters": {
+        "currentBasis": "order-issued",
+        "futureBasis": "install-completed",
+        "effectiveDate": "TBD"
+      },
+      "confidence": 0.7,
+      "sourceRef": {
+        "vendorRuleId": "Rate Tables!F1",
+        "vendorRuleType": "DOCUMENT_TEXT",
+        "rawSnapshot": {
+          "sheet": "Rate Tables",
+          "evidence": "Currently Issued but moving to Install"
+        }
+      }
+    },
+    {
+      "id": "outbound-new-vs-migration-rate-differential",
+      "concept": "rate-table",
+      "description": "Outbound channel applies significantly different rates for New Install vs Migration orders. New installs pay 3x-4x the migration rate (e.g., 0-300MB: New=$450 vs Migration=$125), incentivizing new customer acquisition over migrations.",
+      "parameters": {
+        "channel": "Outbound",
+        "rateDifferentials": [
+          {
+            "speedTier": "0-300MB",
+            "newRate": 450,
+            "migrationRate": 125,
+            "ratio": 3.6
+          },
+          {
+            "speedTier": "300-600MB",
+            "newRate": 550,
+            "migrationRate": 145,
+            "ratio": 3.8
+          },
+          {
+            "speedTier": "600MB-1Gbps",
+            "newRate": 650,
+            "migrationRate": 165,
+            "ratio": 3.9
+          },
+          {
+            "speedTier": "+1G",
+            "newRate": 700,
+            "migrationRate": 185,
+            "ratio": 3.8
+          }
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Plan Info!K3:P6",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Plan Info",
+          "evidence": "Outbound | 0-300MB | New=450 | Migration=125 | +1G | New=700 | Migration=185"
+        }
+      }
+    }
+  ],
+  "insights": "1) MANY values are TBD: Internal Team targets, D2D Director bonus, and component targets are not yet finalized. This file appears to be a work-in-progress consolidation. 2) The 'Questions' sheet confirms data inconsistencies: Digital Partners movers/OOA data mismatch, D2D data gaps, and Internal team unknowns. 3) Outbound/D2D/Indirect section is explicitly labeled 'WIP'. 4) Red Ventures partner has NO rates populated across any team — unclear if excluded or pending. 5) Commission Junction partner also has blank rates for Acquisition/Branded teams but populated for Non Branded/Non-Paid Media. 6) VAS rates of '$15-25' are expressed as a range, not a fixed value — suggests a sub-table or product-level split (likely Wi-Fi Extender=$20, Wi-Fi Protection=$20, Inside Wire=$0, Tech Support=$40 broken out separately). 7) The Rate Tables sheet has a transition note indicating a move from order-issued to install-based commission timing, which could materially affect payout calculations and clawback rules. 8) Plan Info (2) is nearly identical to Plan Info — likely a backup/versioning artifact. 9) D2D system rate table and Plan Info D2D rates show slight discrepancies at the 100KB tier ($350 in system vs. not shown in plan summary), suggesting the system table has finer granularity. 10) The Indirect system rate table (Example sheet) uses different speed breakpoints (0/500K/1M/2M/5M/999M) than the Plan Info Indirect table (250K/550K/1M/2M/>2M), requiring reconciliation."
+}

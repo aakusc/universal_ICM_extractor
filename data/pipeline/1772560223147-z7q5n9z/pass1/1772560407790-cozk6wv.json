@@ -1,0 +1,373 @@
+{
+  "id": "1772564066405-h9gh8eq",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560407790-cozk6wv",
+  "fileName": "OTM.xlsx",
+  "extractedAt": "2026-03-03T18:54:26.405Z",
+  "classification": {
+    "fileType": "deal-data",
+    "summary": "OTM (Outbound Telemarketing) channel order transaction log tracking orders through issued, installed, canceled, and disconnected lifecycle stages for BrightSpeed/QF telecom products",
+    "relevantSheets": [],
+    "irrelevantSheets": [
+      "Issued",
+      "Installed",
+      "Canceled",
+      "Disconnected"
+    ]
+  },
+  "rules": [
+    {
+      "id": "otm-channel-partner-hierarchy",
+      "concept": "split",
+      "description": "OTM channel uses a three-tier sales hierarchy: SalesPartner (vendor company) → SubAgent (vendor sub-entity) → AgentID (individual rep). Credit for each order is assigned to a specific agent within a partner/sub-agent structure. Partners include Vaultek OTM (BS223240), RUI USA LLC (BS001073), Infinity OTM (BS223130), Avantive Solutions OTM (BS001076), and SP Data OTM (BS001077).",
+      "parameters": {
+        "partners": [
+          {
+            "partnerId": "BS223240",
+            "name": "Vaultek OTM",
+            "subAgents": [
+              "Vaultek OTM"
+            ]
+          },
+          {
+            "partnerId": "BS001073",
+            "name": "RUI USA LLC",
+            "subAgents": [
+              "RUI USA OTM",
+              "RUI MX OTM"
+            ]
+          },
+          {
+            "partnerId": "BS223130",
+            "name": "Infinity OTM",
+            "subAgents": [
+              "Infinity OTM"
+            ]
+          },
+          {
+            "partnerId": "BS001076",
+            "name": "Avantive Solutions OTM",
+            "subAgents": [
+              "Avantive Solutions OTM",
+              "AVANTIVE SOLUTIONS MEXICO"
+            ]
+          },
+          {
+            "partnerId": "BS001077",
+            "name": "SP Data OTM",
+            "subAgents": [
+              "SP Data OTM"
+            ]
+          }
+        ]
+      },
+      "confidence": 0.75,
+      "sourceRef": {
+        "vendorRuleId": "Issued!X2:AB200",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "Channel=OTM, PartnerID=BS223240, SalesPartner=Vaultek OTM, SubAgent=Vaultek OTM, SalesID=20000983, AgentID=ELVINARECHE:ELVIN ARECHE"
+        }
+      }
+    },
+    {
+      "id": "otm-territory-wirecenter-assignment",
+      "concept": "territory",
+      "description": "Sales territory is defined by WireCenter (CLLI codes) mapped to geographic locations across multiple US states. Orders are geo-assigned to WireCenters (e.g., JMSNALXA=Jemison AL, PLCYALXA=Pell City AL, FYVLNCXD=Mallonee NC). Coverage spans at least 17 states: AL, AR, GA, IL, IN, KS, LA, MO, NC, NJ, OH, PA, SC, TN, TX, VA, WI.",
+      "parameters": {
+        "territoryType": "wire-center",
+        "states": [
+          "AL",
+          "AR",
+          "GA",
+          "IL",
+          "IN",
+          "KS",
+          "LA",
+          "MO",
+          "NC",
+          "NJ",
+          "OH",
+          "PA",
+          "SC",
+          "TN",
+          "TX",
+          "VA",
+          "WI"
+        ],
+        "assignmentKey": "WireCenterID"
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "Issued!J2:K200",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "WireCenterID=JMSNALXA, WireCenterName=JEMISON; WireCenterID=PLCYALXA, WireCenterName=PELL CITY; WireCenterID=FYVLNCXD, WireCenterName=MALLONEE"
+        }
+      }
+    },
+    {
+      "id": "otm-product-catalog-broadband",
+      "concept": "rate-table",
+      "description": "Commissionable broadband products are segmented by brand (BS Broadband vs QF Broadband) and speed tier. This product segmentation likely maps to a separate rate card. Identified tiers: Fiber 200mb (200 Mbps), Fiber 500mb (500 Mbps), Fiber 1gb (1 Gbps), Fiber 2gb (2 Gbps), Fiber 5gb (5 Gbps), Fiber 8gb (8 Gbps). QF Broadband products include QF Fiber 100mb, 200mb, 600mb, 1gb.",
+      "parameters": {
+        "productTiers": [
+          {
+            "product": "Fiber 200mb",
+            "brand": "BS Broadband",
+            "downloadSpeed": 200000,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 500mb",
+            "brand": "BS Broadband",
+            "downloadSpeed": 500000,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 1gb",
+            "brand": "BS Broadband",
+            "downloadSpeed": 1000000,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 2gb",
+            "brand": "BS Broadband",
+            "downloadSpeed": 2000000,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 5gb",
+            "brand": "BS Broadband",
+            "downloadSpeed": 5000000,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 8gb",
+            "brand": "BS Broadband",
+            "downloadSpeed": 8000000,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 100mb",
+            "brand": "QF Broadband",
+            "downloadSpeed": 100000,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 200mb",
+            "brand": "QF Broadband",
+            "downloadSpeed": 216100,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 600mb",
+            "brand": "QF Broadband",
+            "downloadSpeed": 600000,
+            "technology": "Fiber"
+          },
+          {
+            "product": "Fiber 1gb",
+            "brand": "QF Broadband",
+            "downloadSpeed": 1000000,
+            "technology": "Fiber"
+          }
+        ],
+        "note": "Actual commission rates per tier are not present in this file — requires a separate rate card"
+      },
+      "confidence": 0.6,
+      "sourceRef": {
+        "vendorRuleId": "Issued!P2:Q200",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "Product=Fiber 2gb, Download Speed=2000000; Product=Fiber 200mb, Download Speed=200000; Product=Fiber 1gb, Download Speed=1000000"
+        }
+      }
+    },
+    {
+      "id": "otm-vas-product-catalog",
+      "concept": "rate-table",
+      "description": "Value-Added Services (VAS) are tracked as separate commissionable line items on the same order. Identified VAS products: WiFi Extender, WiFi Protection (Total Home Internet Controls), Brightspeed Total Home Tech Support, and Digital Voice - Standard (VOIP). These are bundled with broadband orders under combined SRVC_TYP labels.",
+      "parameters": {
+        "vasProducts": [
+          {
+            "product": "Wifi Extender",
+            "sourceName": "WIFI EXTENDER",
+            "productName": "WiFi Extender"
+          },
+          {
+            "product": "Wifi Protection",
+            "sourceName": "WIFI PROTECTION",
+            "productName": "Total Home Internet Controls"
+          },
+          {
+            "product": "Brightspeed Total Home Tech Support",
+            "sourceName": "BRIGHTSPEED TOTAL HOME TECH SUPPORT",
+            "productName": "Total Home Tech Support"
+          },
+          {
+            "product": "Digital Voice - Standard",
+            "sourceName": "DIGITAL VOICE - STANDARD",
+            "productName": "VOIP"
+          }
+        ],
+        "note": "VAS commission rates not present in this file"
+      },
+      "confidence": 0.55,
+      "sourceRef": {
+        "vendorRuleId": "Issued!N2:P50",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "SourceProductName=WIFI EXTENDER, ProductName=WiFi Extender; SourceProductName=WIFI PROTECTION, ProductName=Total Home Internet Controls; SourceProductName=DIGITAL VOICE - STANDARD, ProductName=VOIP"
+        }
+      }
+    },
+    {
+      "id": "otm-order-type-qualifier",
+      "concept": "qualifier",
+      "description": "Orders are classified by OrderType which likely determines commission eligibility and rate differentiation. Three creditable order types exist: NEW INSTALL (net-new customer acquisition), MIGRATION (existing customer upgrade/technology change), and DISCONNECT (service termination, tracked for clawback). Commission eligibility likely differs between new installs and migrations.",
+      "parameters": {
+        "orderTypes": [
+          {
+            "type": "NEW INSTALL",
+            "description": "Net-new customer acquisition"
+          },
+          {
+            "type": "MIGRATION",
+            "description": "Existing customer technology upgrade or plan change"
+          },
+          {
+            "type": "DISCONNECT",
+            "description": "Service termination — likely triggers clawback"
+          }
+        ]
+      },
+      "confidence": 0.7,
+      "sourceRef": {
+        "vendorRuleId": "Issued!H2:H200",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "OrderType values: NEW INSTALL, MIGRATION; Disconnected sheet: OrderType=DISCONNECT"
+        }
+      }
+    },
+    {
+      "id": "otm-install-completion-qualifier",
+      "concept": "qualifier",
+      "description": "Commission crediting appears to require order completion/installation. The 'Issued' sheet tracks OrderStatus (COMPLETED, CANCELED, IN_PROGRESS, ON_HOLD), and the 'Installed' sheet separately records only successfully installed orders with a confirmed InstallationDate. Only orders reaching COMPLETED status with an InstallationDate likely qualify for commission payout.",
+      "parameters": {
+        "eligibleStatuses": [
+          "COMPLETED"
+        ],
+        "nonEligibleStatuses": [
+          "CANCELED",
+          "IN_PROGRESS",
+          "ON_HOLD"
+        ],
+        "requiredField": "InstallationDate"
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "Installed!G2:I200",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Installed",
+          "evidence": "All Installed records show OrderStatus=COMPLETED with a valid InstallationDate; Issued sheet shows mix of COMPLETED, CANCELED, IN_PROGRESS, ON_HOLD"
+        }
+      }
+    },
+    {
+      "id": "otm-disconnect-clawback",
+      "concept": "clawback",
+      "description": "The Disconnected sheet tracks service disconnections with OriginalInstallDate and DisconnectDate, linking back to the original install order via InstallOrderKey/InstallOrderID. This structure supports a clawback mechanism where commissions paid on installed orders are recovered if the customer disconnects within a defined window. Evidence shows disconnects occurring as early as 1 day post-install (PA1300013508: installed 01/02, disconnected 01/03) and as late as ~6 months post-install. The exact clawback window duration is not specified in this data.",
+      "parameters": {
+        "trackingFields": {
+          "disconnectDate": "DisconnectDate",
+          "originalInstallDate": "OriginalInstallDate",
+          "originalOrderRef": "InstallOrderKey / InstallOrderID"
+        },
+        "observedDisconnectWindows": {
+          "shortestDays": 1,
+          "typicalRangeMonths": "1-5",
+          "note": "Clawback window threshold not specified in this file"
+        }
+      },
+      "confidence": 0.75,
+      "sourceRef": {
+        "vendorRuleId": "Disconnected!I2:J200",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Disconnected",
+          "evidence": "PA1300013508_1: DisconnectDate=01/03/2026, OriginalInstallDate=01/02/2026, InstallOrderKey=PA1100029974_1; AL1300022351_1: DisconnectDate=01/01/2026, OriginalInstallDate=10/01/2025"
+        }
+      }
+    },
+    {
+      "id": "otm-cancellation-reason-tracking",
+      "concept": "qualifier",
+      "description": "Canceled orders are categorized by ConsolidatedReason which may affect whether a clawback or commission adjustment applies. Reasons include: Duplicate Order (likely no commission impact as order was re-issued), Buyer's Remorse (customer-initiated cancel), Buyer's Remorse - Order > 30 Days (late cancellation), Account Cleanup (administrative), Other, No Access, Installation Timeline, Missed Appointment, Cancel/Reissue. Cancel reasons like 'Duplicate Order' and 'Cancel/Reissue' suggest order was re-entered and should not count against agent metrics.",
+      "parameters": {
+        "cancelReasons": [
+          "Duplicate Order",
+          "Buyer's Remorse",
+          "Buyer's Remorse - Order > 30 Days",
+          "Account Cleanup",
+          "Other",
+          "No Access",
+          "Installation Timeline",
+          "Missed appointment",
+          "Cancel/Reissue"
+        ]
+      },
+      "confidence": 0.65,
+      "sourceRef": {
+        "vendorRuleId": "Canceled!L2:L200",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Canceled",
+          "evidence": "ConsolidatedReason values: Duplicate Order, Buyer's Remorse, Other, Account Cleanup, No Access, Installation Timeline, Missed appointment, Cancel/Reissue, Buyer's Remorse - Order > 30 Days"
+        }
+      }
+    },
+    {
+      "id": "otm-past-due-install-flag",
+      "concept": "qualifier",
+      "description": "Installed sheet includes PastDueDate and PastOrigDueDate boolean (Y/N) flags indicating whether the installation occurred past its scheduled/original due date. These flags may affect commission eligibility, payout timing, or performance metrics. Earlier orders (Nov-early Dec order dates) tend to show Y flags while later orders show N, suggesting a date-based threshold or SLA window.",
+      "parameters": {
+        "flags": [
+          {
+            "field": "PastDueDate",
+            "values": [
+              "Y",
+              "N"
+            ],
+            "description": "Whether install was past the current scheduled due date"
+          },
+          {
+            "field": "PastOrigDueDate",
+            "values": [
+              "Y",
+              "N"
+            ],
+            "description": "Whether install was past the original due date"
+          }
+        ]
+      },
+      "confidence": 0.5,
+      "sourceRef": {
+        "vendorRuleId": "Installed!AE2:AF200",
+        "vendorRuleType": "CSV_DATA",
+        "rawSnapshot": {
+          "sheet": "Installed",
+          "evidence": "AL1100040093_1: PastDueDate=Y, PastOrigDueDate=Y (OrderDate 12/03, InstallDate 01/01); MO1100075521_1: PastDueDate=N, PastOrigDueDate=N (OrderDate 12/30, InstallDate 01/02)"
+        }
+      }
+    }
+  ],
+  "insights": "This file is transactional deal-level data, NOT a compensation plan document. It contains no explicit commission rates, quota targets, payout amounts, accelerator multipliers, or earning caps. To build a complete compensation model for the OTM channel, the following companion files are required: (1) A rate card/commission schedule specifying per-product payout amounts for each speed tier and VAS product, differentiated by order type (New Install vs Migration); (2) A quota/target sheet defining monthly or weekly targets per agent, partner, or sub-agent; (3) An accelerator/decelerator schedule if tiered commission rates apply above/below quota; (4) A clawback policy document specifying the exact disconnect window (e.g., 90 days, 180 days) and clawback percentage; (5) A partner agreement specifying the split between BrightSpeed and each OTM vendor (Vaultek, RUI, Infinity, Avantive, SP Data). The data structure strongly implies commission is earned at installation (Installed sheet), subject to clawback on disconnect (Disconnected sheet), with cancellations before install (Canceled sheet) receiving no payout. The presence of two brands — BS Broadband and QF Broadband — suggests potentially different rate structures by brand/market."
+}

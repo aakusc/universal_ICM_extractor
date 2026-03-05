@@ -1,0 +1,327 @@
+{
+  "id": "1772563989624-5xnfnqu",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560406930-l0y0xmy",
+  "fileName": "OTB.xlsm",
+  "extractedAt": "2026-03-03T18:53:09.624Z",
+  "classification": {
+    "fileType": "payout-schedule",
+    "summary": "January 2026 OTB (Open-To-Buy) payout ledger tracking order-level commissions and clawbacks for five outsourced telecom marketing (OTM) partner vendors selling Brightspeed products",
+    "relevantSheets": [
+      "JANUARY_OTB",
+      "Partners_Summary "
+    ],
+    "irrelevantSheets": []
+  },
+  "rules": [
+    {
+      "id": "otm-product-rate-table",
+      "concept": "rate-table",
+      "description": "Flat per-order commission rates paid to OTM partner vendors, varying by product type. Rates are fixed regardless of order quantity: Residence Voice Line = $125, Fiber Internet 100 Mbps = $125, Fiber Internet 200 Mbps = $125, Fiber Internet 1 Gig = $650, Fiber Internet 2 Gig = $700, Digital Voice - Standard = $80, Wifi Extender = $35, Inside Wire Protection Res = $25, Wifi Protection = $25.",
+      "parameters": {
+        "rateType": "flat-per-order",
+        "rates": [
+          {
+            "product": "Residence Voice Line",
+            "rate": 125,
+            "currency": "USD"
+          },
+          {
+            "product": "Fiber Internet 100 Mbps",
+            "rate": 125,
+            "currency": "USD"
+          },
+          {
+            "product": "Fiber Internet 200 Mbps",
+            "rate": 125,
+            "currency": "USD"
+          },
+          {
+            "product": "Fiber Internet 1 Gig",
+            "rate": 650,
+            "currency": "USD"
+          },
+          {
+            "product": "Fiber Internet 2 Gig",
+            "rate": 700,
+            "currency": "USD"
+          },
+          {
+            "product": "Digital Voice - Standard",
+            "rate": 80,
+            "currency": "USD"
+          },
+          {
+            "product": "Wifi Extender",
+            "rate": 35,
+            "currency": "USD"
+          },
+          {
+            "product": "Inside Wire Protection Res",
+            "rate": 25,
+            "currency": "USD"
+          },
+          {
+            "product": "Wifi Protection",
+            "rate": 25,
+            "currency": "USD"
+          }
+        ],
+        "note": "Rates appear uniform across all partner vendors for the same product"
+      },
+      "confidence": 0.82,
+      "sourceRef": {
+        "vendorRuleId": "JANUARY_OTB!Z4:Z200",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "JANUARY_OTB",
+          "evidence": "Advance Payment column shows consistent values per product: Voice Line=$125, Fiber 1G=$650, Fiber 2G=$700, Wifi Extender=$35, etc. across all vendors"
+        }
+      }
+    },
+    {
+      "id": "cancel-clawback-full-recovery",
+      "concept": "clawback",
+      "description": "Canceled orders trigger a full clawback of the previously advanced commission. When an order status is 'Canceled' and Order Type is 'CANCEL', the Net Payment DUE equals the negative of the original Advance Payment, recovering 100% of the commission paid. Clawbacks apply regardless of time elapsed since original payment in most cases.",
+      "parameters": {
+        "triggerCondition": "Order Status = 'Canceled' AND Order Type = 'CANCEL'",
+        "recoveryRate": 1,
+        "recoveryCalculation": "Net Payment DUE = -1 × Advance Payment (Amt previously Paid)",
+        "appliesTo": "All product types across all OTM partner vendors",
+        "exceptionObserved": "At least one canceled Fiber Internet 2 Gig order (NC1100144422) shows Net Payment DUE = $0 despite $700 advance, suggesting possible clawback exemption or prior-period recovery"
+      },
+      "confidence": 0.88,
+      "sourceRef": {
+        "vendorRuleId": "JANUARY_OTB!Z4:AA200",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "JANUARY_OTB",
+          "evidence": "All visible canceled rows show Advance Payment = $125, Net Payment DUE = -$125 (e.g., Fieldglass rows). Fiber 1G cancels show $650 / -$650. Exception: Vaultek NC1100144422 shows $700 / $0."
+        }
+      }
+    },
+    {
+      "id": "otm-partner-vendor-split",
+      "concept": "split",
+      "description": "Orders are routed to and credited to five distinct outsourced telecom marketing (OTM) partner vendors, each identified by a unique Sales ID. Each vendor has its own named LOB and handles orders independently. Fieldglass OTM (Sales ID 20000660) handles the vast majority of 'Change' component orders. Vaultek, Infinity, RUI USA, and Avantive handle 'Add' component orders.",
+      "parameters": {
+        "splitType": "vendor-channel-assignment",
+        "vendors": [
+          {
+            "name": "Fieldglass OTM",
+            "salesId": "20000660",
+            "primaryComponent": "Change",
+            "lob": "OTM"
+          },
+          {
+            "name": "Vaultek OTM",
+            "salesId": "20000983",
+            "primaryComponent": "Add",
+            "lob": "OTM"
+          },
+          {
+            "name": "Infinity OTM",
+            "salesId": "20000850",
+            "primaryComponent": "Add",
+            "lob": "OTM"
+          },
+          {
+            "name": "RUI USA LLC",
+            "salesId": "20001113",
+            "primaryComponent": "Add",
+            "lob": "OTM"
+          },
+          {
+            "name": "Avantive Solutions OTM",
+            "salesId": "20001121",
+            "primaryComponent": "Add",
+            "lob": "OTM"
+          }
+        ]
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Partners_Summary !B5:B14",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Partners_Summary ",
+          "evidence": "Five vendor rows: Vaultek OTM, Infinity OTM, Fieldglass OTM, Avantive Solutions OTM, RUI USA LLC with dollar and count breakdowns"
+        }
+      }
+    },
+    {
+      "id": "partner-payment-components",
+      "concept": "rate-table",
+      "description": "Partner compensation is categorized into four payment components: New Install (new customer adds), Migration (existing customer product changes/upgrades), Cancel (order cancellation clawbacks), and Dispute (disputed order adjustments). Each component rolls up into a vendor-level total payment for the period.",
+      "parameters": {
+        "components": [
+          "New Install",
+          "Migration",
+          "Cancel",
+          "Dispute"
+        ],
+        "periodTotals": {
+          "Vaultek OTM": {
+            "newInstall": 48655,
+            "migration": 141860,
+            "cancel": -43140,
+            "dispute": 0,
+            "total": 147375
+          },
+          "Infinity OTM": {
+            "newInstall": 26830,
+            "migration": 162210,
+            "cancel": -57120,
+            "dispute": 205,
+            "total": 132125
+          },
+          "Fieldglass OTM": {
+            "newInstall": 681045,
+            "migration": 18220,
+            "cancel": -240505,
+            "dispute": 2600,
+            "total": 461360
+          },
+          "Avantive Solutions OTM": {
+            "newInstall": 1185,
+            "migration": 121385,
+            "cancel": -43655,
+            "dispute": 0,
+            "total": 78915
+          },
+          "RUI USA LLC": {
+            "newInstall": 11065,
+            "migration": 101595,
+            "cancel": -46130,
+            "dispute": 0,
+            "total": 66530
+          }
+        },
+        "grandTotal": 886305,
+        "period": "January 2026",
+        "expectedPaymentDate": "February 13th"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Partners_Summary !A1:H14",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Partners_Summary ",
+          "evidence": "Period => January 2026; Expected Payment – February 13th; Vendor totals: Vaultek=$147,375, Infinity=$132,125, Fieldglass=$461,360, Avantive=$78,915, RUI USA=$66,530"
+        }
+      }
+    },
+    {
+      "id": "advance-payment-timing",
+      "concept": "draw",
+      "description": "Commissions are advanced (pre-paid) to partner vendors at the time of order issuance, prior to order completion or installation. The 'Original MO Statement Date' and 'Original Payment Date (funded)' columns indicate commissions are funded in the month the order is placed. Clawbacks in subsequent months recover advances for orders that are later canceled.",
+      "parameters": {
+        "paymentTiming": "advance-on-order",
+        "recoveryMechanism": "monthly-clawback-on-cancel",
+        "paymentCycle": "monthly",
+        "paymentLag": "~13 days into following month (February 13th for January period)"
+      },
+      "confidence": 0.8,
+      "sourceRef": {
+        "vendorRuleId": "JANUARY_OTB!X4:AA200",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "JANUARY_OTB",
+          "evidence": "Columns: 'Original MO Statement Date', 'Orginal Payment Date (funded)', 'Advance Payment (Amt previously Paid)', 'Net Payment DUE'. Orders from Nov/Dec 2025 with advances are clawed back in Jan 2026."
+        }
+      }
+    },
+    {
+      "id": "subtotal-vs-sum-audit-check",
+      "concept": "qualifier",
+      "description": "The workbook employs dual aggregation formulas — SUBTOTAL(9,...) in row 1 and SUM(...) in row 2 — for both the Advance Payment (col Z) and Net Payment DUE (col AA) columns. SUBTOTAL(9,...) respects active filters (excluding hidden/filtered rows), while SUM includes all rows. This dual-formula pattern serves as a reconciliation gate: the Subtotal row shows $201,225 / $442,705 while the Total row shows $448,275 / $886,305, confirming that filters are active and only a subset of records is currently displayed.",
+      "parameters": {
+        "subtotalRow1": {
+          "advancePayment": 201225,
+          "netPaymentDue": 442705
+        },
+        "totalRow2": {
+          "advancePayment": 448275,
+          "netPaymentDue": 886305
+        },
+        "formulaSubtotal": "SUBTOTAL(9, Z4:Z99022) / SUBTOTAL(9, AA4:AA99022)",
+        "formulaTotal": "SUM(Z4:Z92000) / SUM(AA4:AA92000)",
+        "filterRange": "JANUARY_OTB!$4:$9888"
+      },
+      "confidence": 0.75,
+      "sourceRef": {
+        "vendorRuleId": "JANUARY_OTB!Z1:AA2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "JANUARY_OTB",
+          "evidence": "Z1=SUBTOTAL(9,Z4:Z99022)=201225; AA1=SUBTOTAL(9,AA4:AA99022)=442705; Z2=SUM(Z4:Z92000)=448275; AA2=SUM(AA4:AA92000)=886305"
+        }
+      }
+    },
+    {
+      "id": "agent-level-order-attribution",
+      "concept": "split",
+      "description": "Individual orders are attributed to specific sales agents within each partner vendor via the 'Agent ID' column. Agent IDs follow the pattern 'username:Full Name' (e.g., 'Rwylie:Rachel Wylie') for Add-type vendors, or email format (e.g., 'Steven.Rubo@Brightspeed.Com') for Fieldglass Change-type orders. This enables per-agent commission tracking within each vendor organization.",
+      "parameters": {
+        "attributionField": "Agent ID",
+        "formats": {
+          "fieldglass": "Email (e.g., Steven.Rubo@Brightspeed.Com)",
+          "otherVendors": "username:Full Name (e.g., Rwylie:Rachel Wylie)"
+        },
+        "sampleAgents": [
+          "Steven.Rubo@Brightspeed.Com",
+          "Kensiryarah.Nepton@Brightspeed.Com",
+          "Omar.Anwer@Brightspeed.Com",
+          "Rwylie:Rachel Wylie",
+          "Krsnow:Kylie Snow",
+          "Dlhowe:Danielle Howe",
+          "Layshasantana:Laysha Santana",
+          "Caseylandrum:Casey Landrum"
+        ]
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "JANUARY_OTB!W4:W200",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "JANUARY_OTB",
+          "evidence": "Agent ID column shows per-agent attribution: 'Steven.Rubo@Brightspeed.Com', 'Rwylie:Rachel Wylie', etc."
+        }
+      }
+    },
+    {
+      "id": "multi-state-territory-coverage",
+      "concept": "territory",
+      "description": "OTM partner vendors sell across a wide multi-state territory covering Brightspeed's service footprint. Observed states in the sample include NC, OH, PA, TN, MO, NJ, AL, AR, IN, KS, SC, VA, LA. There is no visible restriction of specific vendors to specific states — multiple vendors appear to operate across the same geographies.",
+      "parameters": {
+        "statesObserved": [
+          "NC",
+          "OH",
+          "PA",
+          "TN",
+          "MO",
+          "NJ",
+          "AL",
+          "AR",
+          "IN",
+          "KS",
+          "SC",
+          "VA",
+          "LA"
+        ],
+        "territoryAssignment": "not-explicitly-defined-in-file",
+        "note": "No vendor-to-state restriction visible in sample data; territory rules may exist in a separate file"
+      },
+      "confidence": 0.55,
+      "sourceRef": {
+        "vendorRuleId": "JANUARY_OTB!T4:T200",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "JANUARY_OTB",
+          "evidence": "Customer State column shows orders across NC, OH, PA, TN, MO, NJ, AL, AR, IN, KS, SC, VA, LA"
+        }
+      }
+    }
+  ],
+  "insights": "1) This file is a transactional payout ledger, NOT a compensation plan document. The actual commission rate schedules, accelerator tiers, quota targets, and eligibility qualifiers would be defined in a separate comp plan or partner contract — this file only records the execution of those rates. 2) The visible sample rows are predominantly CANCELED orders (clawbacks); the full dataset (~9,888 rows per the filter range) likely contains thousands of active/completed orders that would reveal the complete product rate table. 3) The Net Payment DUE of $0 on one Vaultek Fiber 2G cancellation (NC1100144422) vs. -$700 on another similar cancellation (OH1100057425) suggests there may be a clawback window or exemption rule not visible in this file. 4) The 'Component' field distinguishes 'Add' (new install) from 'Change' (migration/upsell), and Fieldglass handles nearly all Change orders while other vendors handle Add orders — this may reflect contractual scope rather than a comp rule. 5) The Partners_Summary total of $886,305 matches the SUM row (AA2) confirming reconciliation. 6) Cross-reference with partner contracts or a master rate card would be needed to confirm whether rates vary by vendor, region, or volume tier. 7) No accelerators, decelerators, caps, floors, SPIFs, or quota targets are present in this file — those would likely exist in separate comp plan documents."
+}

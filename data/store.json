@@ -1,0 +1,152 @@
+{
+  "projects": [
+    {
+      "id": "1772560223147-z7q5n9z",
+      "name": "Brightspeed",
+      "createdAt": "2026-03-03T17:50:23.147Z",
+      "updatedAt": "2026-03-03T17:50:23.147Z"
+    },
+    {
+      "id": "1772653386758-sm9owl1",
+      "name": "Vimeo",
+      "createdAt": "2026-03-04T19:43:06.758Z",
+      "updatedAt": "2026-03-04T19:43:06.758Z"
+    }
+  ],
+  "files": [
+    {
+      "id": "1772560398019-d3bjjxx",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "D2D.xlsx",
+      "storedName": "1772560398019-d3bjjxx.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 9719437,
+      "uploadedAt": "2026-03-03T17:53:18.022Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:21.000Z"
+    },
+    {
+      "id": "1772560402064-eo6y1b8",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "DAP.xlsx",
+      "storedName": "1772560402064-eo6y1b8.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 2121194,
+      "uploadedAt": "2026-03-03T17:53:22.065Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:22.692Z"
+    },
+    {
+      "id": "1772560402727-o5leu2g",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "Digital.xlsx",
+      "storedName": "1772560402727-o5leu2g.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 52464,
+      "uploadedAt": "2026-03-03T17:53:22.727Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:22.744Z"
+    },
+    {
+      "id": "1772560404702-soljdup",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "Indirect.xlsx",
+      "storedName": "1772560404702-soljdup.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 4972973,
+      "uploadedAt": "2026-03-03T17:53:24.707Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:25.995Z"
+    },
+    {
+      "id": "1772560406093-6s76eyq",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "MDU.xlsx",
+      "storedName": "1772560406093-6s76eyq.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 274257,
+      "uploadedAt": "2026-03-03T17:53:26.093Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:26.171Z"
+    },
+    {
+      "id": "1772560406930-l0y0xmy",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "OTB.xlsm",
+      "storedName": "1772560406930-l0y0xmy.xlsm",
+      "mimeType": "application/vnd.ms-excel.sheet.macroenabled.12",
+      "size": 1673614,
+      "uploadedAt": "2026-03-03T17:53:26.932Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:27.545Z"
+    },
+    {
+      "id": "1772560407790-cozk6wv",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "OTM.xlsx",
+      "storedName": "1772560407790-cozk6wv.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 742614,
+      "uploadedAt": "2026-03-03T17:53:27.792Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:28.045Z"
+    },
+    {
+      "id": "1772560418168-vo8ud6j",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "Requirements.xlsx",
+      "storedName": "1772560418168-vo8ud6j.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 1643923,
+      "uploadedAt": "2026-03-03T17:53:38.169Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:38.212Z"
+    },
+    {
+      "id": "1772560426177-o34f3ze",
+      "projectId": "1772560223147-z7q5n9z",
+      "originalName": "Brightspeed Consolidation.xlsx",
+      "storedName": "1772560426177-o34f3ze.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 51474,
+      "uploadedAt": "2026-03-03T17:53:46.179Z",
+      "category": "excel",
+      "parsedAt": "2026-03-03T17:53:46.222Z"
+    },
+    {
+      "id": "1772654370589-cfvppcn",
+      "projectId": "1772653386758-sm9owl1",
+      "originalName": "Vimeo_BHG_FY26_Requirements 03032026.xlsx",
+      "storedName": "1772654370589-cfvppcn.xlsx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size": 116539,
+      "uploadedAt": "2026-03-04T19:59:30.590Z",
+      "category": "excel",
+      "parsedAt": "2026-03-04T19:59:30.706Z"
+    }
+  ],
+  "requirements": [],
+  "notes": [
+    {
+      "id": "1772560449668-5gk6037",
+      "projectId": "1772560223147-z7q5n9z",
+      "text": "the requirements and brightspeed consolidation excels are user made and may not be most accurate",
+      "createdAt": "2026-03-03T17:54:09.668Z"
+    }
+  ],
+  "extractionMeta": [
+    {
+      "id": "1772567221430-421eicd",
+      "projectId": "1772560223147-z7q5n9z",
+      "fileId": "pipeline",
+      "extractedAt": "2026-03-03T19:47:01.430Z"
+    },
+    {
+      "id": "1772660728898-89mb6av",
+      "projectId": "1772653386758-sm9owl1",
+      "fileId": "pipeline",
+      "extractedAt": "2026-03-04T21:45:28.898Z"
+    }
+  ],
+  "profiles": []
+}

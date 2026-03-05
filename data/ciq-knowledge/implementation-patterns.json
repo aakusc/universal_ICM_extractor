@@ -1,0 +1,184 @@
+{
+  "source": "extension.captivateiq.open-spm.com + public docs + practitioner knowledge",
+  "scrapedAt": "2026-03-03",
+  "worksheetNamingConventions": {
+    "description": "CIQ uses a structured naming convention for worksheets and columns to manage data flow from source through overrides to final values.",
+    "suffixes": {
+      ".src": {
+        "meaning": "Source",
+        "description": "Raw imported data columns. These hold data as-uploaded or as-received from external systems.",
+        "example": "Revenue.src"
+      },
+      ".ovr": {
+        "meaning": "Override",
+        "description": "Manual override columns. When set, the override value takes precedence over the source value.",
+        "example": "Revenue.ovr"
+      },
+      ".eff": {
+        "meaning": "Effective",
+        "description": "The effective value — resolves to override if present, otherwise falls back to source. Formula: IF(ISBLANK(.ovr), .src, .ovr)",
+        "example": "Revenue.eff"
+      },
+      ".fin": {
+        "meaning": "Final",
+        "description": "The final calculated value after all transformations, lookups, and business logic are applied.",
+        "example": "Revenue.fin"
+      }
+    },
+    "overridePattern": {
+      "description": "The standard override pattern creates 3-4 columns per field to enable manual corrections while preserving audit trail.",
+      "flow": "Source (.src) → Override (.ovr) → Effective (.eff) → [Transformations] → Final (.fin)",
+      "formula": ".eff = IF(ISBLANK(.ovr), .src, .ovr)",
+      "usage": "Used for any field that business users may need to manually adjust (revenue amounts, crediting splits, territory assignments, etc.)"
+    }
+  },
+  "worksheetNumberingConvention": {
+    "description": "CIQ models use a numbered prefix system to organize worksheets in logical processing order.",
+    "prefixes": {
+      "1A": "Source data worksheets (raw imports)",
+      "1B": "Model reference and metadata",
+      "1C": "Model derived formulas documentation",
+      "2": "Processing/transformation worksheets",
+      "2Z": "Key columns (special — marks which columns are override-enabled)",
+      "3": "Calculation worksheets (SmartGrid formulas)",
+      "4": "Output/payout worksheets",
+      "5": "Reporting worksheets"
+    },
+    "examples": [
+      "1A.0 Transactions.src — raw deal/transaction data",
+      "1A.1 Quotas.src — quota assignments",
+      "1B.0 Model Reference.src — build metadata, version info, model documentation",
+      "1C.0 Model Derived Formulas.src — documentation of all derived column formulas",
+      "2A.0 Crediting.eff — crediting logic with override support",
+      "2Z. Key Columns — marks which columns support override (.ovr/.eff pattern)",
+      "3A.0 Commission Calc — main commission calculation SmartGrid",
+      "4A.0 Payouts — final payout output"
+    ]
+  },
+  "specialWorksheets": {
+    "modelReference": {
+      "name": "1B.0 Model Reference.src",
+      "purpose": "Stores build metadata: model version, last modified date, author, build notes, and documentation links.",
+      "usage": "Every well-built CIQ model should have this worksheet for traceability."
+    },
+    "derivedFormulas": {
+      "name": "1C.0 Model Derived Formulas.src",
+      "purpose": "Documents all derived column formulas in a searchable format. Each row describes one derived column: its worksheet, column name, formula, and description.",
+      "usage": "Essential for model maintenance and handoff. Allows searching formulas across the entire model."
+    },
+    "keyColumns": {
+      "name": "2Z. Key Columns",
+      "purpose": "Marks which columns in the model support the override pattern (.src/.ovr/.eff). Used to generate the override UI and track which fields are adjustable.",
+      "usage": "Required for any model that supports manual overrides."
+    }
+  },
+  "dataFlow": {
+    "description": "The standard CIQ data processing pipeline from source to payout.",
+    "stages": [
+      {
+        "stage": 1,
+        "name": "Data Import",
+        "description": "Source data is uploaded or synced into source (.src) worksheets via CSV upload, API, or connector.",
+        "ciqFeatures": ["Uploads API", "Data Connectors", "CSV Import"]
+      },
+      {
+        "stage": 2,
+        "name": "Data Enrichment",
+        "description": "Source data is enriched with lookups from attribute worksheets (territory mapping, product categories, customer segments).",
+        "ciqFeatures": ["Attribute Worksheets", "VLOOKUP formulas", "Global Attributes"]
+      },
+      {
+        "stage": 3,
+        "name": "Crediting",
+        "description": "Transactions are credited to the correct employees based on territory, account, or deal ownership rules.",
+        "ciqFeatures": ["SmartGrid formulas", "IF/VLOOKUP", "Override columns"]
+      },
+      {
+        "stage": 4,
+        "name": "Calculation",
+        "description": "Commission calculations are applied: rate tables, tier logic, attainment %, accelerators/decelerators, qualifiers, caps, floors.",
+        "ciqFeatures": ["SmartGrid formulas", "Employee Assumptions", "Rate Tables"]
+      },
+      {
+        "stage": 5,
+        "name": "Aggregation & Payout",
+        "description": "Individual transaction commissions are aggregated per employee per period. Components are combined into total payout.",
+        "ciqFeatures": ["Components", "Payout Processing", "Period Roll-up"]
+      },
+      {
+        "stage": 6,
+        "name": "Review & Approval",
+        "description": "Payouts go through approval workflow. Managers review, disputes are handled, final amounts are locked.",
+        "ciqFeatures": ["Statements", "Reviews & Approvals", "Dispute Management"]
+      }
+    ]
+  },
+  "formulaCapabilities": {
+    "description": "Known CIQ SmartGrid formula functions and their use cases.",
+    "categories": {
+      "lookup": {
+        "functions": ["VLOOKUP", "HLOOKUP", "INDEX", "MATCH"],
+        "usage": "Look up rates from rate tables, map territories, resolve product categories"
+      },
+      "conditional": {
+        "functions": ["IF", "IFS", "SWITCH", "ISBLANK", "ISNULL"],
+        "usage": "Conditional logic for tier selection, qualifier gates, override resolution"
+      },
+      "aggregation": {
+        "functions": ["SUM", "SUMPRODUCT", "COUNT", "AVERAGE", "MIN", "MAX"],
+        "usage": "Aggregate transactions, calculate attainment, sum components"
+      },
+      "math": {
+        "functions": ["ROUND", "FLOOR", "CEILING", "ABS", "MOD"],
+        "usage": "Rounding payout amounts, floor/ceiling for caps"
+      },
+      "date": {
+        "functions": ["DATE", "MONTH", "QUARTER", "YEAR", "DATEDIF"],
+        "usage": "Period calculations, proration, effective date logic"
+      },
+      "text": {
+        "functions": ["CONCATENATE", "LEFT", "RIGHT", "MID", "TRIM", "UPPER", "LOWER"],
+        "usage": "String manipulation for key generation, display formatting"
+      }
+    },
+    "smartGridNotes": [
+      "SmartGrid formulas operate row-by-row on worksheet data (similar to Excel but columnar)",
+      "Formulas can reference columns from the same worksheet or other worksheets via cross-sheet references",
+      "Derived columns are calculated — they cannot be directly edited (use override pattern instead)",
+      "Formula evaluation order follows worksheet numbering convention (1A before 2A before 3A)"
+    ]
+  },
+  "componentStructure": {
+    "description": "CIQ plans are organized into components that represent distinct compensation elements.",
+    "patterns": [
+      {
+        "pattern": "Single Component",
+        "description": "One payout component covering all commissions (e.g., 'Commission')",
+        "when": "Simple plans with one calculation method"
+      },
+      {
+        "pattern": "Multi-Component",
+        "description": "Separate components for different comp elements (e.g., 'Base Commission', 'Accelerator Bonus', 'SPIF')",
+        "when": "Plans with multiple calculation methods, different timing, or separate caps"
+      },
+      {
+        "pattern": "Role-Based Components",
+        "description": "Different components for different roles (e.g., 'AE Commission', 'SDR Bonus')",
+        "when": "Single plan covering multiple roles with different structures"
+      }
+    ],
+    "notes": "Each component has its own calculation logic, can have independent caps/floors, and can be paid on different schedules."
+  },
+  "bestPractices": [
+    "Always use the override pattern (.src/.ovr/.eff) for fields that may need manual adjustment",
+    "Document all formulas in 1C.0 Model Derived Formulas.src",
+    "Use numbered worksheet prefixes to maintain processing order",
+    "Keep rate tables in dedicated attribute worksheets for easy updates",
+    "Use employee assumptions for all per-employee parameters (quotas, TSI, caps, etc.)",
+    "Build in a Model Reference worksheet for version tracking",
+    "Use Key Columns worksheet to track all overridable fields",
+    "Separate source data workbooks from calculation workbooks",
+    "Use global attributes for mappings shared across plans (territories, products)",
+    "Test with sample data before going live — use the preview/sandbox mode"
+  ]
+}

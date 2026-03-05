@@ -1,0 +1,46 @@
+{
+  "name": "CaptivateIQ Knowledge Base",
+  "version": "1.0.0",
+  "description": "Structured knowledge base for building CaptivateIQ solutions. Combines public API reference, implementation patterns from practitioner knowledge, and platform taxonomy from help center structure.",
+  "createdAt": "2026-03-03",
+  "files": {
+    "api-reference.json": {
+      "description": "Full CIQ Developer API endpoint reference with schemas and field definitions",
+      "source": "developers.captivateiq.com (public)",
+      "status": "complete"
+    },
+    "implementation-patterns.json": {
+      "description": "CIQ implementation patterns: worksheet naming, data flow, formula capabilities, best practices",
+      "source": "extension.captivateiq.open-spm.com + public docs + practitioner knowledge",
+      "status": "complete"
+    },
+    "platform-taxonomy.json": {
+      "description": "CIQ platform section taxonomy: 16 help center categories, dependencies, build order",
+      "source": "support.captivateiq.com structure + platform UI",
+      "status": "complete"
+    }
+  },
+  "categories": {
+    "description": "Per-category article collections scraped from CIQ support site. Requires authenticated access.",
+    "status": "pending-scrape",
+    "directory": "categories/",
+    "expectedFiles": [
+      "sales-planning.json",
+      "formula-library.json",
+      "manage-data.json",
+      "workbooks-worksheets.json",
+      "global-attributes.json",
+      "components.json",
+      "commission-plans.json",
+      "statements.json",
+      "payouts.json",
+      "reviews-approvals.json",
+      "reporting.json",
+      "plan-documents.json",
+      "manage-people.json",
+      "jobs-audit-logs.json",
+      "account-settings.json",
+      "beta-content.json"
+    ]
+  }
+}

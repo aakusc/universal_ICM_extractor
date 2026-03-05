@@ -1,0 +1,552 @@
+{
+  "id": "1772563979000-qcfk5ks",
+  "projectId": "1772560223147-z7q5n9z",
+  "fileId": "1772560404702-soljdup",
+  "fileName": "Indirect.xlsx",
+  "extractedAt": "2026-03-03T18:52:59.000Z",
+  "classification": {
+    "fileType": "payout-schedule",
+    "summary": "BrightSpeed Indirect Sales channel weekly commission calculation workbook with rate tables, eligibility logic, and chargeback processing for telecom/ISP products",
+    "relevantSheets": [
+      "Lookup",
+      "Installed",
+      "Installed (2)",
+      "Issued",
+      "Canceled",
+      "Disconnected",
+      "Dashboard",
+      "Statement",
+      "All Transactions",
+      "Error Check",
+      "Compliance"
+    ],
+    "irrelevantSheets": [
+      "Data Fields Product List",
+      "Sheet3",
+      "filter",
+      "IssuedSource",
+      "InstalledSource",
+      "CanceledSource",
+      "DisconnectedSource",
+      "pivot all trans",
+      "Test Summary",
+      "Test Trans"
+    ]
+  },
+  "rules": [
+    {
+      "id": "speed-rate-table-new-install",
+      "concept": "rate-table",
+      "description": "Tiered commission rate table for internet products on NEW INSTALL orders, looked up by download speed using approximate match (speed <= MaxSpeed threshold). Rates range from $300 for copper/low-speed to $625 for 5Gbps+.",
+      "parameters": {
+        "type": "tiered",
+        "lookupMethod": "XLOOKUP approximate match (-1), speed <= MaxSpeed",
+        "orderType": "NEW INSTALL",
+        "tiers": [
+          {
+            "maxSpeed": 0,
+            "speedLabel": "Copper/base (no speed)",
+            "rate": 300
+          },
+          {
+            "maxSpeed": 500000,
+            "speedLabel": "Up to 500 Mbps",
+            "rate": 400
+          },
+          {
+            "maxSpeed": 1000000,
+            "speedLabel": "Up to 1 Gbps",
+            "rate": 525
+          },
+          {
+            "maxSpeed": 2000000,
+            "speedLabel": "Up to 2 Gbps",
+            "rate": 575
+          },
+          {
+            "maxSpeed": 5000000,
+            "speedLabel": "Up to 5 Gbps",
+            "rate": 625
+          },
+          {
+            "maxSpeed": 999999999,
+            "speedLabel": "Above 5 Gbps (catch-all)",
+            "rate": 625
+          }
+        ],
+        "currency": "USD",
+        "unit": "per order line"
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!D7:F18",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "tbl_speedrate: MaxSpeed 0/NEW INSTALL/$300, 500000/NEW INSTALL/$400, 1000000/NEW INSTALL/$525, 2000000/NEW INSTALL/$575, 5000000/NEW INSTALL/$625, 999999999/NEW INSTALL/$625"
+        }
+      }
+    },
+    {
+      "id": "speed-rate-table-migration",
+      "concept": "rate-table",
+      "description": "Tiered commission rate table for internet products on MIGRATION orders, looked up by download speed. Migration rates are lower than New Install rates at every tier.",
+      "parameters": {
+        "type": "tiered",
+        "lookupMethod": "XLOOKUP approximate match (-1), speed <= MaxSpeed",
+        "orderType": "MIGRATION",
+        "tiers": [
+          {
+            "maxSpeed": 0,
+            "speedLabel": "Copper/base (no speed)",
+            "rate": 250
+          },
+          {
+            "maxSpeed": 500000,
+            "speedLabel": "Up to 500 Mbps",
+            "rate": 300
+          },
+          {
+            "maxSpeed": 1000000,
+            "speedLabel": "Up to 1 Gbps",
+            "rate": 350
+          },
+          {
+            "maxSpeed": 2000000,
+            "speedLabel": "Up to 2 Gbps",
+            "rate": 375
+          },
+          {
+            "maxSpeed": 5000000,
+            "speedLabel": "Up to 5 Gbps",
+            "rate": 425
+          },
+          {
+            "maxSpeed": 999999999,
+            "speedLabel": "Above 5 Gbps (catch-all)",
+            "rate": 425
+          }
+        ],
+        "currency": "USD",
+        "unit": "per order line"
+      },
+      "confidence": 0.98,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!D7:F18",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "tbl_speedrate: MaxSpeed 0/MIGRATION/$250, 500000/MIGRATION/$300, 1000000/MIGRATION/$350, 2000000/MIGRATION/$375, 5000000/MIGRATION/$425, 999999999/MIGRATION/$425"
+        }
+      }
+    },
+    {
+      "id": "product-rate-table-vas-voice",
+      "concept": "rate-table",
+      "description": "Flat commission rate table for non-internet products (VAS and voice) looked up by exact product name and order type. Used when Download Speed is blank.",
+      "parameters": {
+        "type": "flat",
+        "lookupMethod": "XLOOKUP exact match on RateKey (Product | OrderType)",
+        "rates": [
+          {
+            "product": "Digital Voice - Standard",
+            "orderType": "NEW INSTALL",
+            "rate": 50
+          },
+          {
+            "product": "Digital Voice - Standard",
+            "orderType": "MIGRATION",
+            "rate": 50
+          },
+          {
+            "product": "Wifi Extender",
+            "orderType": "NEW INSTALL",
+            "rate": 35
+          },
+          {
+            "product": "Wifi Extender",
+            "orderType": "MIGRATION",
+            "rate": 35
+          },
+          {
+            "product": "Wifi Protection",
+            "orderType": "NEW INSTALL",
+            "rate": 25
+          },
+          {
+            "product": "Wifi Protection",
+            "orderType": "MIGRATION",
+            "rate": 25
+          },
+          {
+            "product": "Brightspeed Total Home Tech Support",
+            "orderType": "NEW INSTALL",
+            "rate": 50
+          },
+          {
+            "product": "Brightspeed Total Home Tech Support",
+            "orderType": "MIGRATION",
+            "rate": 50
+          },
+          {
+            "product": "Residence Voice Line",
+            "orderType": "NEW INSTALL",
+            "rate": 50
+          },
+          {
+            "product": "Residence Voice Line",
+            "orderType": "MIGRATION",
+            "rate": 50
+          },
+          {
+            "product": "Fiber Voice",
+            "orderType": "NEW INSTALL",
+            "rate": 50
+          },
+          {
+            "product": "Fiber Voice",
+            "orderType": "MIGRATION",
+            "rate": 50
+          },
+          {
+            "product": "Brightspeed Fiber Voice",
+            "orderType": "NEW INSTALL",
+            "rate": 50
+          },
+          {
+            "product": "Brightspeed Fiber Voice",
+            "orderType": "MIGRATION",
+            "rate": 50
+          }
+        ],
+        "currency": "USD",
+        "unit": "per order line"
+      },
+      "confidence": 0.97,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!C23:F36",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "tbl_productrate (VAS_rate named range): Digital Voice - Standard|NEW INSTALL=$50, Wifi Extender|NEW INSTALL=$35, Wifi Protection|NEW INSTALL=$25, Fiber Voice|NEW INSTALL=$50"
+        }
+      }
+    },
+    {
+      "id": "rate-selection-logic",
+      "concept": "rate-table",
+      "description": "Rate lookup dispatching logic: if Download Speed is blank, use the product-based rate table (tbl_productrate) with exact match on ProductKey|OrderType. If Download Speed is populated, use the speed-based rate table (tbl_speedrate) with approximate match. The ProductKey is derived as Download Speed when present, otherwise Product name.",
+      "parameters": {
+        "formula": "IF(DownloadSpeed=\"\", XLOOKUP(RateKey, tbl_productrate[RateKey], tbl_productrate[Rate], 0), XLOOKUP(DownloadSpeed, FILTER(tbl_speedrate[MaxSpeed], tbl_speedrate[OrderType]=grp), FILTER(tbl_speedrate[Rate], tbl_speedrate[OrderType]=grp), 0, -1))",
+        "productKeyDerivation": "IF(DownloadSpeed=\"\", Product, DownloadSpeed)",
+        "rateKeyDerivation": "CONCAT(ProductKey, \" | \", OrderType)"
+      },
+      "confidence": 0.96,
+      "sourceRef": {
+        "vendorRuleId": "Installed!AJ2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Installed",
+          "evidence": "IF(tbl_installed[[#This Row],[Eligible]],LET(_xlpm.grp,tbl_installed[[#This Row],[OrderType]],_xlpm.spd,tbl_installed[[#This Row],[Download Speed]],...IF(_xlpm.spd=\"\",_xlpm.rate_product,_xlpm.rate_speed)),0)"
+        }
+      }
+    },
+    {
+      "id": "qualifier-issued-no-commission",
+      "concept": "qualifier",
+      "description": "Issued orders for the Indirect Sales channel are NOT eligible for commission. All Issued records have Eligible hardcoded to FALSE with fail code 6 ('No commission earnings on Issued orders'). Commission is only earned upon Installation.",
+      "parameters": {
+        "gate": "CommissionEvent != 'Issued'",
+        "eligibleValue": false,
+        "failCode": 6,
+        "failReason": "No commission earnings on Issued orders",
+        "commissionAmount": 0,
+        "effect": "Issued orders are tracked but produce $0 commission"
+      },
+      "confidence": 0.99,
+      "sourceRef": {
+        "vendorRuleId": "Issued!AD2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Issued",
+          "evidence": "AD2=FALSE (hardcoded); AI2=IF(tbl_issued[[#This Row],[Eligible]],0,6); Eligibility Reason='No commission earnings on Issued orders'"
+        }
+      }
+    },
+    {
+      "id": "qualifier-install-triggers-commission",
+      "concept": "qualifier",
+      "description": "Commission is earned on the Installation event. Installed orders are eligible (Eligible=TRUE) and the commission amount is computed via the speed or product rate table. Commission events are labeled 'Install New Install Pay' or 'Install Migration Pay' based on OrderType.",
+      "parameters": {
+        "triggerEvent": "Installation",
+        "eligibleValue": true,
+        "commissionEvents": [
+          "Install New Install Pay",
+          "Install Migration Pay"
+        ],
+        "commissionFormula": "Rate from tbl_speedrate or tbl_productrate based on product/speed and OrderType"
+      },
+      "confidence": 0.99,
+      "sourceRef": {
+        "vendorRuleId": "Installed!AG2:AK2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Installed",
+          "evidence": "AG2=TRUE; AK2=IF(OrderType='NEW INSTALL','Install New Install Pay',IF(OrderType='MIGRATION','Install Migration Pay',''))"
+        }
+      }
+    },
+    {
+      "id": "qualifier-install-date-threshold",
+      "concept": "qualifier",
+      "description": "Installs related to sales (orders) placed prior to September 6, 2025 are excluded from commission eligibility. This date is stored in the Lookup sheet as 'Order Date for Installed Program'.",
+      "parameters": {
+        "thresholdDate": "2025-09-06",
+        "failCode": 2,
+        "failReason": "Exclude Installs related to Sales prior to 9/6/25",
+        "appliesTo": "Installed"
+      },
+      "confidence": 0.92,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!E4,Lookup!O18",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "Order Date for Installed Program: 2025-09-06; fail_reason FailCode 2: 'Exclude Installs related to Sales prior to 9/6/25'"
+        }
+      }
+    },
+    {
+      "id": "qualifier-channel-indirect",
+      "concept": "qualifier",
+      "description": "This workbook processes only Indirect Sales channel orders. The filter sheet explicitly filters source data where Channel='Indirect Sales'. Partners include Chipr, DSI, GE, In Technologies, Indigo Solutions Group LLC, Move EZ Inc, PerfectVision, RSI, and XYZies.",
+      "parameters": {
+        "channelFilter": "Indirect Sales",
+        "partners": [
+          "Chipr",
+          "DSI",
+          "GE",
+          "In Technologies",
+          "Indigo Solutions Group LLC",
+          "Move EZ, Inc",
+          "PerfectVision",
+          "RSI",
+          "XYZies"
+        ]
+      },
+      "confidence": 0.99,
+      "sourceRef": {
+        "vendorRuleId": "filter!A2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "filter",
+          "evidence": "=LET(_xlpm.data,FILTER(tbl_disconnected_source[],tbl_disconnected_source[Channel]=\"Indirect Sales\"),IF(_xlpm.data=0,\"\",_xlpm.data))"
+        }
+      }
+    },
+    {
+      "id": "clawback-cancel",
+      "concept": "clawback",
+      "description": "Canceled orders trigger a chargeback (negative commission). The chargeback amount equals the negative of the rate that would have been earned. A CBWaived flag can override the chargeback to $0. The chargeback window is classified as 'Same Period' if OrderDate >= WeekStart, or 'Prior Period' if OrderDate < WeekStart.",
+      "parameters": {
+        "commissionEvent": "Chargeback Cancel",
+        "formula": "CommissionAmountPre = -1 * rate_lookup(product, speed, orderType)",
+        "waiverLogic": "CommissionAmount = IF(CBWaived, 0, CommissionAmountPre)",
+        "periodClassification": "IF(OrderDate < WeekStart, 'Prior Period', 'Same Period')",
+        "cancelReasonCodes": [
+          "Account Cleanup",
+          "BSW Issue",
+          "Company Miss",
+          "No Facilities",
+          "Product/Speed not Available",
+          "Cancel/Reissue"
+        ]
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Canceled!AH2:AL2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Canceled",
+          "evidence": "AH2=-IF(Eligible, rate_lookup, 0); AI2=FALSE(CBWaived); AJ2=IF(CBWaived,0,CommissionAmountPre); AK2=IF(OrderDate<WeekStart,'Prior Period','Same Period'); AL2='Chargeback Cancel'"
+        }
+      }
+    },
+    {
+      "id": "clawback-disconnect",
+      "concept": "clawback",
+      "description": "Disconnected orders trigger a chargeback (negative commission). The chargeback amount equals the negative of the original commission rate. A CBWaived flag can override the chargeback to $0. Disconnects reference the original InstallOrderKey to tie back to the earning transaction.",
+      "parameters": {
+        "commissionEvent": "Chargeback Disconnect",
+        "formula": "CommissionAmountPre = -1 * rate_lookup(product, speed, orderType)",
+        "waiverLogic": "CommissionAmount = IF(CBWaived, 0, CommissionAmountPre)",
+        "periodClassification": "IF(OrderDate < WeekStart, 'Prior Period', 'Same Period')",
+        "tiebackFields": [
+          "InstallOrderKey",
+          "InstallOrderID",
+          "OriginalInstallDate"
+        ]
+      },
+      "confidence": 0.93,
+      "sourceRef": {
+        "vendorRuleId": "Disconnected!AJ2:AN2",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Disconnected",
+          "evidence": "AJ2=-IF(Eligible, rate_lookup, 0); AK2=FALSE(CBWaived); AL2=IF(CBWaived,0,CommissionAmountPre); AM2=IF(OrderDate<WeekStart,'Prior Period','Same Period'); AN2='Chargeback Disconnect'"
+        }
+      }
+    },
+    {
+      "id": "clawback-compliance-waiver",
+      "concept": "clawback",
+      "description": "Compliance chargebacks can be waived, reducing the net commission to zero for specific orders flagged for compliance issues. The waived amount is tracked separately as 'Waived due to Compliance' and the difference between CommissionAmount and NetCommissionAmount reflects this waiver. The Compliance sheet references a compliance source table.",
+      "parameters": {
+        "waiverSource": "tbl_compliance_source",
+        "netCommissionFormula": "NetCommissionAmount = CommissionAmount - ComplianceWaiver",
+        "trackingFields": [
+          "CommissionAmount",
+          "CommissionWaived",
+          "NetCommissionAmount"
+        ]
+      },
+      "confidence": 0.85,
+      "sourceRef": {
+        "vendorRuleId": "Dashboard!J7:K7,Statement!G5:I5",
+        "vendorRuleType": "EXCEL_FORMULA",
+        "rawSnapshot": {
+          "sheet": "Dashboard",
+          "evidence": "Columns: 'Comm Amt (Before Compliance)', 'Waived due to Compliance'; Statement: 'Comm Amt Before Compliance | Waived due to Compliance | Net Commission Amount'"
+        }
+      }
+    },
+    {
+      "id": "qualifier-cancel-date-threshold",
+      "concept": "qualifier",
+      "description": "Cancels related to sales (orders) placed prior to September 6, 2025 are excluded from chargeback eligibility, matching the install eligibility date threshold.",
+      "parameters": {
+        "thresholdDate": "2025-09-06",
+        "failCode": 3,
+        "failReason": "Exclude Cancels related to Sales prior to 9/6/25",
+        "appliesTo": "Canceled"
+      },
+      "confidence": 0.9,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!O19",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "fail_reason: FailCode 3, Dataset 'Canceled', Reason 'Exclude Cancels related to Sales prior to 9/6/25'"
+        }
+      }
+    },
+    {
+      "id": "split-partner-subagent-structure",
+      "concept": "split",
+      "description": "The Indirect Sales channel uses a two-level partner hierarchy: SalesPartner (master agent/distributor such as RSI, PerfectVision, DSI) and SubAgent (the actual selling entity). Commission is calculated at the partner level with SubAgent tracked for reporting. Each order carries PartnerID, SalesPartner, SubAgent, SalesID, and AgentID fields.",
+      "parameters": {
+        "levels": [
+          "SalesPartner",
+          "SubAgent"
+        ],
+        "partnerExamples": {
+          "RSI (BS000212)": [
+            "CLE MARKETING LLC",
+            "IT PRODIGY SOLUTIONS",
+            "SIMPLY ACTIVATE LLC",
+            "DIGICLOCK INC",
+            "MIDWEST GLOBAL MARKETING AND BILLING LLC"
+          ],
+          "PerfectVision (BS001085)": [
+            "CORSERVE",
+            "DARTECH",
+            "ZIATAN",
+            "SPOTLIGHT MARKETING",
+            "LISAM SOLUTIONS"
+          ],
+          "DSI (BS000205)": [
+            "247 DIGIMEDIA, INC. NA",
+            "EPMG LLC NA",
+            "CASTLEHILL1 WIRELESS INC",
+            "WE CUSTOM BOXES INC NA"
+          ],
+          "Chipr (BS000213_M)": [
+            "CHIPR SALES"
+          ]
+        },
+        "commissionPaidTo": "SalesPartner level (statement generated per SalesPartner)"
+      },
+      "confidence": 0.88,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!I7:J15,Statement!C7",
+        "vendorRuleType": "EXCEL_TABLE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "tblPartnerGroup[PartnerName]: Chipr, DSI, GE, In Technologies, Indigo Solutions Group LLC, Move EZ Inc, PerfectVision, RSI, XYZies; Statement partner dropdown"
+        }
+      }
+    },
+    {
+      "id": "processing-period-weekly",
+      "concept": "quota-target",
+      "description": "Commissions are processed on a weekly cycle. The processing period is defined by WeekStart and WeekEnd dates stored in the Lookup sheet. For this period: Week Start = 2026-02-01, Week End = 2026-02-07. Orders and events are grouped by week date.",
+      "parameters": {
+        "frequency": "weekly",
+        "weekStart": "2026-02-01",
+        "weekEnd": "2026-02-07",
+        "namedRanges": {
+          "WeekStart": "Lookup!$E$4",
+          "WeekEnd": "Lookup!$E$5"
+        },
+        "weekEndFormula": "WeekStart + 6"
+      },
+      "confidence": 0.95,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!E4:E5",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "Week Start Date: 2026-02-01; Week End Date: 2026-02-07; WeekEnd=Lookup!$E$5; formula E5=E4+6"
+        }
+      }
+    },
+    {
+      "id": "cancel-reason-chargeback-waiver-rules",
+      "concept": "clawback",
+      "description": "Certain cancel consolidated reason codes are tracked and may influence chargeback waiver decisions. The named range CX_reasons lists specific cancel reasons. The CBWaived boolean on each cancel/disconnect record determines if the chargeback is applied or waived to $0.",
+      "parameters": {
+        "cancelReasons": [
+          "Account Cleanup",
+          "BSW Issue",
+          "Company Miss",
+          "No Facilities",
+          "Product/Speed not Available",
+          "Cancel/Reissue"
+        ],
+        "additionalReasons": [
+          "Buyer's Remorse",
+          "Canceled per Customer",
+          "Customer Reqs Reschedule",
+          "Did Not Order",
+          "Duplicate Order",
+          "No Access/Not Home",
+          "Other",
+          "Invalid Order Residential",
+          "Opened Held Order"
+        ],
+        "waiverField": "CBWaived",
+        "namedRange": "CX_reasons = Lookup!$M$17:$M$22"
+      },
+      "confidence": 0.82,
+      "sourceRef": {
+        "vendorRuleId": "Lookup!M17:M22",
+        "vendorRuleType": "EXCEL_NAMED_RANGE",
+        "rawSnapshot": {
+          "sheet": "Lookup",
+          "evidence": "CX_reasons: Account Cleanup, BSW Issue, Company Miss, No Facilities, Product/Speed not Available, Cancel/Reissue"
+        }
+      }
+    }
+  ],
+  "insights": "1. FORMULA BUG DETECTED: The Disconnected sheet RateKey formula (AI2) incorrectly references tbl_canceled instead of tbl_disconnected, causing misaligned rate lookups for disconnect chargebacks. This results in incorrect chargeback amounts for disconnects. 2. The Issued tab hardcodes Eligible=FALSE for all Indirect orders, confirming commission is earned only upon Installation (not at order issuance) — this differs from the D2D channel which may have different rules. 3. The Test Summary sheet reveals discrepancies between the model and the 'official rate card' source file: the model shows $300 for 500Mbps whereas the source shows $400, and the model is missing 15 Walmart records at $150 (a possible separate partner rate). 4. The workbook processes both D2D and Indirect channels in the source data but filters to Indirect only for this output; a companion workbook likely handles D2D. 5. Cancel chargebacks for Indirect currently show $0 across all partners (all Eligible=FALSE on Cancel tab), suggesting cancels may only generate chargebacks when they had a prior-period install earning. 6. The Test Summary references 'Walmart' as a separate partner line with a potentially different commission structure ($150 per unit implied by 'missing 15 Walmart records at $150'), which warrants cross-referencing with the partner/rate configuration. 7. No accelerators, decelerators, caps, floors, draws, or SPIFs were identified in this workbook — it is a pure per-unit flat/tiered rate structure."
+}
