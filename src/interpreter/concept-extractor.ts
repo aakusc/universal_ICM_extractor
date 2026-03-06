@@ -67,29 +67,149 @@ export class ConceptExtractor {
   /**
    * Interpret a single raw rule. Uses the AI provider to analyze the rule
    * and extract business intent.
-   *
-   * TODO: Implement AI provider calls (Claude API, AICR Gateway, OpenAI fallback)
    */
   private async interpretSingleRule(rawRule: IRawRule): Promise<IInterpretedRule> {
-    // Placeholder — will call AI provider with rule interpretation prompt
-    // The prompt provides the rule concept taxonomy and asks the AI to:
-    // 1. Identify which concept(s) the rule represents
-    // 2. Generate a plain-English description of the rule intent
-    // 3. Extract structured parameters matching the concept schema
-    // 4. Assign a confidence score
+    const prompt = this.buildPrompt(rawRule);
 
-    const _prompt = this.buildPrompt(rawRule);
+    try {
+      const response = await this.callAiProvider(prompt);
+      return this.parseResponse(response, rawRule);
+    } catch (error) {
+      console.error(`AI interpretation failed for rule ${rawRule.vendorRuleId}:`, error);
+      return {
+        concepts: [],
+        description: `Uninterpreted rule: ${rawRule.vendorRuleType} (${rawRule.vendorRuleId})`,
+        parameters: {},
+        confidence: 0,
+      };
+    }
+  }
 
-    // TODO: Call AI provider
-    // const response = await this.callAiProvider(prompt);
-    // return this.parseResponse(response);
+  /**
+   * Call the configured AI provider to interpret a rule.
+   */
+  private async callAiProvider(prompt: string): Promise<string> {
+    switch (this.config.provider) {
+      case 'claude':
+        return this.callClaude(prompt);
+      case 'aicr-gateway':
+        return this.callAicrGateway(prompt);
+      case 'openai':
+        return this.callOpenAI(prompt);
+      default:
+        throw new Error(`Unknown AI provider: ${this.config.provider}`);
+    }
+  }
 
-    return {
-      concepts: [],
-      description: `Uninterpreted rule: ${rawRule.vendorRuleType} (${rawRule.vendorRuleId})`,
-      parameters: {},
-      confidence: 0,
-    };
+  /**
+   * Call Anthropic Claude API.
+   */
+  private async callClaude(prompt: string): Promise<string> {
+    const model = this.config.model || 'claude-3-5-sonnet-20241022';
+    
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': this.config.apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Claude API error: ${response.status} ${error}`);
+    }
+
+    const data = await response.json() as { content: Array<{ text: string }> };
+    return data.content[0]?.text || '';
+  }
+
+  /**
+   * Call AICR Gateway (custom endpoint).
+   */
+  private async callAicrGateway(prompt: string): Promise<string> {
+    const url = this.config.gatewayUrl || 'http://localhost:3001/api/ai/interpret';
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.config.apiKey}`,
+      },
+      body: JSON.stringify({ prompt }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`AICR Gateway error: ${response.status} ${error}`);
+    }
+
+    const data = await response.json() as { result: string };
+    return data.result;
+  }
+
+  /**
+   * Call OpenAI API (fallback).
+   */
+  private async callOpenAI(prompt: string): Promise<string> {
+    const model = this.config.model || 'gpt-4o';
+    
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1024,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`OpenAI API error: ${response.status} ${error}`);
+    }
+
+    const data = await response.json() as { choices: Array<{ message: { content: string } }> };
+    return data.choices[0]?.message?.content || '';
+  }
+
+  /**
+   * Parse the AI response into an interpreted rule.
+   */
+  private parseResponse(response: string, rawRule: IRawRule): IInterpretedRule {
+    try {
+      // Extract JSON from response (handle markdown code blocks)
+      const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || 
+                        response.match(/```\n([\s\S]*?)\n```/) ||
+                        response.match(/\{[\s\S]*\}/);
+      
+      const jsonStr = jsonMatch ? jsonMatch[1] || jsonMatch[0] : response;
+      const parsed = JSON.parse(jsonStr);
+
+      return {
+        concepts: Array.isArray(parsed.concepts) ? parsed.concepts : [],
+        description: parsed.description || `Rule: ${rawRule.vendorRuleType}`,
+        parameters: parsed.parameters || {},
+        confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.5,
+      };
+    } catch (error) {
+      console.error('Failed to parse AI response:', response.substring(0, 200));
+      return {
+        concepts: [],
+        description: `Parse error for rule: ${rawRule.vendorRuleType} (${rawRule.vendorRuleId})`,
+        parameters: {},
+        confidence: 0,
+      };
+    }
   }
 
   /**
