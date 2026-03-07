@@ -20,6 +20,7 @@ import type {
 import type {
   SynthesisResult,
   ValidationResult,
+  AuditResult,
   ChecklistItem,
   ChecklistCategory,
   CategorySummary,
@@ -853,6 +854,7 @@ const statusScores: Record<string, number> = {
 export function analyzeCompleteness(
   synthesis: SynthesisResult,
   validation: ValidationResult | null,
+  auditResult?: AuditResult,
 ): CompletenessResult {
   const ctx: CheckContext = {
     rules: synthesis.rules,
@@ -873,8 +875,45 @@ export function analyzeCompleteness(
     };
   });
 
+  // Inject project_gaps from unified_fields as additional data-quality items
+  const projectGaps = (synthesis as any).project_gaps ?? [];
+  for (const gap of projectGaps) {
+    const severity = gap.severity as string;
+    const priority = severity === 'critical' || severity === 'high' ? 'required' : 'recommended';
+    items.push({
+      id: `field-gap.${gap.field_id}`,
+      name: `Field gap: ${gap.field_id.replace(/_/g, ' ')}`,
+      category: 'data-quality',
+      priority,
+      status: 'missing',
+      evidence: null,
+      gapDescription: gap.impact ?? null,
+      suggestedAction: gap.recommendation ?? null,
+      sourceRuleIds: [],
+    });
+  }
+
+  // Inject blocking audit concerns as data-quality items
+  if (auditResult) {
+    const blockingSet = new Set(auditResult.blocking_issues);
+    for (const concern of auditResult.concerns) {
+      if (!blockingSet.has(concern.id)) continue;
+      items.push({
+        id: `audit-concern.${concern.id}`,
+        name: `Concern: ${concern.category.replace(/-/g, ' ')} (${concern.id})`,
+        category: 'data-quality',
+        priority: 'required',
+        status: 'missing',
+        evidence: null,
+        gapDescription: concern.description ?? null,
+        suggestedAction: concern.recommendation ?? null,
+        sourceRuleIds: [],
+      });
+    }
+  }
+
   // Build category summaries
-  const categories = [...new Set(checks.map(c => c.category))] as ChecklistCategory[];
+  const categories = [...new Set([...checks.map(c => c.category), 'data-quality'])] as ChecklistCategory[];
   const categorySummaries: CategorySummary[] = categories.map(cat => {
     const catItems = items.filter(i => i.category === cat && i.status !== 'not-applicable');
     const total = catItems.length;

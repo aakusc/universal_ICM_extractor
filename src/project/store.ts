@@ -584,3 +584,37 @@ export function loadPlanTestResult(projectId: string): PlanTestResult | null {
     return null;
   }
 }
+
+// ── BRD Results ───────────────────────────────────────────
+
+export function saveBrd(projectId: string, brd: unknown): void {
+  fs.writeFileSync(path.join(pipelineDir(projectId), 'brd.json'), JSON.stringify(brd, null, 2));
+}
+
+export function loadBrd(projectId: string): unknown | null {
+  const p = path.join(PIPELINE_DIR, projectId, 'brd.json');
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8'));
+  } catch (err) {
+    console.warn('[store] Corrupt brd file', err);
+    return null;
+  }
+}
+
+// ── BRD Analysis (questions) ──────────────────────────────
+
+export function saveBrdAnalysis(projectId: string, analysis: unknown): void {
+  fs.writeFileSync(path.join(pipelineDir(projectId), 'brd-analysis.json'), JSON.stringify(analysis, null, 2));
+}
+
+export function loadBrdAnalysis(projectId: string): unknown | null {
+  const p = path.join(PIPELINE_DIR, projectId, 'brd-analysis.json');
+  if (!fs.existsSync(p)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf-8'));
+  } catch (err) {
+    console.warn('[store] Corrupt brd-analysis file', err);
+    return null;
+  }
+}

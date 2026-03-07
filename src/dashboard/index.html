@@ -108,7 +108,7 @@
     .empty-state { text-align: center; padding: 28px 12px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 
     /* ── Main ─────────────────────────────────────── */
-    .main-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+    .main-content { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
     .no-project {
       flex: 1; display: flex; align-items: center; justify-content: center;
       flex-direction: column; gap: 10px; color: var(--muted);
@@ -302,7 +302,8 @@
     .dl-row { display:flex; gap:7px; margin-top:10px; justify-content:flex-end; }
 
     /* ── Connector Tab ─────────────────────────────── */
-    .conn-layout { flex:1; overflow-y:auto; padding:20px; max-width:860px; margin:0 auto; width:100%; }
+    .conn-scroll { flex:1; min-height:0; overflow-y:auto; width:100%; }
+    .conn-layout { max-width:860px; margin:0 auto; padding:20px; }
     .conn-stitle { font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
     .conn-wrap { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:8px; }
     .conn-acc {
@@ -347,6 +348,25 @@
 
     /* ── Scrollbars ─────────────────────────────── */
     * { scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+
+    /* ── BRD Tables ──────────────────────────────── */
+    .brd-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .brd-table th { background:var(--bg3); color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; padding:8px 12px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
+    .brd-table td { padding:8px 12px; border-bottom:1px solid var(--border-muted); color:var(--fg2); vertical-align:top; }
+    .brd-table tr:last-child td { border-bottom:none; }
+    .brd-table tr:hover td { background:var(--bg3); }
+    .brd-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+    .brd-badge.high { background:var(--error-dim); color:var(--error); }
+    .brd-badge.medium { background:var(--warning-dim); color:var(--warning); }
+    .brd-badge.low { background:var(--success-dim); color:var(--success); }
+    .brd-badge.open { background:var(--primary-dim); color:var(--primary); }
+    .brd-question-row { display:flex; flex-direction:column; padding:12px 0; border-bottom:1px solid var(--border-muted); gap:6px; }
+    .brd-question-row:last-child { border-bottom:none; }
+    .brd-question-label { font-size:12px; color:var(--fg); font-weight:500; }
+    .brd-question-hint { font-size:11px; color:var(--muted); }
+    .brd-question-input { width:100%; padding:8px 10px; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--fg); font-family:var(--font); font-size:13px; resize:vertical; min-height:38px; }
+    .brd-question-input:focus { outline:none; border-color:var(--primary); }
+    @keyframes pulse { from { opacity:0.5; } to { opacity:1; } }
   </style>
 </head>
 <body>
@@ -360,6 +380,7 @@
     <button class="tab-btn" onclick="switchTab('connector')" id="tbtn-connector">API Connector</button>
     <button class="tab-btn" onclick="switchTab('tester')" id="tbtn-tester">Rule Tester</button>
     <button class="tab-btn" onclick="switchTab('compare')" id="tbtn-compare">Compare</button>
+    <button class="tab-btn" onclick="switchTab('brd')" id="tbtn-brd">BRD</button>
   </nav>
 </header>
 
@@ -387,7 +408,8 @@
 
   <!-- ── CONNECTOR ───────────────────────────────── -->
   <div class="tab-panel" id="panel-connector">
-    <div class="conn-layout">
+    <div class="conn-scroll">
+      <div class="conn-layout">
       <div style="margin-bottom:20px">
         <div class="conn-stitle">ICM Vendor Connectors</div>
         <div class="conn-wrap">
@@ -419,16 +441,14 @@
           <tbody id="tax-tb"></tbody></table>
         </div>
       </div>
-    </div>
+      </div><!-- /conn-layout -->
+    </div><!-- /conn-scroll -->
   </div>
-
-</div>
-
-<div class="toast-wrap" id="toasts">
 
   <!-- ── RULE TESTER ──────────────────────────────── -->
   <div class="tab-panel" id="panel-tester">
-    <div style="flex:1;overflow-y:auto;padding:24px;max-width:900px;margin:0 auto;width:100%">
+    <div style="flex:1;min-height:0;overflow-y:auto;width:100%">
+      <div style="max-width:900px;margin:0 auto;padding:24px">
       <div style="font-size:18px;font-weight:700;color:var(--fg);margin-bottom:16px">Rule Tester</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:20px">
         Compare a live CaptivateIQ instance against your generated build plan.
@@ -473,12 +493,14 @@
 
       <!-- Comparison results -->
       <div id="tester-results"></div>
-    </div>
+      </div><!-- /inner-center -->
+    </div><!-- /scroll-container -->
   </div>
 
   <!-- ── COMPARE ──────────────────────────────── -->
   <div class="tab-panel" id="panel-compare">
-    <div style="flex:1;overflow-y:auto;padding:24px;max-width:1000px;margin:0 auto;width:100%">
+    <div style="flex:1;min-height:0;overflow-y:auto;width:100%">
+      <div style="max-width:1000px;margin:0 auto;padding:24px">
       <div style="font-size:18px;font-weight:700;color:var(--fg);margin-bottom:4px">Compare</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:20px">
         Compare a builder project config against a CIQ extraction (offline, no live API needed).
@@ -563,10 +585,143 @@
 
       <!-- Results -->
       <div id="cmp-results"></div>
-    </div>
+      </div><!-- /inner-center -->
+    </div><!-- /scroll-container -->
   </div>
 
-</div>
+  <!-- ── BRD GENERATOR ──────────────────────────────── -->
+  <div class="tab-panel" id="panel-brd">
+    <div style="flex:1;min-height:0;overflow-y:auto;width:100%">
+      <div style="max-width:1100px;margin:0 auto;padding:24px">
+      <div style="font-size:18px;font-weight:700;color:var(--fg);margin-bottom:4px">BRD Generator</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px">
+        Generate a Business Requirements Document from pipeline extraction results. AI analyzes your data, asks for missing info, then writes the full BRD.
+      </div>
+
+      <!-- Project selector -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-body" style="padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Project</label>
+            <select id="brd-project" style="min-width:240px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--fg);font-family:var(--font);font-size:13px" onchange="brdProjectChanged()">
+              <option value="">Select a project with pipeline results...</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:18px;align-items:center">
+            <button class="btn" style="background:var(--primary);color:#000;font-weight:600" onclick="brdAnalyze()" id="btn-brd-analyze">Analyze &amp; Get Questions</button>
+            <button class="btn btn-ghost" onclick="brdLoad()" id="btn-brd-load">Load Saved BRD</button>
+            <span id="brd-analysis-status" style="font-size:11px;color:var(--muted)"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis / Questions phase -->
+      <div id="brd-questions-section" style="display:none">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr">
+            <div class="card-title">AI Analysis Summary</div>
+          </div>
+          <div class="card-body" style="padding:14px">
+            <div id="brd-summary" style="font-size:13px;color:var(--fg2);line-height:1.6;margin-bottom:12px"></div>
+            <div id="brd-known-fields" style="font-size:12px;color:var(--muted)"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr">
+            <div class="card-title">Clarifying Questions</div>
+            <div style="font-size:11px;color:var(--muted)">Answer as many as possible — skip with "TBD" if unknown</div>
+          </div>
+          <div class="card-body" style="padding:14px">
+            <div id="brd-questions-list"></div>
+            <div style="margin-top:16px;display:flex;gap:8px">
+              <button class="btn" style="background:var(--success);color:#000;font-weight:600" onclick="brdGenerate()" id="btn-brd-generate">Generate BRD</button>
+              <button class="btn btn-ghost" onclick="brdSkipQuestions()" id="btn-brd-skip">Skip — Generate from Data Only</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generating spinner -->
+      <div id="brd-generating" style="display:none;text-align:center;padding:40px">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:8px" id="brd-gen-status">Analyzing pipeline results...</div>
+        <div style="width:200px;height:4px;background:var(--bg3);border-radius:2px;margin:0 auto;overflow:hidden">
+          <div id="brd-gen-bar" style="height:100%;width:30%;background:var(--primary);border-radius:2px;animation:pulse 1.5s ease-in-out infinite alternate"></div>
+        </div>
+      </div>
+
+      <!-- BRD Output -->
+      <div id="brd-output" style="display:none">
+        <!-- Header bar with actions -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:700;color:var(--fg)">Generated BRD</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" onclick="brdCopyJson()" style="font-size:11px">Copy JSON</button>
+            <button class="btn btn-ghost" onclick="brdDownloadJson()" style="font-size:11px">Download JSON</button>
+            <button class="btn btn-ghost" onclick="brdDownloadCsv()" style="font-size:11px">Download CSV</button>
+            <button class="btn" style="background:var(--warning);color:#000;font-size:11px;font-weight:600" onclick="brdRegenerate()">Regenerate</button>
+          </div>
+        </div>
+
+        <!-- Insight banner -->
+        <div class="card" style="margin-bottom:16px;border-color:var(--primary-dim)">
+          <div class="card-body" style="padding:14px">
+            <div style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Analysis Insights</div>
+            <div id="brd-insights" style="font-size:13px;color:var(--fg2);line-height:1.6"></div>
+          </div>
+        </div>
+
+        <!-- Summary table -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr"><div class="card-title">Summary</div></div>
+          <div class="card-body" style="padding:0"><table id="brd-summary-table" style="width:100%;border-collapse:collapse;font-size:13px"></table></div>
+        </div>
+
+        <!-- Plan Matrix -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr"><div class="card-title">Plan Matrix (Checklist)</div></div>
+          <div class="card-body" style="padding:0;overflow-x:auto"><table id="brd-plan-matrix" style="width:100%;border-collapse:collapse;font-size:12px"></table></div>
+        </div>
+
+        <!-- Functional Requirements -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr"><div class="card-title">Functional Requirements</div></div>
+          <div class="card-body" style="padding:0;overflow-x:auto"><table id="brd-func-req" style="width:100%;border-collapse:collapse;font-size:12px"></table></div>
+        </div>
+
+        <!-- Business Requirements -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr"><div class="card-title">Business Requirements</div></div>
+          <div class="card-body" style="padding:0"><table id="brd-biz-req" style="width:100%;border-collapse:collapse;font-size:12px"></table></div>
+        </div>
+
+        <!-- Data Requirements -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr"><div class="card-title">Data Requirements</div></div>
+          <div class="card-body" style="padding:0;overflow-x:auto"><table id="brd-data-req" style="width:100%;border-collapse:collapse;font-size:12px"></table></div>
+        </div>
+
+        <!-- Reports -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr"><div class="card-title">Reports</div></div>
+          <div class="card-body" style="padding:0;overflow-x:auto"><table id="brd-reports" style="width:100%;border-collapse:collapse;font-size:12px"></table></div>
+        </div>
+
+        <!-- Open Questions -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-hdr"><div class="card-title">Open Questions</div></div>
+          <div class="card-body" style="padding:0"><table id="brd-questions-table" style="width:100%;border-collapse:collapse;font-size:12px"></table></div>
+        </div>
+
+      </div><!-- /brd-output -->
+
+      </div><!-- /inner-center -->
+    </div><!-- /scroll-container -->
+  </div><!-- /panel-brd -->
+
+</div><!-- /app-body -->
+
+<div class="toast-wrap" id="toasts"></div>
 
 <script>
 'use strict';
@@ -2222,6 +2377,304 @@ async function deleteSelectedProfile() {
     toast('Failed to delete: ' + e.message, 'error');
   }
 }
+
+// ── BRD Generator ────────────────────────────────────────────
+
+var _brdAnalysis = null;
+var _brdDoc = null;
+
+async function brdProjectChanged() {
+  _brdAnalysis = null;
+  _brdDoc = null;
+  document.getElementById('brd-questions-section').style.display = 'none';
+  document.getElementById('brd-output').style.display = 'none';
+  document.getElementById('brd-generating').style.display = 'none';
+  document.getElementById('brd-analysis-status').textContent = '';
+
+  var pid = document.getElementById('brd-project').value;
+  if (!pid) return;
+
+  // Try to load saved analysis
+  try {
+    var saved = await api('GET', '/api/brd/projects/' + pid + '/analysis');
+    _brdAnalysis = saved;
+    document.getElementById('brd-analysis-status').textContent = 'Saved analysis loaded — questions ready';
+    document.getElementById('btn-brd-analyze').textContent = 'Re-analyze';
+    renderBrdQuestions(_brdAnalysis);
+  } catch(e) {
+    document.getElementById('btn-brd-analyze').textContent = 'Analyze & Get Questions';
+  }
+
+  // Also try to load saved BRD
+  try {
+    var savedBrd = await api('GET', '/api/brd/projects/' + pid);
+    _brdDoc = savedBrd.brd;
+    renderBrdOutput(_brdDoc);
+  } catch(e) { /* none yet */ }
+}
+
+function brdSetGenerating(msg) {
+  document.getElementById('brd-generating').style.display = 'block';
+  document.getElementById('brd-gen-status').textContent = msg || 'Working...';
+  document.getElementById('brd-questions-section').style.display = 'none';
+  document.getElementById('brd-output').style.display = 'none';
+}
+
+function brdClearGenerating() {
+  document.getElementById('brd-generating').style.display = 'none';
+}
+
+async function brdAnalyze() {
+  var pid = document.getElementById('brd-project').value;
+  if (!pid) { toast('Select a project first', 'error'); return; }
+  brdSetGenerating('Analyzing pipeline results and identifying gaps...');
+  document.getElementById('brd-output').style.display = 'none';
+  try {
+    _brdAnalysis = await api('POST', '/api/brd/projects/' + pid + '/analyze', {});
+    brdClearGenerating();
+    document.getElementById('btn-brd-analyze').textContent = 'Re-analyze';
+    document.getElementById('brd-analysis-status').textContent = 'Analysis saved';
+    renderBrdQuestions(_brdAnalysis);
+  } catch(e) {
+    brdClearGenerating();
+    toast('Analysis failed: ' + e.message, 'error');
+  }
+}
+
+function renderBrdQuestions(analysis) {
+  document.getElementById('brd-summary').textContent = analysis.summary || '';
+
+  // Known fields
+  var kf = analysis.knownFields || {};
+  var kfHtml = Object.entries(kf).filter(function(e){ return e[1]; }).map(function(e){
+    return '<span style="display:inline-block;margin:2px 4px;padding:2px 8px;background:var(--success-dim);color:var(--success);border-radius:10px;font-size:10px">' + esc(e[0]) + ': ' + esc(String(e[1]).slice(0,60)) + '</span>';
+  }).join('');
+  document.getElementById('brd-known-fields').innerHTML = kfHtml ? '<div style="margin-bottom:6px;font-size:11px;font-weight:600;color:var(--muted)">ALREADY KNOWN</div>' + kfHtml : '';
+
+  // Questions
+  var qs = analysis.questions || [];
+  var html = '';
+  qs.forEach(function(q) {
+    var req = q.required ? '<span style="color:var(--error);margin-left:4px">*</span>' : '';
+    html += '<div class="brd-question-row">';
+    html += '<div style="display:flex;align-items:center;gap:6px">';
+    html += '<span style="font-size:10px;color:var(--muted);font-weight:600;background:var(--bg3);padding:2px 6px;border-radius:4px">' + esc(q.section) + '</span>';
+    html += '<span class="brd-question-label">' + esc(q.question) + req + '</span>';
+    html += '</div>';
+    if (q.hint) html += '<div class="brd-question-hint">' + esc(q.hint) + '</div>';
+    html += '<textarea class="brd-question-input" id="brd-q-' + esc(q.id) + '" placeholder="Your answer (or TBD)..." rows="2"></textarea>';
+    html += '</div>';
+  });
+  document.getElementById('brd-questions-list').innerHTML = html || '<div style="color:var(--muted);font-size:13px">No questions needed — AI has enough data to generate the BRD directly.</div>';
+  document.getElementById('brd-questions-section').style.display = 'block';
+}
+
+function collectAnswers() {
+  var qs = (_brdAnalysis && _brdAnalysis.questions) || [];
+  return qs.map(function(q) {
+    var el = document.getElementById('brd-q-' + q.id);
+    return { questionId: q.id, answer: el ? el.value.trim() : '' };
+  }).filter(function(a){ return a.answer.length > 0; });
+}
+
+async function brdGenerate() {
+  var pid = document.getElementById('brd-project').value;
+  if (!pid) { toast('Select a project first', 'error'); return; }
+  var answers = collectAnswers();
+  brdSetGenerating('Generating BRD document (this takes ~60-90 seconds)...');
+  try {
+    var r = await api('POST', '/api/brd/projects/' + pid + '/generate', { answers: answers });
+    _brdDoc = r.brd;
+    brdClearGenerating();
+    renderBrdOutput(_brdDoc);
+  } catch(e) {
+    brdClearGenerating();
+    toast('Generation failed: ' + e.message, 'error');
+  }
+}
+
+async function brdSkipQuestions() {
+  var pid = document.getElementById('brd-project').value;
+  if (!pid) { toast('Select a project first', 'error'); return; }
+  brdSetGenerating('Generating BRD from extraction data (this takes ~60-90 seconds)...');
+  try {
+    var r = await api('POST', '/api/brd/projects/' + pid + '/generate', { answers: [] });
+    _brdDoc = r.brd;
+    brdClearGenerating();
+    renderBrdOutput(_brdDoc);
+  } catch(e) {
+    brdClearGenerating();
+    toast('Generation failed: ' + e.message, 'error');
+  }
+}
+
+async function brdLoad() {
+  var pid = document.getElementById('brd-project').value;
+  if (!pid) { toast('Select a project first', 'error'); return; }
+  try {
+    var r = await api('GET', '/api/brd/projects/' + pid);
+    _brdDoc = r.brd;
+    renderBrdOutput(_brdDoc);
+    toast('BRD loaded', 'success');
+  } catch(e) {
+    toast('No saved BRD for this project. Run Analyze first.', 'error');
+  }
+}
+
+async function brdRegenerate() {
+  var pid = document.getElementById('brd-project').value;
+  if (!pid) { toast('Select a project first', 'error'); return; }
+  if (!confirm('Regenerate the BRD? The current one will be overwritten.')) return;
+  document.getElementById('brd-output').style.display = 'none';
+  document.getElementById('brd-questions-section').style.display = 'none';
+  await brdAnalyze();
+}
+
+function renderBrdOutput(brd) {
+  if (!brd) { toast('No BRD data', 'error'); return; }
+
+  // Insights
+  document.getElementById('brd-insights').textContent = brd.analysisInsights || '';
+
+  // Summary table
+  var sumRows = [
+    ['Client Name', brd.clientName],
+    ['Fiscal Year', brd.fiscalYear],
+    ['Project Start', brd.projectStartDate],
+    ['Target Deployment', brd.targetDeploymentDate],
+    ['Generated', brd.generatedAt ? new Date(brd.generatedAt).toLocaleString() : ''],
+  ];
+  document.getElementById('brd-summary-table').innerHTML =
+    sumRows.map(function(r){ return '<tr><td style="width:160px;font-weight:600;color:var(--fg);padding:8px 12px;border-bottom:1px solid var(--border-muted)">' + esc(r[0]) + '</td><td style="padding:8px 12px;border-bottom:1px solid var(--border-muted);color:var(--fg2)">' + esc(r[1]||'TBD') + '</td></tr>'; }).join('');
+
+  // Plan Matrix
+  var pm = brd.planMatrix || [];
+  document.getElementById('brd-plan-matrix').innerHTML =
+    '<tr><th>Plan Group</th><th>Plan Name</th><th>Period</th><th>SPIFF</th></tr>' +
+    pm.map(function(r){ return '<tr><td>' + esc(r.planGroup) + '</td><td>' + esc(r.planName) + '</td><td>' + esc(r.period) + '</td><td>' + (r.hasSpiff ? '<span class="brd-badge open">Yes</span>' : '') + '</td></tr>'; }).join('');
+
+  // Functional Requirements
+  var fr = brd.functionalRequirements || [];
+  var frCols = ['Plan ID','Category','CIQ Plan Name','Channel','Component','Weight','Bands','Rates','Period','Freq','Crediting','Datasource','Quota','Draw','Cap','Effective Dates'];
+  document.getElementById('brd-func-req').innerHTML =
+    '<tr>' + frCols.map(function(c){ return '<th>' + esc(c) + '</th>'; }).join('') + '</tr>' +
+    fr.map(function(r){ return '<tr>' +
+      '<td>' + esc(r.planId) + '</td>' +
+      '<td>' + esc(r.category) + '</td>' +
+      '<td>' + esc(r.ciqPlanName) + '</td>' +
+      '<td>' + esc(r.channelName) + '</td>' +
+      '<td>' + esc(r.componentProduct) + '</td>' +
+      '<td>' + esc(r.weight) + '</td>' +
+      '<td style="max-width:140px;white-space:pre-wrap">' + esc(r.achievementBands) + '</td>' +
+      '<td style="max-width:140px;white-space:pre-wrap">' + esc(r.multiplierRates) + '</td>' +
+      '<td>' + esc(r.eligibilityPeriod) + '</td>' +
+      '<td>' + esc(r.payoutFrequency) + '</td>' +
+      '<td>' + esc(r.creditingType) + '</td>' +
+      '<td>' + esc(r.datasource) + '</td>' +
+      '<td>' + esc(r.hasQuota) + '</td>' +
+      '<td>' + esc(r.hasDraw) + '</td>' +
+      '<td>' + esc(r.payoutCap) + '</td>' +
+      '<td>' + esc(r.effectiveDates) + '</td>' +
+      '</tr>'; }).join('');
+
+  // Business Requirements
+  var br = brd.businessRequirements || [];
+  document.getElementById('brd-biz-req').innerHTML =
+    '<tr><th>#</th><th>Requirement</th><th>Details</th><th>Priority</th><th>Status</th><th>Notes</th></tr>' +
+    br.map(function(r){ var p = (r.priority||'').toLowerCase(); return '<tr>' +
+      '<td style="width:40px">' + esc(r.id) + '</td>' +
+      '<td style="font-weight:600;color:var(--fg)">' + esc(r.requirement) + '</td>' +
+      '<td style="max-width:300px">' + esc(r.details) + '</td>' +
+      '<td><span class="brd-badge ' + esc(p) + '">' + esc(r.priority) + '</span></td>' +
+      '<td><span class="brd-badge open">' + esc(r.status) + '</span></td>' +
+      '<td>' + esc(r.notes) + '</td>' +
+      '</tr>'; }).join('');
+
+  // Data Requirements
+  var dr = brd.dataRequirements || [];
+  document.getElementById('brd-data-req').innerHTML =
+    '<tr><th>Table/Data</th><th>Plan</th><th>Type</th><th>Source</th><th>Frequency</th><th>Effective Dated</th><th>Level</th><th>Description</th></tr>' +
+    dr.map(function(r){ return '<tr>' +
+      '<td style="font-weight:600;color:var(--fg)">' + esc(r.tableOrData) + '</td>' +
+      '<td>' + esc(r.plan) + '</td>' +
+      '<td>' + esc(r.dataType) + '</td>' +
+      '<td>' + esc(r.automatedOrManual) + '</td>' +
+      '<td>' + esc(r.updateFrequency) + '</td>' +
+      '<td>' + esc(r.effectiveDated) + '</td>' +
+      '<td>' + esc(r.level) + '</td>' +
+      '<td>' + esc(r.description) + '</td>' +
+      '</tr>'; }).join('');
+
+  // Reports
+  var rp = brd.reports || [];
+  document.getElementById('brd-reports').innerHTML =
+    '<tr><th>ID</th><th>Report Name</th><th>Frequency</th><th>Priority</th><th>Description</th><th>Level</th></tr>' +
+    rp.map(function(r){ return '<tr>' +
+      '<td>' + esc(r.id) + '</td>' +
+      '<td style="font-weight:600;color:var(--fg)">' + esc(r.reportName) + '</td>' +
+      '<td>' + esc(r.frequency) + '</td>' +
+      '<td>' + esc(r.priority) + '</td>' +
+      '<td>' + esc(r.description) + '</td>' +
+      '<td>' + esc(r.summaryLevel) + '</td>' +
+      '</tr>'; }).join('');
+
+  // Open Questions
+  var oq = brd.openQuestions || [];
+  document.getElementById('brd-questions-table').innerHTML =
+    '<tr><th>#</th><th>Status</th><th>Requestor</th><th>Question</th><th>Answer</th><th>Notes</th></tr>' +
+    oq.map(function(r){ return '<tr>' +
+      '<td style="width:40px">' + esc(r.id) + '</td>' +
+      '<td><span class="brd-badge open">' + esc(r.status) + '</span></td>' +
+      '<td>' + esc(r.requestor) + '</td>' +
+      '<td>' + esc(r.question) + '</td>' +
+      '<td>' + esc(r.answer||'') + '</td>' +
+      '<td>' + esc(r.notes||'') + '</td>' +
+      '</tr>'; }).join('');
+
+  document.getElementById('brd-output').style.display = 'block';
+}
+
+function brdCopyJson() {
+  if (!_brdDoc) { toast('No BRD to copy', 'error'); return; }
+  navigator.clipboard.writeText(JSON.stringify(_brdDoc, null, 2)).then(function(){ toast('Copied to clipboard', 'success'); });
+}
+
+function brdDownloadJson() {
+  if (!_brdDoc) { toast('No BRD to download', 'error'); return; }
+  var blob = new Blob([JSON.stringify(_brdDoc, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'BRD_' + (_brdDoc.clientName||'project').replace(/[^a-zA-Z0-9]/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+function brdDownloadCsv() {
+  if (!_brdDoc || !_brdDoc.functionalRequirements) { toast('No BRD to download', 'error'); return; }
+  // Export functional requirements as CSV
+  var cols = ['planId','planCategory','category','ciqPlanName','channelName','componentProduct','weight','achievementBands','multiplierRates','eligibilityPeriod','payoutFrequency','creditingType','datasource','eligibilityCriteria','eligibilityLogic','rateRules','hasQuota','rateStructureDescription','hasDraw','drawDetails','acceleratorDeceleratorDetails','payoutCap','effectiveDates','miscNotes'];
+  var rows = [cols.join(',')];
+  (_brdDoc.functionalRequirements||[]).forEach(function(r){
+    rows.push(cols.map(function(c){ return '"' + String(r[c]||'').replace(/"/g,'""') + '"'; }).join(','));
+  });
+  var blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'BRD_FunctionalReq_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
+// Populate BRD project dropdown when switching to BRD tab
+var _origSwitchTab = switchTab;
+switchTab = function(name) {
+  _origSwitchTab(name);
+  if (name === 'brd') {
+    var sel = document.getElementById('brd-project');
+    if (sel && S.projects) {
+      sel.innerHTML = '<option value="">Select a project with pipeline results...</option>' +
+        S.projects.map(function(p){ return '<option value="' + esc(p.id) + '">' + esc(p.name) + '</option>'; }).join('');
+    }
+  }
+};
 
 </script>
 </body>

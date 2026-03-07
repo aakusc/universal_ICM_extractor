@@ -1,9 +1,10 @@
 /**
  * Multi-pass extraction pipeline runner.
  *
- * Pass 1: Per-file extraction (parallel, concurrency-limited)
- * Pass 2: Cross-reference synthesis
- * Pass 3: Validation against source data
+ * Pass 1: Per-file extraction with mandatory 25-field ICM audit (parallel, concurrency-limited)
+ * Pass 2A: Cross-document synthesis — unify fields, resolve conflicts, build CIQ config
+ * Pass 2B: Adversarial concern audit — math validation, ambiguity hunt, policy risks
+ * Pass 3: Final validation — value-level cross-check, score with deductions
  * Pass 4: Output generation (deterministic)
  */
 
@@ -17,6 +18,7 @@ import { analyzeCompleteness } from './completeness.js';
 import {
   PASS1_SYSTEM_PROMPT, buildPass1UserPrompt,
   PASS2_SYSTEM_PROMPT, buildPass2UserPrompt,
+  PASS2B_SYSTEM_PROMPT, buildPass2BUserPrompt,
   PASS3_SYSTEM_PROMPT, buildPass3UserPrompt,
 } from './prompts.js';
 import * as store from '../project/store.js';
@@ -26,6 +28,7 @@ import type {
   PipelineStatus, PipelinePhase, FileExtractionStatus,
   FileExtractionResult, FileClassification,
   SynthesisResult, ValidationResult, ValidationCheck,
+  AuditResult,
   PipelineInput, PipelineOutput, PipelineEvent, CompletenessResult,
 } from './types.js';
 
@@ -111,6 +114,9 @@ async function extractFilePass1(
   const parsed = await callClaudeForJson<{
     classification: FileClassification;
     rules: NormalizedRule[];
+    field_audit?: Record<string, unknown>;
+    concerns?: unknown[];
+    missing_documents?: string[];
     insights: string;
   }>(PASS1_SYSTEM_PROMPT, userPrompt);
 
@@ -122,6 +128,9 @@ async function extractFilePass1(
     extractedAt: new Date().toISOString(),
     classification: parsed.classification ?? { fileType: 'unknown', summary: '', relevantSheets: [], irrelevantSheets: [] },
     rules: parsed.rules ?? [],
+    field_audit: parsed.field_audit as any ?? undefined,
+    concerns: parsed.concerns as any ?? [],
+    missing_documents: parsed.missing_documents ?? [],
     insights: parsed.insights ?? '',
   };
 
@@ -233,6 +242,8 @@ export async function synthesizePass2(
   const userPrompt = buildPass2UserPrompt(fileResults);
 
   const parsed = await callClaudeForJson<{
+    unified_fields?: Record<string, unknown>;
+    project_gaps?: unknown[];
     rules: NormalizedRule[];
     crossReferences: SynthesisResult['crossReferences'];
     conflicts: SynthesisResult['conflicts'];
@@ -254,15 +265,69 @@ export async function synthesizePass2(
       attributeWorksheets: [],
       formulaRecommendations: [],
     },
+    unified_fields: parsed.unified_fields as any ?? undefined,
+    project_gaps: parsed.project_gaps as any ?? [],
     insights: parsed.insights ?? '',
   };
 
   store.saveSynthesisResult(projectId, result);
-  console.log(`  [pass2] ✓ Synthesized: ${result.rules.length} rules, ${result.conflicts.length} conflicts, ${result.crossReferences.length} cross-refs`);
+  const gapCount = result.project_gaps?.length ?? 0;
+  console.log(`  [pass2] ✓ Synthesized: ${result.rules.length} rules, ${result.conflicts.length} conflicts, ${gapCount} project gaps`);
 
   onEvent?.({
     event: 'pass2',
-    data: { ruleCount: result.rules.length, conflictCount: result.conflicts.length },
+    data: { ruleCount: result.rules.length, conflictCount: result.conflicts.length, gapCount },
+  });
+
+  return result;
+}
+
+// ── Pass 2B: Adversarial Concern Audit ───────────────────
+
+export async function auditPass2B(
+  projectId: string,
+  fileResults: FileExtractionResult[],
+  synthesis: SynthesisResult,
+  onEvent?: (event: PipelineEvent) => void,
+): Promise<AuditResult> {
+  console.log(`  [pass2b] Running adversarial concern audit...`);
+
+  onEvent?.({
+    event: 'progress',
+    data: {
+      projectId,
+      phase: 'synthesizing',
+      startedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      progress: { label: 'Auditing for concerns, ambiguities, and math errors...', percent: 55 },
+      fileStatuses: [],
+    },
+  });
+
+  const userPrompt = buildPass2BUserPrompt(fileResults, synthesis);
+
+  const parsed = await callClaudeForJson<AuditResult>(
+    PASS2B_SYSTEM_PROMPT,
+    userPrompt,
+    2,
+    'claude-sonnet-4-6',
+  );
+
+  const result: AuditResult = {
+    math_validation: parsed.math_validation ?? [],
+    concerns: parsed.concerns ?? [],
+    blocking_issues: parsed.blocking_issues ?? [],
+    overall_risk: parsed.overall_risk ?? 'medium',
+    risk_summary: parsed.risk_summary ?? '',
+  };
+
+  const blockingCount = result.blocking_issues.length;
+  const concernCount = result.concerns.length;
+  console.log(`  [pass2b] ✓ Audit: ${concernCount} concerns (${blockingCount} blocking), risk=${result.overall_risk}`);
+
+  onEvent?.({
+    event: 'pass2b',
+    data: { concernCount, blockingCount, overall_risk: result.overall_risk },
   });
 
   return result;
@@ -339,6 +404,7 @@ export async function validatePass3(
   projectId: string,
   synthesis: SynthesisResult,
   files: Array<{ fileId: string; workbook: ParsedWorkbook }>,
+  auditResult?: AuditResult,
   onEvent?: (event: PipelineEvent) => void,
 ): Promise<ValidationResult> {
   console.log(`  [pass3] Validating ${synthesis.rules.length} rules against ${files.length} source files...`);
@@ -350,7 +416,7 @@ export async function validatePass3(
       phase: 'validating',
       startedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      progress: { label: 'Validating rules against source data...', percent: 65 },
+      progress: { label: 'Validating rules against source data...', percent: 70 },
       fileStatuses: [],
     },
   });
@@ -362,13 +428,16 @@ export async function validatePass3(
   // Generate source data summaries
   const sourceDataSummary = generateAllSourceSummaries(files, 15000);
 
-  // AI validation
-  const userPrompt = buildPass3UserPrompt(synthesis, sourceDataSummary, deterministicChecks);
+  // AI validation — now includes audit result so concerns are carried forward
+  const userPrompt = buildPass3UserPrompt(synthesis, sourceDataSummary, deterministicChecks, auditResult);
 
   const parsed = await callClaudeForJson<{
     overallScore: number;
+    score_breakdown?: { base_score: number; deductions: Array<{ reason: string; points: number }> };
     checks: ValidationCheck[];
     flaggedRules: Array<{ ruleId: string; reason: string; severity: string; suggestion?: string }>;
+    flaggedFields?: Array<{ field_id: string; reason: string; severity: string; concern_ref: string | null }>;
+    open_concerns_carried?: Array<{ concern_id: string; severity: string; status: string }>;
     corrections: Array<{ ruleId: string; field: string; oldValue: unknown; newValue: unknown; reason: string }>;
     insights: string;
   }>(PASS3_SYSTEM_PROMPT, userPrompt, 2, 'claude-sonnet-4-6');
@@ -401,14 +470,18 @@ export async function validatePass3(
     projectId,
     validatedAt: new Date().toISOString(),
     overallScore: parsed.overallScore ?? 0,
+    score_breakdown: parsed.score_breakdown,
     checks: allChecks,
     flaggedRules: (parsed.flaggedRules ?? []).map(f => ({
       ...f,
       severity: f.severity as 'low-confidence' | 'contradiction' | 'missing-data' | 'mismatch',
     })),
+    flaggedFields: parsed.flaggedFields as any ?? [],
+    open_concerns_carried: parsed.open_concerns_carried ?? [],
     validatedRules,
     captivateiqConfig: validatedConfig,
     insights: parsed.insights ?? '',
+    auditResult,
   };
 
   store.saveValidationResult(projectId, result);
@@ -487,14 +560,33 @@ export async function runPipeline(
       console.log(`[pipeline] Pass 2: Using cached synthesis`);
     }
 
+    // ── Pass 2B: Adversarial Concern Audit ────────────
+
+    let auditResult: AuditResult | undefined;
+    if (!force) {
+      // No caching for audit — always re-run alongside synthesis if synthesis changed
+      try {
+        const stored = store.loadValidationResult(projectId);
+        auditResult = stored?.auditResult;
+      } catch { /* no cached audit */ }
+    }
+
+    if (!auditResult) {
+      console.log(`[pipeline] Pass 2B: Adversarial concern audit`);
+      updateStatus('synthesizing', 'Auditing for concerns, ambiguities, and conflicts...', 55);
+      auditResult = await auditPass2B(projectId, fileResults, synthesis, onEvent);
+    } else {
+      console.log(`[pipeline] Pass 2B: Using cached audit (${auditResult.concerns.length} concerns)`);
+    }
+
     // ── Pass 3: Validation ─────────────────────────────
 
     let validation = force ? null : store.loadValidationResult(projectId);
 
     if (!validation) {
       console.log(`[pipeline] Pass 3: Validating against source data`);
-      updateStatus('validating', 'Validating rules against source data...', 60);
-      validation = await validatePass3(projectId, synthesis, files, onEvent);
+      updateStatus('validating', 'Validating rules against source data...', 70);
+      validation = await validatePass3(projectId, synthesis, files, auditResult, onEvent);
     } else {
       console.log(`[pipeline] Pass 3: Using cached validation`);
     }
@@ -502,7 +594,7 @@ export async function runPipeline(
     // ── Completeness Analysis ───────────────────────────
 
     console.log(`[pipeline] Analyzing CIQ build readiness...`);
-    const completeness = analyzeCompleteness(synthesis, validation);
+    const completeness = analyzeCompleteness(synthesis, validation, auditResult);
     store.saveCompletenessResult(projectId, completeness);
     console.log(`[pipeline] ✓ Readiness: ${completeness.overallReadiness}% (${completeness.counts.complete}/${completeness.counts.total - completeness.counts.notApplicable} items, ${completeness.blockers.length} blockers)`);
 
@@ -564,7 +656,7 @@ export async function runPipeline(
 
     updateStatus('complete', 'Pipeline complete', 100);
 
-    const output: PipelineOutput = { fileResults, synthesis, validation, completeness };
+    const output: PipelineOutput = { fileResults, synthesis, auditResult, validation, completeness };
 
     onEvent?.({ event: 'complete', data: output });
 

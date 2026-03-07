@@ -1,0 +1,239 @@
+{
+  "summary": "The extraction captured 28 compensation rules at 76/100 quality from the Vimeo/BHG FY26 workbook, successfully identifying the core rate architecture — a 5-tier universal acceleration model, retention interpolation model, multi-year deal multipliers, quarterly draw structure with role-differentiated rates, component weight splits, and 7 CaptivateIQ data worksheets — with no rate or threshold errors detected across verified formula tabs. However, all 5 acceleration tier rates and most thresholds are missing values, ISR/SDR Manager and CSM/SE Manager plans have no source calculator tabs and must be treated as provisional, and the CIQ Employee Assumptions schema is missing required fields (multi-year ARR, renewal prior-ARR, ISR pass-up transaction data) that will cause build failures before testing begins. BRD sections covering project metadata, system access/roles, approval and dispute workflows, data feed sourcing, historical data migration, and custom reporting have no extractable data and require direct client input.",
+  "knownFields": {
+    "clientName": "Vimeo / BHG (inferred from filename 'Vimeo_BHG_FY26_Requirements'; legal entity name and preferred BRD designation require client confirmation)",
+    "planCount": "8+ roles identified in Plan Summary: AE, AM, AEAM Hybrid, CSM, RM, SE, ISR/SDR Manager, CSM/SE Manager; exact plan-to-role mapping is incomplete — ISR/SDR Manager and CSM/SE Manager calculator tabs are absent from the workbook",
+    "planTypes": "New Net Business (NNB), Expansion, Retention, Multi-Year Deal Bonus, ISR Pass-Up SPIFF, Services Bookings (half-BCR); SPIFF flag confirmed only for ISR pass-up component",
+    "payoutFrequency": "Quarterly draw structure confirmed with role-differentiated draw rates (AEAM/AM: 50%, CSM/RM: 75%); true-up cadence and final settlement frequency are not specified in source documents",
+    "rateStructure": "5-tier universal acceleration model (tier 1 rate missing; tiers 2–5 rates and thresholds all missing), retention interpolation payout model (floor/cap confirmed, curve type and tier thresholds unverified), multi-year deal ARR multiplier table (present, completeness unverified), role-based component weight splits, channel-segment configuration splits",
+    "quotaTypes": "NNB quota (AE/AEAM roles), Expansion quota, Retention quota; AM confirmed to carry no NNB quota; attainment calculation formula is undefined and crediting basis is not formally specified",
+    "dataWorksheets": "7 CaptivateIQ data worksheets confirmed: Universal Acceleration Tiers (rate-table), Multi-Year Deal Multipliers (accelerator), Retention Payout Schedule (rate-table), Role Component Weights (split), Channel Segment Configuration (split), ISR Pass-Up Rates (spif), Retention Draw Rates (draw); 3 attribute worksheets confirmed: Role-Segment Assignment, Regional Territory Map, Manager Rollup Hierarchy; 8 formula recommendations generated",
+    "reportingNeeds": "Standard payout statement, transaction detail report, and manager rollup dashboard inferred from plan structure and hierarchy configuration; custom report specifications, delivery format, access restrictions, and downstream integrations are not present in source documents"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "section": "Summary",
+      "question": "What is the legal entity or preferred client organization name to appear on the BRD header and contract documents?",
+      "hint": "The source filename references both 'Vimeo' and 'BHG' — please confirm which entity name (or combined name) should be used, and clarify the relationship between the two entities if relevant to plan scope",
+      "required": true
+    },
+    {
+      "id": "q2",
+      "section": "Summary",
+      "question": "What are the official project start date and target CaptivateIQ go-live date?",
+      "hint": "Required for the BRD header, revision history, and project timeline; FY26 is confirmed but implementation calendar dates are not present in the workbook",
+      "required": true
+    },
+    {
+      "id": "q3",
+      "section": "Summary",
+      "question": "Is this a net-new CaptivateIQ instance, a migration from an existing ICM platform, or a reconfiguration of an existing CIQ tenant?",
+      "hint": "Determines scope of historical data migration, baseline configuration, and integration architecture",
+      "required": true
+    },
+    {
+      "id": "q4",
+      "section": "Summary",
+      "question": "Who are the named project stakeholders — specifically the business owner, finance sponsor, sales ops lead, and IT/systems contact?",
+      "hint": "Required for BRD approval signatures, escalation path, and data feed ownership accountability",
+      "required": true
+    },
+    {
+      "id": "q5",
+      "section": "Checklist / Plan Matrix",
+      "question": "What are the exact FY26 plan period start and end dates for each quarter (Q1–Q4)?",
+      "hint": "FY26 is confirmed from the filename but it is unknown whether FY26 aligns to a calendar year or offset fiscal year; quarter boundary dates are required to configure CIQ period structures",
+      "required": true
+    },
+    {
+      "id": "q6",
+      "section": "Checklist / Plan Matrix",
+      "question": "Beyond the ISR pass-up component, are any other plan components designated as SPIFF plans — for example, Services Bookings or Multi-Year Deal Bonus?",
+      "hint": "Only ISR Pass-Up was extractable as a confirmed SPIFF; the SPIFF flag affects CIQ plan classification, reporting separation, and tax treatment configuration",
+      "required": true
+    },
+    {
+      "id": "q7",
+      "section": "Checklist / Plan Matrix",
+      "question": "Should ISR/SDR Manager and CSM/SE Manager plans be included in the FY26 go-live deployment, or deferred until verified calculator tabs are provided?",
+      "hint": "Both plans appear in the Plan Summary but have no calculator tabs in the workbook; the extraction treats them as provisional and flags them as high-risk for production deployment without source verification",
+      "required": true
+    },
+    {
+      "id": "q8",
+      "section": "Functional Requirements",
+      "question": "What are the rate and threshold values for Universal Acceleration Tiers 1 through 5?",
+      "hint": "This is the highest-priority completeness blocker: Tier 1 rate is missing; Tiers 2–5 are each missing both the commission rate and the attainment threshold. These values are required before any CIQ rate table can be built",
+      "required": true
+    },
+    {
+      "id": "q9",
+      "section": "Functional Requirements",
+      "question": "What is the attainment calculation formula — specifically, how is attainment percentage computed (e.g., actual ARR ÷ quota target, weighted blend across components, or separate per-component attainment)?",
+      "hint": "Quota targets exist in the workbook but the attainment formula is not specified; this formula drives all acceleration tier lookups and is a required completeness blocker",
+      "required": true
+    },
+    {
+      "id": "q10",
+      "section": "Functional Requirements",
+      "question": "What is the formal crediting basis for each plan component — specifically, what transaction event (e.g., booking date, invoice date, cash receipt, contract execution date) triggers a credit in CaptivateIQ?",
+      "hint": "Crediting basis is referenced in the workbook but not formally defined; this is a required completeness blocker and governs when transactions appear in a rep's statement",
+      "required": true
+    },
+    {
+      "id": "q11",
+      "section": "Functional Requirements",
+      "question": "What are the complete employee assumption inputs for AEAM Hybrid, CSM, ISR/SDR Manager, Manager, and CSM/SE Manager — specifically OTE, base salary, variable target, quota amount, and component weights for each role?",
+      "hint": "These 5 roles are missing from the Employee Assumptions schema; without them, CIQ cannot assign quotas or compute payouts, blocking configuration for these roles entirely",
+      "required": true
+    },
+    {
+      "id": "q12",
+      "section": "Functional Requirements",
+      "question": "Is the AM role intentionally excluded from the Multi-Year BCR Qualifier, or is its appearance in the applicable_roles field a data entry error that should be corrected?",
+      "hint": "The extraction detected a contradiction: AM is listed in multi-year-bcr-qualifier applicable_roles but has no NNB quota, no multi-year deal input rows in the AM Calculator, and is explicitly absent from ae-multi-year-acceleration — AM's plan structure (Expansion + Retention only) provides no pathway to trigger this bonus. Client must adjudicate before this rule is configured",
+      "required": true
+    },
+    {
+      "id": "q13",
+      "section": "Functional Requirements",
+      "question": "What is the complete Retention Payout Schedule — specifically the floor attainment threshold, cap attainment threshold, floor payout percentage, cap payout percentage, and interpolation method (linear, stepped, or custom curve)?",
+      "hint": "The retention interpolation model is confirmed to exist but the payout schedule has no tier data in the extraction; this is listed as a completeness blocker",
+      "required": true
+    },
+    {
+      "id": "q14",
+      "section": "Functional Requirements",
+      "question": "What are the draw recovery mechanics — specifically, is unearned draw recovered within the same quarter, rolled forward to subsequent quarters, or forgiven at fiscal year-end? Are there any recovery caps, de minimis thresholds, or minimum guarantee provisions?",
+      "hint": "Draw rates are confirmed (AEAM/AM: 50%, CSM/RM: 75%) but the recovery logic is not documented in the extracted rules and is required to configure the draw worksheet in CIQ",
+      "required": true
+    },
+    {
+      "id": "q15",
+      "section": "Functional Requirements",
+      "question": "Are there any earnings caps — annual, quarterly, or per-deal — for any role or plan component?",
+      "hint": "No cap structures were detected in the extraction; confirm whether any plans impose a maximum payout ceiling, as this must be explicitly configured in CIQ",
+      "required": true
+    },
+    {
+      "id": "q16",
+      "section": "Functional Requirements",
+      "question": "What are the full plan rules for ISR/SDR Manager and CSM/SE Manager — including OTE, component weights, quota basis, team performance crediting logic, and payout formula?",
+      "hint": "These two roles appear only in the Plan Summary with no supporting calculator tabs; the extraction treats them as high-risk provisional rules that must not enter production until formally verified",
+      "required": true
+    },
+    {
+      "id": "q17",
+      "section": "Functional Requirements",
+      "question": "What is the Services Bookings half-BCR component payout structure — specifically the applicable rate table tiers, qualifying transaction definitions, and which roles are eligible?",
+      "hint": "The services-bookings-half-bcr component was detected in the extraction but has no tier data and qualifying criteria are not defined",
+      "required": true
+    },
+    {
+      "id": "q18",
+      "section": "Functional Requirements",
+      "question": "What is the AE Renewal Multi-Year Flat Rate value, and what are the qualifying deal conditions (minimum contract term, minimum ARR, product eligibility, or other criteria)?",
+      "hint": "The ae-renewal-multi-year-flat-rate component was extracted but has no rate value and qualifying thresholds are not defined",
+      "required": true
+    },
+    {
+      "id": "q19",
+      "section": "Business Requirements",
+      "question": "What user roles and permission levels are required in CaptivateIQ — specifically, which roles need rep-level statement access only, which need manager rollup views, which need finance/ops administrative access, and who holds full configuration admin rights?",
+      "hint": "The Manager Rollup Hierarchy attribute worksheet is captured but the CIQ permission matrix (rep, manager, finance, admin) and role-to-permission assignments are not defined anywhere in the source documents",
+      "required": true
+    },
+    {
+      "id": "q20",
+      "section": "Business Requirements",
+      "question": "What is the compensation statement approval workflow — who approves statements (rep self-attestation, manager approval, or finance sign-off), in what sequence, and what is the approval deadline relative to period close?",
+      "hint": "No approval workflow is referenced in the source workbook; this must be explicitly configured as a CIQ workflow and is required for the governance section of the BRD",
+      "required": true
+    },
+    {
+      "id": "q21",
+      "section": "Business Requirements",
+      "question": "What is the dispute and adjustment process — how do reps submit disputes, who is responsible for reviewing and adjudicating them, what is the resolution SLA, and how are approved adjustments applied or backdated in CaptivateIQ?",
+      "hint": "Dispute handling is a required governance configuration in CIQ and is entirely absent from the source documents",
+      "required": true
+    },
+    {
+      "id": "q22",
+      "section": "Business Requirements",
+      "question": "Who has authority to approve out-of-cycle plan amendments or mid-period quota adjustments, and is a formal change control process (change order workflow) required in CaptivateIQ?",
+      "hint": "Determines whether a change order approval workflow should be configured in CIQ and who holds sign-off authority for mid-period rule changes",
+      "required": false
+    },
+    {
+      "id": "q23",
+      "section": "Data Requirements",
+      "question": "What are the source systems and data feed specifications for each CIQ data worksheet — specifically, which system provides new booking/ARR data, renewal and retention transaction data, ISR pass-up transaction data, and employee/role/territory data?",
+      "hint": "The 7 data worksheets and 3 attribute worksheets are structurally defined, but upstream source systems, file formats (API, SFTP, CSV, direct connector), field-level mapping, and owning teams are entirely absent from the source documents",
+      "required": true
+    },
+    {
+      "id": "q24",
+      "section": "Data Requirements",
+      "question": "What is the required data refresh frequency for each data feed — real-time, daily, weekly, on period close, or manual upload?",
+      "hint": "Refresh frequency governs CIQ automation configuration, SLA agreements with source system owners, and the automation level setting in the BRD",
+      "required": true
+    },
+    {
+      "id": "q25",
+      "section": "Data Requirements",
+      "question": "What fields must be included in the Employee Assumptions schema to support multi-year deal ARR inputs, renewal prior-ARR, ISR pass-up transaction data, and current-quarter performance tracking?",
+      "hint": "The pipeline identified these as critical missing schema fields that will cause CIQ build failures before any testing occurs; the complete field list must be defined and agreed upon before configuration begins — this is the highest-priority production risk identified in the extraction",
+      "required": true
+    },
+    {
+      "id": "q26",
+      "section": "Data Requirements",
+      "question": "How many periods of historical compensation data (if any) must be loaded into CaptivateIQ at go-live, and in what format and system is historical data currently available?",
+      "hint": "Historical data migration scope is entirely unknown; this determines pre-loading effort, statement continuity for reps reviewing prior-period earnings, and draw balance carry-forward requirements",
+      "required": true
+    },
+    {
+      "id": "q27",
+      "section": "Data Requirements",
+      "question": "What is the target automation level for data ingestion — fully automated pipeline with no manual intervention, semi-automated with a manual review/approval gate before processing, or fully manual upload managed by finance or sales ops?",
+      "hint": "Determines CIQ integration architecture and ongoing operational model; automation is referenced in the extraction pipeline summary but the target level is not specified",
+      "required": true
+    },
+    {
+      "id": "q28",
+      "section": "Reports",
+      "question": "Beyond the standard payout statement, transaction detail report, and manager rollup dashboard, are there any custom reporting requirements — including specific metrics, date range filters, segment or territory groupings, year-to-date vs. period views, or executive summary formats?",
+      "hint": "Standard reports are inferred from plan structure; any custom report requirements must be explicitly specified as they require separate configuration and may affect the data worksheet schema",
+      "required": false
+    },
+    {
+      "id": "q29",
+      "section": "Reports",
+      "question": "Should any reports be restricted by role, territory, or reporting hierarchy — for example, should managers see only their direct reports or their full rollup, and should finance see all reps regardless of territory?",
+      "hint": "Report visibility rules are directly dependent on the permission matrix defined in the Business Requirements section; confirm access boundaries before report configuration begins",
+      "required": false
+    },
+    {
+      "id": "q30",
+      "section": "Reports",
+      "question": "Are there any required integrations with external reporting or HRIS tools — for example, outbound compensation data feeds to Salesforce, Tableau, Workday, or a general ledger system?",
+      "hint": "No downstream integrations or outbound data feed requirements were referenced in the source workbook; if any exist, they must be scoped before CIQ configuration is finalized",
+      "required": false
+    },
+    {
+      "id": "q31",
+      "section": "Open Questions",
+      "question": "Can you provide a complete workbook export that includes all formula rows currently falling outside the extracted data window, covering the 7 rules flagged as unverifiable due to truncated row ranges?",
+      "hint": "The pipeline strongly recommends a full workbook export before the extraction is considered closed; these 7 rules contain elements that cannot be confirmed from the current data window and may surface additional conflicts or missing values",
+      "required": true
+    },
+    {
+      "id": "q32",
+      "section": "Open Questions",
+      "question": "Can you provide the missing calculator tabs for ISR/SDR Manager and CSM/SE Manager, or formally confirm that these plans will be fully specified via direct business rule documentation in lieu of calculator tabs?",
+      "hint": "Both plans are gated as provisional and must not be deployed to production until rules are verified against source documentation; this question must be resolved before these plans are included in the BRD scope",
+      "required": true
+    }
+  ]
+}

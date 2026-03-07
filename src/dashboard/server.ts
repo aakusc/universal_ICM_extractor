@@ -20,6 +20,8 @@ import { testPlanAgainstLive, fetchLiveData } from '../pipeline/plan-tester.js';
 import { CaptivateIQClient } from '../connectors/captivateiq/client.js';
 import { compareOffline } from '../pipeline/offline-comparator.js';
 import type { ExtractionData } from '../pipeline/offline-comparator.js';
+import { analyzePipelineForBrd, generateBrd } from '../pipeline/brd-generator.js';
+import type { BrdAnswer } from '../pipeline/brd-generator.js';
 
 const PORT = 3847;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1025,6 +1027,93 @@ const server = http.createServer(async (req, res) => {
         const msg = err instanceof Error ? err.message : String(err);
         json(res, 500, { error: msg });
       }
+      return;
+    }
+
+    // ── BRD Generator Endpoints ───────────────────────────────
+
+    // POST /api/brd/projects/:projectId/analyze — analyze pipeline results, return questions
+    params = matchRoute(url, method, '/api/brd/projects/:projectId/analyze', 'POST');
+    if (params) {
+      const { projectId } = params;
+      const project = store.getProject(projectId);
+      if (!project) { json(res, 404, { error: 'Project not found' }); return; }
+
+      const validation = store.loadValidationResult(projectId);
+      const synthesis = store.loadSynthesisResult(projectId);
+      if (!validation || !synthesis) {
+        json(res, 400, { error: 'Run the extraction pipeline first (Pass 3 results required)' });
+        return;
+      }
+
+      const fileResults = store.loadAllFileExtractionResults(projectId);
+      const completeness = store.loadCompletenessResult(projectId);
+
+      try {
+        const analysis = await analyzePipelineForBrd(projectId, validation, synthesis, fileResults, completeness);
+        store.saveBrdAnalysis(projectId, analysis);
+        json(res, 200, analysis);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        json(res, 500, { error: msg });
+      }
+      return;
+    }
+
+    // GET /api/brd/projects/:projectId/analysis — load saved analysis (questions)
+    params = matchRoute(url, method, '/api/brd/projects/:projectId/analysis', 'GET');
+    if (params) {
+      const { projectId } = params;
+      const analysis = store.loadBrdAnalysis(projectId);
+      if (!analysis) { json(res, 404, { error: 'No analysis saved' }); return; }
+      json(res, 200, analysis);
+      return;
+    }
+
+    // POST /api/brd/projects/:projectId/generate — generate full BRD with user answers
+    params = matchRoute(url, method, '/api/brd/projects/:projectId/generate', 'POST');
+    if (params) {
+      const { projectId } = params;
+      const project = store.getProject(projectId);
+      if (!project) { json(res, 404, { error: 'Project not found' }); return; }
+
+      const validation = store.loadValidationResult(projectId);
+      const synthesis = store.loadSynthesisResult(projectId);
+      if (!validation || !synthesis) {
+        json(res, 400, { error: 'Run the extraction pipeline first (Pass 3 results required)' });
+        return;
+      }
+
+      const body = (await parseJsonBody(req)) as { answers?: BrdAnswer[] };
+      const fileResults = store.loadAllFileExtractionResults(projectId);
+      const completeness = store.loadCompletenessResult(projectId);
+
+      try {
+        const brd = await generateBrd({
+          projectId,
+          validation,
+          synthesis,
+          fileResults,
+          completeness,
+          answers: body.answers || [],
+        });
+        // Save the BRD to project store
+        store.saveBrd(projectId, brd);
+        json(res, 200, { brd });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        json(res, 500, { error: msg });
+      }
+      return;
+    }
+
+    // GET /api/brd/projects/:projectId — load saved BRD
+    params = matchRoute(url, method, '/api/brd/projects/:projectId', 'GET');
+    if (params) {
+      const { projectId } = params;
+      const brd = store.loadBrd(projectId);
+      if (!brd) { json(res, 404, { error: 'No BRD generated yet' }); return; }
+      json(res, 200, { brd });
       return;
     }
 

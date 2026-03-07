@@ -35,6 +35,29 @@ export interface FileClassification {
   summary: string;
   relevantSheets: string[];
   irrelevantSheets: string[];
+  documentCompleteness?: 'full-plan' | 'partial-plan' | 'supporting-data' | 'reference-only';
+}
+
+export type FieldAuditStatus = 'FOUND' | 'MISSING' | 'AMBIGUOUS';
+
+export interface FieldAuditEntry {
+  status: FieldAuditStatus;
+  value: unknown;
+  evidence: string | null;
+  source_ref: string | null;
+  confidence: number;
+  concern: string | null;
+}
+
+export type FieldAudit = Record<string, FieldAuditEntry>;
+
+export interface FileConcern {
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  category: 'ambiguous-language' | 'internal-contradiction' | 'missing-reference' |
+            'placeholder' | 'logical-error' | 'incomplete-definition';
+  description: string;
+  location: string;
+  recommendation: string;
 }
 
 export interface FileExtractionResult {
@@ -45,10 +68,13 @@ export interface FileExtractionResult {
   extractedAt: string;
   classification: FileClassification;
   rules: NormalizedRule[];
+  field_audit?: FieldAudit;
+  concerns?: FileConcern[];
+  missing_documents?: string[];
   insights: string;
 }
 
-// ── Pass 2: Cross-Reference Synthesis ────────────────────
+// ── Pass 2A: Cross-Reference Synthesis ───────────────────
 
 export interface CrossReference {
   ruleId: string;
@@ -61,6 +87,31 @@ export interface RuleConflict {
   ruleIds: string[];
   resolution: string;
   confidence: number;
+  // extended fields from new synthesis format
+  field_or_rule?: string;
+  file_a?: string;
+  value_a?: string;
+  file_b?: string;
+  value_b?: string;
+}
+
+export type FieldResolution = 'RESOLVED' | 'CONFLICTED' | 'PROJECT_MISSING';
+
+export interface UnifiedField {
+  resolution: FieldResolution;
+  value: unknown;
+  confidence: number;
+  sources: string[];
+  conflict_note: string | null;
+}
+
+export type UnifiedFields = Record<string, UnifiedField>;
+
+export interface ProjectGap {
+  field_id: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  impact: string;
+  recommendation: string;
 }
 
 export interface SynthesisResult {
@@ -72,6 +123,37 @@ export interface SynthesisResult {
   conflicts: RuleConflict[];
   captivateiqConfig: CaptivateIQBuildConfig;
   insights: string;
+  // extended fields from new synthesis format
+  unified_fields?: UnifiedFields;
+  project_gaps?: ProjectGap[];
+}
+
+// ── Pass 2B: Adversarial Concern Audit ───────────────────
+
+export interface AuditMathCheck {
+  check: string;
+  passed: boolean;
+  detail: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+}
+
+export interface AuditConcern {
+  id: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  category: 'ambiguous-language' | 'internal-contradiction' | 'missing-definition' |
+            'structural-gap' | 'math-error' | 'policy-risk' | 'missing-reference';
+  description: string;
+  location: string;
+  impact: string;
+  recommendation: string;
+}
+
+export interface AuditResult {
+  math_validation: AuditMathCheck[];
+  concerns: AuditConcern[];
+  blocking_issues: string[];
+  overall_risk: 'low' | 'medium' | 'high' | 'critical';
+  risk_summary: string;
 }
 
 // ── Pass 3: Validation ───────────────────────────────────
@@ -90,16 +172,32 @@ export interface FlaggedRule {
   suggestion?: string;
 }
 
+export interface FlaggedField {
+  field_id: string;
+  reason: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  concern_ref: string | null;
+}
+
+export interface ScoreDeduction {
+  reason: string;
+  points: number;
+}
+
 export interface ValidationResult {
   id: string;
   projectId: string;
   validatedAt: string;
   overallScore: number;
+  score_breakdown?: { base_score: number; deductions: ScoreDeduction[] };
   checks: ValidationCheck[];
   flaggedRules: FlaggedRule[];
+  flaggedFields?: FlaggedField[];
+  open_concerns_carried?: Array<{ concern_id: string; severity: string; status: string }>;
   validatedRules: NormalizedRule[];
   captivateiqConfig: CaptivateIQBuildConfig;
   insights: string;
+  auditResult?: AuditResult;
 }
 
 // ── Pipeline Input/Output ────────────────────────────────
@@ -116,6 +214,7 @@ export interface PipelineInput {
 export interface PipelineOutput {
   fileResults: FileExtractionResult[];
   synthesis: SynthesisResult;
+  auditResult?: AuditResult;
   validation: ValidationResult;
   completeness?: CompletenessResult;
 }
@@ -125,7 +224,8 @@ export interface PipelineOutput {
 export type PipelineEvent =
   | { event: 'progress'; data: PipelineStatus }
   | { event: 'pass1_file'; data: { fileId: string; fileName: string; ruleCount: number } }
-  | { event: 'pass2'; data: { ruleCount: number; conflictCount: number } }
+  | { event: 'pass2'; data: { ruleCount: number; conflictCount: number; gapCount: number } }
+  | { event: 'pass2b'; data: { concernCount: number; blockingCount: number; overall_risk: string } }
   | { event: 'pass3'; data: { overallScore: number; flaggedCount: number } }
   | { event: 'complete'; data: PipelineOutput }
   | { event: 'completeness'; data: { overallReadiness: number; blockerCount: number; counts: CompletenessResult['counts'] } }
