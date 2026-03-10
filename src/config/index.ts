@@ -6,6 +6,17 @@ import type { IInterpreterConfig } from '../interpreter/concept-extractor.js';
 loadDotenv();
 
 /**
+ * Require an environment variable to be set, throwing if missing.
+ */
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
+/**
  * Get authentication config for a vendor from environment variables.
  */
 export function getVendorAuth(vendor: VendorId): IAuthConfig {
@@ -71,4 +82,10 @@ export function getInterpreterConfig(): IInterpreterConfig {
       model: process.env.OPENAI_MODEL ?? 'gpt-4o',
     };
   }
+
+  // Default: throw error - need at least one API provider configured
+  throw new Error(
+    'No AI provider configured. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or AICR_GATEWAY_URL+AICR_API_KEY'
+  );
+}
 
