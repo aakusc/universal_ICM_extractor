@@ -107,7 +107,7 @@ Excel/PDF/Word → Parsers → Normalizers → AI Rule Extraction → Generators
 
 - **Framework**: Vitest
 - **Coverage**: 231 tests across 15 test files
-- **Status**: All passing
+- **Status**: 223 passing, 8 fail (require ANTHROPIC_API_KEY)
 
 ## File Structure
 
