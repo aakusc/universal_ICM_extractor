@@ -233,7 +233,7 @@ const server = http.createServer(async (req, res) => {
       // Parse immediately based on file type
       if (isExcelFile(body.filename)) {
         try {
-          const workbook = parseExcelBuffer(buffer, body.filename);
+          const workbook = await parseExcelBuffer(buffer, body.filename);
           store.markFileParsed(file.id);
           json(res, 201, { file, category, workbook: { sheetNames: workbook.sheetNames, summary: workbook.summary } });
         } catch (parseErr) {
@@ -276,7 +276,7 @@ const server = http.createServer(async (req, res) => {
       if (!fs.existsSync(filePath)) { json(res, 404, { error: 'File blob not found on disk' }); return; }
 
       const buffer = fs.readFileSync(filePath);
-      const workbook = parseExcelBuffer(buffer, fileRecord.originalName);
+      const workbook = await parseExcelBuffer(buffer, fileRecord.originalName);
 
       const requirements = store.listRequirements(projectId);
       const notes = store.listNotes(projectId);
@@ -423,7 +423,7 @@ const server = http.createServer(async (req, res) => {
           const buffer = fs.readFileSync(filePath);
           if (isExcelFile(file.originalName)) {
             try {
-              const workbook = parseExcelBuffer(buffer, file.originalName);
+              const workbook = await parseExcelBuffer(buffer, file.originalName);
               files.push({ fileId: file.id, workbook });
             } catch (err) {
               console.warn(`[pipeline] Failed to parse ${file.originalName}:`, err);
@@ -459,7 +459,7 @@ const server = http.createServer(async (req, res) => {
 
         const payloads = generatePayloads(result.validation.captivateiqConfig);
         const buildDoc = generateBuildDocument(extractionResult as any, project.name);
-        const excelBuffer = generateConsolidatedExcel(extractionResult as any, { projectName: project.name });
+        const excelBuffer = await generateConsolidatedExcel(extractionResult as any, { projectName: project.name });
 
         sendEvent('result', {
           extraction: {
@@ -553,7 +553,7 @@ const server = http.createServer(async (req, res) => {
 
         if (isExcelFile(file.originalName)) {
           try {
-            const wb = parseExcelBuffer(buffer, file.originalName);
+            const wb = await parseExcelBuffer(buffer, file.originalName);
             workbooks.push({ fileId: file.id, workbook: wb });
             console.log(`  [parse] ✓ Excel: ${file.originalName} (${wb.sheetNames.length} sheets)`);
           } catch (err) {
@@ -601,7 +601,7 @@ const server = http.createServer(async (req, res) => {
       const buildDoc = generateBuildDocument(extraction, project.name);
 
       // 5. Generate consolidated Excel (base64 for JSON response)
-      const excelBuffer = generateConsolidatedExcel(extraction, { projectName: project.name });
+      const excelBuffer = await generateConsolidatedExcel(extraction, { projectName: project.name });
       const excelBase64 = excelBuffer.toString('base64');
 
       console.log(`[builder] ════════════════════════════════════════`);
@@ -651,7 +651,7 @@ const server = http.createServer(async (req, res) => {
 
       const payloads = store.getGeneration(projectId, 'pipeline') || store.getGeneration(projectId, 'bulk');
       const buildDoc = generateBuildDocument(extraction, project.name);
-      const excelBuffer = generateConsolidatedExcel(extraction, { projectName: project.name });
+      const excelBuffer = await generateConsolidatedExcel(extraction, { projectName: project.name });
 
       // Load pipeline metadata if available
       const validation = store.loadValidationResult(projectId);
@@ -722,7 +722,7 @@ const server = http.createServer(async (req, res) => {
         extraction = extractions[0]; // Use first available
       }
 
-      const excelBuffer = generateConsolidatedExcel(extraction, { projectName: project.name });
+      const excelBuffer = await generateConsolidatedExcel(extraction, { projectName: project.name });
       const filename = `${project.name.replace(/[^a-zA-Z0-9]/g, '_')}_ICM_Analysis.xlsx`;
 
       res.setHeader('Access-Control-Allow-Origin', '*');

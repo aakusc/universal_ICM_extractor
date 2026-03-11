@@ -23,9 +23,9 @@
   },
   "dependencies": {
     "dotenv": "^16.4.0",
+    "exceljs": "^4.4.0",
     "mammoth": "^1.11.0",
     "pdf-parse": "^2.4.5",
-    "xlsx": "^0.18.5",
     "zod": "^3.23.0"
   },
   "devDependencies": {

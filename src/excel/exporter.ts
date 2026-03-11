@@ -12,7 +12,7 @@
  *   7. CIQ Build Guide — Formatted CaptivateIQ implementation steps
  */
 
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import type { ExtractionResult, CaptivateIQBuildConfig } from '../project/types.js';
 import type { NormalizedRule } from '../types/normalized-schema.js';
 
@@ -26,58 +26,63 @@ export interface ExportOptions {
 /**
  * Generate a consolidated Excel workbook buffer from extraction results.
  */
-export function generateConsolidatedExcel(
+export async function generateConsolidatedExcel(
   extraction: ExtractionResult,
   options: ExportOptions = {},
-): Buffer {
-  const wb = XLSX.utils.book_new();
+): Promise<Buffer> {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'ICM Rule Extractor';
+  workbook.created = new Date();
+
   const config = extraction.captivateiqConfig;
 
   // Sheet 1: Summary
-  addSummarySheet(wb, extraction, config, options);
+  addSummarySheet(workbook, extraction, config, options);
 
   // Sheet 2: All Rules
-  addRulesSheet(wb, extraction.rules);
+  addRulesSheet(workbook, extraction.rules);
 
   // Sheet 3: Data Worksheets (Rate Tables etc.)
   if (config.dataWorksheets.length > 0) {
-    addDataWorksheetsSheet(wb, config);
+    addDataWorksheetsSheet(workbook, config);
   }
 
   // Sheet 4: Employee Assumptions
   if (config.employeeAssumptionColumns.length > 0) {
-    addEmployeeAssumptionsSheet(wb, config);
+    addEmployeeAssumptionsSheet(workbook, config);
   }
 
   // Sheet 5: Attribute Worksheets
   if (config.attributeWorksheets.length > 0) {
-    addAttributeWorksheetsSheet(wb, config);
+    addAttributeWorksheetsSheet(workbook, config);
   }
 
   // Sheet 6: Formula Logic
   if (config.formulaRecommendations.length > 0) {
-    addFormulaSheet(wb, config);
+    addFormulaSheet(workbook, config);
   }
 
   // Sheet 7: CIQ Build Guide
-  addBuildGuideSheet(wb, extraction, config);
+  addBuildGuideSheet(workbook, extraction, config);
 
   // Sheet 8: Insights
-  addInsightsSheet(wb, extraction.insights);
+  addInsightsSheet(workbook, extraction.insights);
 
   // Generate buffer
-  const xlsxBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-  return Buffer.from(xlsxBuffer);
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 }
 
 // ── Sheet Builders ──────────────────────────────────────────
 
 function addSummarySheet(
-  wb: XLSX.WorkBook,
+  workbook: ExcelJS.Workbook,
   extraction: ExtractionResult,
   config: CaptivateIQBuildConfig,
   options: ExportOptions,
 ): void {
+  const worksheet = workbook.addWorksheet('Summary');
+  
   const rows: (string | number)[][] = [
     ['ICM Rule Analysis — Consolidated Report'],
     [],
@@ -111,100 +116,207 @@ function addSummarySheet(
     rows.push([concept, count]);
   }
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // Add rows to worksheet
+  rows.forEach((row, idx) => {
+    const excelRow = worksheet.getRow(idx + 1);
+    row.forEach((value, colIdx) => {
+      excelRow.getCell(colIdx + 1).value = value;
+    });
+  });
+
   // Set column widths
-  ws['!cols'] = [{ wch: 35 }, { wch: 50 }];
-  XLSX.utils.book_append_sheet(wb, ws, 'Summary');
+  worksheet.getColumn(1).width = 35;
+  worksheet.getColumn(2).width = 50;
 }
 
-function addRulesSheet(wb: XLSX.WorkBook, rules: NormalizedRule[]): void {
+function addRulesSheet(workbook: ExcelJS.Workbook, rules: NormalizedRule[]): void {
+  const worksheet = workbook.addWorksheet('Rules');
+  
   const headers = ['ID', 'Concept', 'Description', 'Confidence', 'Source', 'Source Type', 'Parameters'];
-  const rows = rules.map((r) => [
-    r.id,
-    r.concept,
-    r.description,
-    r.confidence,
-    r.sourceRef?.vendorRuleId ?? '',
-    r.sourceRef?.vendorRuleType ?? '',
-    JSON.stringify(r.parameters ?? {}, null, 0),
-  ]);
+  
+  // Add header row
+  const headerRow = worksheet.getRow(1);
+  headers.forEach((header, idx) => {
+    headerRow.getCell(idx + 1).value = header;
+    headerRow.getCell(idx + 1).font = { bold: true };
+  });
 
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-  ws['!cols'] = [
-    { wch: 25 }, { wch: 15 }, { wch: 60 }, { wch: 12 },
-    { wch: 30 }, { wch: 20 }, { wch: 50 },
-  ];
-  XLSX.utils.book_append_sheet(wb, ws, 'Rules');
+  // Add data rows
+  rules.forEach((r, rowIdx) => {
+    const row = worksheet.getRow(rowIdx + 2);
+    row.getCell(1).value = r.id;
+    row.getCell(2).value = r.concept;
+    row.getCell(3).value = r.description;
+    row.getCell(4).value = r.confidence;
+    row.getCell(5).value = r.sourceRef?.vendorRuleId ?? '';
+    row.getCell(6).value = r.sourceRef?.vendorRuleType ?? '';
+    row.getCell(7).value = JSON.stringify(r.parameters ?? {}, null, 0);
+  });
+
+  // Set column widths
+  worksheet.getColumn(1).width = 25;
+  worksheet.getColumn(2).width = 15;
+  worksheet.getColumn(3).width = 60;
+  worksheet.getColumn(4).width = 12;
+  worksheet.getColumn(5).width = 30;
+  worksheet.getColumn(6).width = 20;
+  worksheet.getColumn(7).width = 50;
 }
 
-function addDataWorksheetsSheet(wb: XLSX.WorkBook, config: CaptivateIQBuildConfig): void {
-  // Create a sheet per data worksheet config, plus a summary
+function addDataWorksheetsSheet(workbook: ExcelJS.Workbook, config: CaptivateIQBuildConfig): void {
+  const worksheet = workbook.addWorksheet('Data Worksheets');
+  
   const summaryHeaders = ['Worksheet Name', 'Concept', 'Description', 'Column Count', 'Sample Row Count'];
-  const summaryRows = config.dataWorksheets.map((dw) => [
-    dw.name, dw.concept, dw.description, dw.columns.length, dw.sampleRows.length,
-  ]);
+  
+  // Header
+  const headerRow = worksheet.getRow(1);
+  summaryHeaders.forEach((header, idx) => {
+    headerRow.getCell(idx + 1).value = header;
+    headerRow.getCell(idx + 1).font = { bold: true };
+  });
 
-  const ws = XLSX.utils.aoa_to_sheet([summaryHeaders, ...summaryRows]);
-  ws['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 40 }, { wch: 15 }, { wch: 18 }];
-  XLSX.utils.book_append_sheet(wb, ws, 'Data Worksheets');
+  // Summary rows
+  config.dataWorksheets.forEach((dw, rowIdx) => {
+    const row = worksheet.getRow(rowIdx + 2);
+    row.getCell(1).value = dw.name;
+    row.getCell(2).value = dw.concept;
+    row.getCell(3).value = dw.description;
+    row.getCell(4).value = dw.columns.length;
+    row.getCell(5).value = dw.sampleRows.length;
+  });
+
+  worksheet.getColumn(1).width = 25;
+  worksheet.getColumn(2).width = 15;
+  worksheet.getColumn(3).width = 40;
+  worksheet.getColumn(4).width = 15;
+  worksheet.getColumn(5).width = 18;
 
   // Add individual data tables as separate sheets
   for (const dw of config.dataWorksheets) {
     const sheetName = sanitizeSheetName(`DW-${dw.name}`);
+    const dataWs = workbook.addWorksheet(sheetName);
+    
     const colHeaders = dw.columns.map((c) => c.name);
     const colTypes = dw.columns.map((c) => `(${c.type})`);
-    const dataRows = dw.sampleRows.map((row) =>
-      dw.columns.map((c) => {
-        const val = row[c.name];
-        return val !== undefined && val !== null ? val : '';
-      })
-    );
+    
+    // Headers
+    const headerRow = dataWs.getRow(1);
+    colHeaders.forEach((header, idx) => {
+      headerRow.getCell(idx + 1).value = header;
+      headerRow.getCell(idx + 1).font = { bold: true };
+    });
+    
+    // Type row
+    const typeRow = dataWs.getRow(2);
+    colTypes.forEach((type, idx) => {
+      typeRow.getCell(idx + 1).value = type;
+      typeRow.getCell(idx + 1).font = { italic: true, color: { argb: 'FF808080' } };
+    });
+    
+    // Data rows
+    dw.sampleRows.forEach((sampleRow, rowIdx) => {
+      const row = dataWs.getRow(rowIdx + 3);
+      dw.columns.forEach((col, colIdx) => {
+        const val = sampleRow[col.name];
+        row.getCell(colIdx + 1).value = val !== undefined && val !== null ? val : '';
+      });
+    });
 
-    const dataWs = XLSX.utils.aoa_to_sheet([colHeaders, colTypes, ...dataRows]);
-    dataWs['!cols'] = colHeaders.map(() => ({ wch: 18 }));
-    XLSX.utils.book_append_sheet(wb, dataWs, sheetName);
+    // Column widths
+    colHeaders.forEach((_, idx) => {
+      dataWs.getColumn(idx + 1).width = 18;
+    });
   }
 }
 
-function addEmployeeAssumptionsSheet(wb: XLSX.WorkBook, config: CaptivateIQBuildConfig): void {
+function addEmployeeAssumptionsSheet(workbook: ExcelJS.Workbook, config: CaptivateIQBuildConfig): void {
+  const worksheet = workbook.addWorksheet('Employee Assumptions');
+  
   const headers = ['Column Name', 'Type', 'Concept', 'Description', 'Example Value'];
-  const rows = config.employeeAssumptionColumns.map((ea) => [
-    ea.name, ea.type, ea.concept, ea.description, ea.exampleValue ?? '',
-  ]);
+  
+  const headerRow = worksheet.getRow(1);
+  headers.forEach((header, idx) => {
+    headerRow.getCell(idx + 1).value = header;
+    headerRow.getCell(idx + 1).font = { bold: true };
+  });
 
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-  ws['!cols'] = [{ wch: 25 }, { wch: 12 }, { wch: 18 }, { wch: 50 }, { wch: 18 }];
-  XLSX.utils.book_append_sheet(wb, ws, 'Employee Assumptions');
+  config.employeeAssumptionColumns.forEach((ea, rowIdx) => {
+    const row = worksheet.getRow(rowIdx + 2);
+    row.getCell(1).value = ea.name;
+    row.getCell(2).value = ea.type;
+    row.getCell(3).value = ea.concept;
+    row.getCell(4).value = ea.description;
+    row.getCell(5).value = ea.exampleValue ?? '';
+  });
+
+  worksheet.getColumn(1).width = 25;
+  worksheet.getColumn(2).width = 12;
+  worksheet.getColumn(3).width = 18;
+  worksheet.getColumn(4).width = 50;
+  worksheet.getColumn(5).width = 18;
 }
 
-function addAttributeWorksheetsSheet(wb: XLSX.WorkBook, config: CaptivateIQBuildConfig): void {
+function addAttributeWorksheetsSheet(workbook: ExcelJS.Workbook, config: CaptivateIQBuildConfig): void {
+  const worksheet = workbook.addWorksheet('Attribute Worksheets');
+  
   const headers = ['Worksheet Name', 'Concept', 'PK Type', 'Description', 'Columns'];
-  const rows = config.attributeWorksheets.map((aw) => [
-    aw.name, aw.concept, aw.pkType, aw.description,
-    aw.columns.map((c) => `${c.name} (${c.type})`).join(', '),
-  ]);
+  
+  const headerRow = worksheet.getRow(1);
+  headers.forEach((header, idx) => {
+    headerRow.getCell(idx + 1).value = header;
+    headerRow.getCell(idx + 1).font = { bold: true };
+  });
 
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-  ws['!cols'] = [{ wch: 25 }, { wch: 18 }, { wch: 12 }, { wch: 40 }, { wch: 50 }];
-  XLSX.utils.book_append_sheet(wb, ws, 'Attribute Worksheets');
+  config.attributeWorksheets.forEach((aw, rowIdx) => {
+    const row = worksheet.getRow(rowIdx + 2);
+    row.getCell(1).value = aw.name;
+    row.getCell(2).value = aw.concept;
+    row.getCell(3).value = aw.pkType;
+    row.getCell(4).value = aw.description;
+    row.getCell(5).value = aw.columns.map((c) => `${c.name} (${c.type})`).join(', ');
+  });
+
+  worksheet.getColumn(1).width = 25;
+  worksheet.getColumn(2).width = 18;
+  worksheet.getColumn(3).width = 12;
+  worksheet.getColumn(4).width = 40;
+  worksheet.getColumn(5).width = 50;
 }
 
-function addFormulaSheet(wb: XLSX.WorkBook, config: CaptivateIQBuildConfig): void {
+function addFormulaSheet(workbook: ExcelJS.Workbook, config: CaptivateIQBuildConfig): void {
+  const worksheet = workbook.addWorksheet('Formula Logic');
+  
   const headers = ['Concept', 'Description', 'Logic Explanation', 'Pseudo Formula', 'CaptivateIQ Notes'];
-  const rows = config.formulaRecommendations.map((f) => [
-    f.concept, f.description, f.logicExplanation, f.pseudoFormula, f.captivateiqNotes,
-  ]);
+  
+  const headerRow = worksheet.getRow(1);
+  headers.forEach((header, idx) => {
+    headerRow.getCell(idx + 1).value = header;
+    headerRow.getCell(idx + 1).font = { bold: true };
+  });
 
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-  ws['!cols'] = [{ wch: 18 }, { wch: 30 }, { wch: 40 }, { wch: 50 }, { wch: 50 }];
-  XLSX.utils.book_append_sheet(wb, ws, 'Formula Logic');
+  config.formulaRecommendations.forEach((f, rowIdx) => {
+    const row = worksheet.getRow(rowIdx + 2);
+    row.getCell(1).value = f.concept;
+    row.getCell(2).value = f.description;
+    row.getCell(3).value = f.logicExplanation;
+    row.getCell(4).value = f.pseudoFormula;
+    row.getCell(5).value = f.captivateiqNotes;
+  });
+
+  worksheet.getColumn(1).width = 18;
+  worksheet.getColumn(2).width = 30;
+  worksheet.getColumn(3).width = 40;
+  worksheet.getColumn(4).width = 50;
+  worksheet.getColumn(5).width = 50;
 }
 
 function addBuildGuideSheet(
-  wb: XLSX.WorkBook,
+  workbook: ExcelJS.Workbook,
   extraction: ExtractionResult,
   config: CaptivateIQBuildConfig,
 ): void {
+  const worksheet = workbook.addWorksheet('CIQ Build Guide');
+  
   const rows: (string | number)[][] = [
     ['CaptivateIQ Build Guide'],
     [],
@@ -265,23 +377,37 @@ function addBuildGuideSheet(
     }
   }
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{ wch: 35 }, { wch: 70 }];
-  XLSX.utils.book_append_sheet(wb, ws, 'CIQ Build Guide');
+  rows.forEach((row, idx) => {
+    const excelRow = worksheet.getRow(idx + 1);
+    row.forEach((value, colIdx) => {
+      excelRow.getCell(colIdx + 1).value = value;
+    });
+  });
+
+  worksheet.getColumn(1).width = 35;
+  worksheet.getColumn(2).width = 70;
 }
 
-function addInsightsSheet(wb: XLSX.WorkBook, insights: string): void {
+function addInsightsSheet(workbook: ExcelJS.Workbook, insights: string): void {
+  const worksheet = workbook.addWorksheet('Insights');
+  
   // Split insights into rows for readability
   const lines = insights.split('\n');
-  const rows = [
+  
+  const rows: (string | null)[][] = [
     ['AI Analysis & Insights'],
     [],
-    ...lines.map((line) => [line]),
+    ...lines.map((line) => [line] as [string]),
   ];
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{ wch: 120 }];
-  XLSX.utils.book_append_sheet(wb, ws, 'Insights');
+  rows.forEach((row, idx) => {
+    const excelRow = worksheet.getRow(idx + 1);
+    if (row[0] !== null) {
+      excelRow.getCell(1).value = row[0];
+    }
+  });
+
+  worksheet.getColumn(1).width = 120;
 }
 
 // ── Helpers ──────────────────────────────────────────────────

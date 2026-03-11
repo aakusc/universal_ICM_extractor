@@ -143,7 +143,7 @@ function projectsDelete(args: string[]): void {
 
 // ── File Upload ──────────────────────────────────────────────
 
-function uploadFile(args: string[]): void {
+async function uploadFile(args: string[]): Promise<void> {
   const projectId = requireArg(args, 'project');
   const filePath = requireArg(args, 'file');
 
@@ -174,7 +174,7 @@ function uploadFile(args: string[]): void {
 
   // Attempt parse
   try {
-    parseExcelBuffer(buffer, originalName);
+    await parseExcelBuffer(buffer, originalName);
     store.markFileParsed(file.id);
     console.log(`\n  ✓ Uploaded and parsed: ${originalName} (${bytes(buffer.length)})`);
   } catch (err) {
@@ -217,7 +217,7 @@ async function extractFile(args: string[]): Promise<void> {
   console.log(`  Using Claude Opus 4.6 with adaptive thinking...\n`);
 
   const buffer = fs.readFileSync(filePath);
-  const workbook = parseExcelBuffer(buffer, file.originalName);
+  const workbook = await parseExcelBuffer(buffer, file.originalName);
   const requirements = store.listRequirements(projectId);
   const notes = store.listNotes(projectId);
 

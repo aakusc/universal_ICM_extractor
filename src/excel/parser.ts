@@ -6,10 +6,10 @@
  *   - Named ranges
  *   - Structural summary (for AI prompt)
  *
- * Uses SheetJS (xlsx) for parsing.
+ * Uses exceljs for parsing (async).
  */
 
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import type { ParsedSheet, ParsedWorkbook } from '../project/types.js';
 
 // Max rows/cols to include in the data array (keep AI prompt manageable)
@@ -18,23 +18,33 @@ const MAX_COLS = 50;
 
 /**
  * Parse an Excel file buffer into a structured ParsedWorkbook.
+ * Async function - use await or .then() to get result.
  */
-export function parseExcelBuffer(buffer: Buffer, filename: string): ParsedWorkbook {
-  const workbook = XLSX.read(buffer, {
-    type: 'buffer',
-    cellFormula: true,
-    cellDates: true,
-    dense: false,
-  });
+export async function parseExcelBuffer(buffer: ArrayBuffer | Buffer, filename: string): Promise<ParsedWorkbook> {
+  // Convert Buffer to ArrayBuffer if needed - use type assertion for older TS configs
+  const arrayBuffer = Buffer.isBuffer(buffer) 
+    ? (buffer as unknown as { buffer: ArrayBuffer }).buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
+    : buffer;
+  
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(arrayBuffer);
 
+  const sheetNames = workbook.worksheets.map(ws => ws.name);
+  
+  const sheets: ParsedSheet[] = [];
+  for (const sheetName of sheetNames) {
+    const ws = workbook.getWorksheet(sheetName);
+    if (ws) {
+      sheets.push(parseWorksheet(ws));
+    }
+  }
+
+  // Named ranges (exceljs approach)
   const namedRanges = extractNamedRanges(workbook);
-  const sheets = workbook.SheetNames.map((name) =>
-    parseSheet(name, workbook.Sheets[name], namedRanges)
-  );
 
   const parsedWorkbook: ParsedWorkbook = {
     filename,
-    sheetNames: workbook.SheetNames,
+    sheetNames,
     sheets,
     namedRanges,
     summary: buildSummary(filename, sheets, namedRanges),
@@ -45,75 +55,94 @@ export function parseExcelBuffer(buffer: Buffer, filename: string): ParsedWorkbo
 
 // ── Sheet Parser ──────────────────────────────────────────────
 
-function parseSheet(
-  name: string,
-  sheet: XLSX.WorkSheet,
-  globalNamedRanges: Array<{ name: string; ref: string }>
-): ParsedSheet {
-  if (!sheet || !sheet['!ref']) {
+function parseWorksheet(worksheet: ExcelJS.Worksheet): ParsedSheet {
+  const name = worksheet.name;
+  
+  // Get dimensions
+  const rowCount = worksheet.rowCount;
+  const colCount = worksheet.columnCount;
+  
+  if (rowCount === 0 || colCount === 0) {
     return { name, rowCount: 0, colCount: 0, data: [], formulas: [], namedRanges: [] };
   }
-
-  const range = XLSX.utils.decode_range(sheet['!ref']);
-  const rowCount = Math.min(range.e.r - range.s.r + 1, MAX_ROWS);
-  const colCount = Math.min(range.e.c - range.s.c + 1, MAX_COLS);
 
   // Build 2D data array
   const data: (string | number | boolean | null)[][] = [];
   const formulas: Array<{ address: string; formula: string }> = [];
 
-  for (let r = range.s.r; r < range.s.r + rowCount; r++) {
+  const actualRowCount = Math.min(rowCount, MAX_ROWS);
+  const actualColCount = Math.min(colCount, MAX_COLS);
+
+  for (let r = 1; r <= actualRowCount; r++) {
     const row: (string | number | boolean | null)[] = [];
-    for (let c = range.s.c; c < range.s.c + colCount; c++) {
-      const addr = XLSX.utils.encode_cell({ r, c });
-      const cell = sheet[addr] as XLSX.CellObject | undefined;
-
-      if (!cell) {
-        row.push(null);
-        continue;
-      }
-
+    for (let c = 1; c <= actualColCount; c++) {
+      const cell = worksheet.getCell(r, c);
+      
       // Collect formula
-      if (cell.f) {
-        formulas.push({ address: addr, formula: cell.f });
+      if (cell.formula) {
+        const addr = cell.address;
+        formulas.push({ address: addr, formula: cell.formula });
       }
 
-      // Get display value
-      if (cell.t === 'd' && cell.v instanceof Date) {
-        row.push(cell.v.toISOString().split('T')[0]);
-      } else if (cell.t === 'n') {
-        row.push(typeof cell.v === 'number' ? cell.v : null);
-      } else if (cell.t === 'b') {
-        row.push(typeof cell.v === 'boolean' ? cell.v : null);
-      } else if (cell.t === 's' || (cell.t as string) === 'str') {
-        row.push(cell.v != null ? String(cell.v) : null);
+      // Get value based on type
+      const value = cell.value;
+      if (value === null || value === undefined) {
+        row.push(null);
+      } else if (typeof value === 'number') {
+        row.push(value);
+      } else if (typeof value === 'boolean') {
+        row.push(value);
+      } else if (value instanceof Date) {
+        row.push(value.toISOString().split('T')[0]);
+      } else if (typeof value === 'string') {
+        row.push(value);
+      } else if (typeof value === 'object' && 'text' in value) {
+        // Hyperlink or formula result object
+        row.push(String((value as any).text));
       } else {
-        row.push(cell.v != null ? String(cell.v) : null);
+        row.push(String(value));
       }
     }
     data.push(row);
   }
 
-  // Named ranges that reference this sheet
-  const sheetNamedRanges = globalNamedRanges.filter((nr) =>
-    nr.ref.startsWith(`'${name}'!`) || nr.ref.startsWith(`${name}!`)
-  );
-
-  return { name, rowCount, colCount, data, formulas, namedRanges: sheetNamedRanges };
+  return { 
+    name, 
+    rowCount: actualRowCount, 
+    colCount: actualColCount, 
+    data, 
+    formulas, 
+    namedRanges: [] 
+  };
 }
 
 // ── Named Ranges ──────────────────────────────────────────────
 
 function extractNamedRanges(
-  workbook: XLSX.WorkBook
+  workbook: ExcelJS.Workbook
 ): Array<{ name: string; ref: string }> {
   const result: Array<{ name: string; ref: string }> = [];
-  if (!workbook.Workbook?.Names) return result;
-  for (const namedRange of workbook.Workbook.Names) {
-    if (namedRange.Name && namedRange.Ref) {
-      result.push({ name: namedRange.Name, ref: namedRange.Ref });
+  
+  // ExcelJS named ranges are accessed via workbook.model.definedNames
+  // The structure varies, so we use a safe approach
+  try {
+    if (workbook.model) {
+      const model = workbook.model as any;
+      if (model.definedNames && typeof model.definedNames === 'object') {
+        for (const name in model.definedNames) {
+          const def = model.definedNames[name];
+          if (def && Array.isArray(def) && def.length > 0) {
+            result.push({ name, ref: String(def[0]) });
+          } else if (typeof def === 'string') {
+            result.push({ name, ref: def });
+          }
+        }
+      }
     }
+  } catch (e) {
+    // Ignore errors accessing named ranges
   }
+  
   return result;
 }
 

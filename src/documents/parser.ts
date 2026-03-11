@@ -5,14 +5,14 @@
  *   - PDF (.pdf) → text extraction via pdf-parse
  *   - Word (.docx) → text extraction via mammoth
  *   - Text (.txt, .md, .csv) → direct read
- *   - CSV (.csv) → parsed as tabular data via SheetJS
+ *   - CSV (.csv) → parsed as tabular data via exceljs
  *
  * Each document is converted to a ParsedDocument with extracted text content
  * that gets fed into the AI extractor alongside Excel workbooks.
  */
 
 import path from 'node:path';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 export interface ParsedDocument {
   filename: string;
@@ -119,13 +119,15 @@ async function parseDocx(buffer: Buffer, filename: string): Promise<ParsedDocume
 
 // ── CSV Parser ──────────────────────────────────────────────
 
-function parseCsv(buffer: Buffer, filename: string): ParsedDocument {
-  // Use SheetJS to parse CSV into structured data
-  const workbook = XLSX.read(buffer, { type: 'buffer' });
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-
-  if (!sheet || !sheet['!ref']) {
+async function parseCsv(buffer: Buffer, filename: string): Promise<ParsedDocument> {
+  // Use ExcelJS to parse CSV into structured data
+  const workbook = new ExcelJS.Workbook();
+  // Convert Buffer to ArrayBuffer using built-in method
+  const arrayBuffer = buffer.toArrayBuffer();
+  await workbook.xlsx.load(arrayBuffer);
+  
+  const worksheet = workbook.getWorksheet(1);
+  if (!worksheet) {
     return {
       filename,
       fileType: 'csv',
@@ -135,16 +137,34 @@ function parseCsv(buffer: Buffer, filename: string): ParsedDocument {
     };
   }
 
-  const jsonData = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: null });
-  const headers = jsonData.length > 0 ? Object.keys(jsonData[0]) : [];
-  const rows: (string | number | null)[][] = jsonData.map((row) =>
-    headers.map((h) => {
-      const v = row[h];
-      if (v === null || v === undefined) return null;
-      if (typeof v === 'number') return v;
-      return String(v);
-    })
-  );
+  // Get headers from first row
+  const headers: string[] = [];
+  const firstRow = worksheet.getRow(1);
+  firstRow.eachCell((cell) => {
+    if (cell.value !== null && cell.value !== undefined) {
+      headers.push(String(cell.value));
+    }
+  });
+
+  // Get data rows
+  const rows: (string | number | null)[][] = [];
+  worksheet.eachRow((row, rowNum) => {
+    if (rowNum === 1) return; // Skip header row
+    const rowData: (string | number | null)[] = [];
+    row.eachCell((cell) => {
+      const val = cell.value;
+      if (val === null || val === undefined) {
+        rowData.push(null);
+      } else if (typeof val === 'number') {
+        rowData.push(val);
+      } else if (typeof val === 'string') {
+        rowData.push(val);
+      } else {
+        rowData.push(String(val));
+      }
+    });
+    rows.push(rowData);
+  });
 
   // Also produce text representation
   const textContent = buffer.toString('utf-8').trim();
