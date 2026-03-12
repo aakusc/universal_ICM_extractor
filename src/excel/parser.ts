@@ -27,7 +27,8 @@ export async function parseExcelBuffer(buffer: ArrayBuffer | Buffer, filename: s
     : buffer;
   
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(arrayBuffer);
+  // ExcelJS load() has a type bug - use any to work around
+  await (workbook.xlsx.load as any)(arrayBuffer);
 
   const sheetNames = workbook.worksheets.map((ws: any) => ws.name);
   
