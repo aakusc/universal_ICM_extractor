@@ -115,6 +115,7 @@ export function generateBuildDocument(
   // Section 9: Implementation Notes
   sections.push({
     title: 'Implementation Notes & Caveats',
+    /* eslint-disable-next-line no-useless-assignment */
     order: order++,
     type: 'notes',
     content: buildNotesSection(config, extraction.rules),

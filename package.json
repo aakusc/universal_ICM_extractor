@@ -29,10 +29,12 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.19.37",
     "eslint": "^9.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5.6.0",
+    "typescript-eslint": "^8.57.0",
     "vitest": "^4.0.18"
   }
 }

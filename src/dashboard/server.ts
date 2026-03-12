@@ -400,7 +400,9 @@ const server = http.createServer(async (req, res) => {
       const sendEvent = (eventName: string, data: unknown) => {
         try {
           res.write(`event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`);
-        } catch {}
+        } catch {
+          // Stream already closed, ignore
+        }
       };
 
       const onEvent = (event: PipelineEvent) => {

@@ -93,7 +93,7 @@ async function callClaudeForJson<T>(
     } catch (err) {
       console.warn(`  [pipeline] JSON parse failed (attempt ${attempt + 1}/${maxRetries + 1}): ${err instanceof Error ? err.message : String(err)}`);
       if (attempt === maxRetries) {
-        throw new Error(`Claude returned non-JSON after ${maxRetries + 1} attempts. Preview: ${raw.slice(0, 300)}`);
+        throw new Error(`Claude returned non-JSON after ${maxRetries + 1} attempts. Preview: ${raw.slice(0, 300)}`, { cause: err });
       }
     }
   }
@@ -443,8 +443,8 @@ export async function validatePass3(
   }>(PASS3_SYSTEM_PROMPT, userPrompt, 2, 'claude-sonnet-4-6');
 
   // Apply high-confidence corrections to rules
-  let validatedRules = [...synthesis.rules];
-  let validatedConfig = synthesis.captivateiqConfig;
+  const validatedRules = [...synthesis.rules];
+  const validatedConfig = synthesis.captivateiqConfig;
 
   if (parsed.corrections && parsed.corrections.length > 0) {
     console.log(`  [pass3] Applying ${parsed.corrections.length} corrections...`);

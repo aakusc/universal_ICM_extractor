@@ -325,7 +325,7 @@ export function parseAiResponse(rawText: string): {
         return JSON.parse(extracted);
       } catch (err2) {
         console.error('[extractor] Could not parse extracted JSON block:', extracted.slice(0, 300));
-        throw new Error(`AI response contained invalid JSON even after extraction: ${err2 instanceof Error ? err2.message : String(err2)}`);
+        throw new Error(`AI response contained invalid JSON even after extraction: ${err2 instanceof Error ? err2.message : String(err2)}`, { cause: err2 });
       }
     }
     console.error('[extractor] No JSON object found in AI response:', jsonText.slice(0, 500));
