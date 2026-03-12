@@ -232,6 +232,13 @@ CRITICAL: Your entire response must be a single JSON object starting with { and 
  */
 export function runClaudeCli(systemPrompt: string, userPrompt: string, model: string = 'claude-opus-4-6'): Promise<string> {
   return new Promise((resolve, reject) => {
+    // Check for required API key before attempting to run
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      reject(new Error('ANTHROPIC_API_KEY is not set. Please configure it in your .env file.'));
+      return;
+    }
+
     console.log(`  [AI] Prompt size: ${(userPrompt.length / 1024).toFixed(1)}KB, running Claude CLI...`);
 
     const child = spawn('/opt/homebrew/bin/claude', [
