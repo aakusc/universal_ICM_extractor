@@ -140,7 +140,7 @@ async function parseCsv(buffer: Buffer, filename: string): Promise<ParsedDocumen
   // Get headers from first row
   const headers: string[] = [];
   const firstRow = worksheet.getRow(1);
-  firstRow.eachCell((cell) => {
+  firstRow.eachCell((cell: any) => {
     if (cell.value !== null && cell.value !== undefined) {
       headers.push(String(cell.value));
     }
@@ -148,10 +148,10 @@ async function parseCsv(buffer: Buffer, filename: string): Promise<ParsedDocumen
 
   // Get data rows
   const rows: (string | number | null)[][] = [];
-  worksheet.eachRow((row, rowNum) => {
+  worksheet.eachRow((row: any, rowNum: any) => {
     if (rowNum === 1) return; // Skip header row
     const rowData: (string | number | null)[] = [];
-    row.eachCell((cell) => {
+    row.eachCell((cell: any) => {
       const val = cell.value;
       if (val === null || val === undefined) {
         rowData.push(null);

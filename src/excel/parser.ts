@@ -29,7 +29,7 @@ export async function parseExcelBuffer(buffer: ArrayBuffer | Buffer, filename: s
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(arrayBuffer);
 
-  const sheetNames = workbook.worksheets.map(ws => ws.name);
+  const sheetNames = workbook.worksheets.map((ws: any) => ws.name);
   
   const sheets: ParsedSheet[] = [];
   for (const sheetName of sheetNames) {
