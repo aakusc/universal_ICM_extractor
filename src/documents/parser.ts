@@ -122,8 +122,8 @@ async function parseDocx(buffer: Buffer, filename: string): Promise<ParsedDocume
 async function parseCsv(buffer: Buffer, filename: string): Promise<ParsedDocument> {
   // Use ExcelJS to parse CSV into structured data
   const workbook = new ExcelJS.Workbook();
-  // Convert Buffer to ArrayBuffer using built-in method
-  const arrayBuffer = buffer.toArrayBuffer();
+  // Convert Buffer to ArrayBuffer using slice
+  const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
   await workbook.xlsx.load(arrayBuffer);
   
   const worksheet = workbook.getWorksheet(1);
