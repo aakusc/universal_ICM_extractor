@@ -41,6 +41,17 @@ export interface BulkExtractorInput {
   notes: Array<{ text: string; createdAt: string }>;
 }
 
+/**
+ * Single document extractor input — for PDF, DOCX, TXT files.
+ */
+export interface DocumentExtractorInput {
+  projectId: string;
+  fileId: string;
+  document: ParsedDocument;
+  requirements: Array<{ text: string; priority: string }>;
+  notes: Array<{ text: string; createdAt: string }>;
+}
+
 const SYSTEM_PROMPT = `You are an expert in Sales Performance Management (SPM) and Incentive Compensation Management (ICM). You specialize in analyzing compensation plans from multiple sources — Excel calculators, PDF plan documents, Word docs, CSVs, and notes — to understand the underlying business rules and translate them into structured ICM system configurations.
 
 Your task is to analyze ALL provided source materials and:
@@ -144,6 +155,33 @@ function buildBulkUserPrompt(input: BulkExtractorInput): string {
   // Notes
   if (input.notes.length > 0) {
     parts.push('---');
+    parts.push('## Project Notes');
+    for (const note of input.notes) {
+      parts.push(`- [${note.createdAt.split('T')[0]}] ${note.text}`);
+    }
+    parts.push('');
+  }
+
+  parts.push(JSON_TASK_PROMPT);
+  return parts.join('\n');
+}
+
+function buildDocumentPrompt(input: DocumentExtractorInput): string {
+  const parts: string[] = [];
+
+  parts.push('# Analyze This Compensation Plan Document');
+  parts.push('');
+  parts.push(documentToPromptString(input.document));
+
+  if (input.requirements.length > 0) {
+    parts.push('## Project Requirements');
+    for (const req of input.requirements) {
+      parts.push(`- [${req.priority.toUpperCase()}] ${req.text}`);
+    }
+    parts.push('');
+  }
+
+  if (input.notes.length > 0) {
     parts.push('## Project Notes');
     for (const note of input.notes) {
       parts.push(`- [${note.createdAt.split('T')[0]}] ${note.text}`);
@@ -368,6 +406,45 @@ export async function extractRulesFromWorkbook(
   };
 
   console.log(`  [AI] Extracted ${result.rules.length} rules from ${input.workbook.filename}`);
+  return result;
+}
+
+/**
+ * Run AI extraction on a single document (PDF, DOCX, TXT, etc.).
+ * Uses Claude CLI with Opus 4.6.
+ */
+export async function extractRulesFromDocument(
+  input: DocumentExtractorInput
+): Promise<ExtractionResult> {
+
+  console.log(`  [AI] Analyzing document: ${input.document.filename}`);
+  console.log(`  [AI] Type: ${input.document.fileType.toUpperCase()}, ${input.document.pageOrLineCount} ${input.document.fileType === 'pdf' ? 'pages' : 'lines'}`);
+  console.log(`  [AI] Using Claude CLI...`);
+
+  const rawText = await runClaudeCli(SYSTEM_PROMPT, buildDocumentPrompt(input));
+  const parsed = parseAiResponse(rawText);
+
+  // Create a synthetic workbook from the document for the result
+  const syntheticWorkbook: ParsedWorkbook = {
+    filename: input.document.filename,
+    sheetNames: [],
+    sheets: [],
+    namedRanges: [],
+    summary: `[Document: ${input.document.fileType.toUpperCase()}] ${input.document.summary}`,
+  };
+
+  const result: ExtractionResult = {
+    id: generateId(),
+    projectId: input.projectId,
+    fileId: input.fileId,
+    extractedAt: new Date().toISOString(),
+    workbook: syntheticWorkbook,
+    rules: parsed.rules ?? [],
+    insights: parsed.insights ?? '',
+    captivateiqConfig: parsed.captivateiqConfig ?? EMPTY_CONFIG,
+  };
+
+  console.log(`  [AI] Extracted ${result.rules.length} rules from ${input.document.filename}`);
   return result;
 }
 

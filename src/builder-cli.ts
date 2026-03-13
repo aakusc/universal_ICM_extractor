@@ -20,6 +20,7 @@ import { parseExcelBuffer } from './excel/parser.js';
 import { extractRulesFromWorkbook } from './excel/extractor.js';
 import { generatePayloads } from './generators/index.js';
 import { aggregateExtractions } from './generators/aggregator.js';
+import { getFileType, parseDocumentBuffer, isExcelFile } from './documents/parser.js';
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -161,20 +162,34 @@ async function uploadFile(args: string[]): Promise<void> {
 
   const buffer = fs.readFileSync(resolved);
   const originalName = path.basename(resolved);
-  const ext = path.extname(originalName).toLowerCase();
-  const mimeType = ext === '.xlsx'
-    ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    : ext === '.xls'
-      ? 'application/vnd.ms-excel'
-      : ext === '.csv'
-        ? 'text/csv'
-        : 'application/octet-stream';
+  const fileType = getFileType(originalName);
+
+  // Determine MIME type based on file extension
+  const mimeType = fileType === 'excel'
+    ? (ext => ext === '.xlsx'
+      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      : ext === '.xls'
+        ? 'application/vnd.ms-excel'
+        : 'application/vnd.ms-excel')(path.extname(originalName).toLowerCase())
+    : fileType === 'pdf'
+      ? 'application/pdf'
+      : fileType === 'docx'
+        ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        : fileType === 'csv'
+          ? 'text/csv'
+          : 'text/plain';
 
   const file = store.saveFile(projectId, originalName, buffer, mimeType);
 
-  // Attempt parse
+  // Attempt parse based on file type
   try {
-    await parseExcelBuffer(buffer, originalName);
+    if (isExcelFile(originalName)) {
+      await parseExcelBuffer(buffer, originalName);
+    } else {
+      // Parse document files (PDF, DOCX, TXT, etc.)
+      const doc = await parseDocumentBuffer(buffer, originalName);
+      console.log(`    Document: ${doc.fileType.toUpperCase()}, ${doc.pageOrLineCount} ${doc.fileType === 'pdf' ? 'pages' : 'lines'}, ${doc.textContent.length} chars`);
+    }
     store.markFileParsed(file.id);
     console.log(`\n  ✓ Uploaded and parsed: ${originalName} (${bytes(buffer.length)})`);
   } catch (err) {
@@ -217,19 +232,35 @@ async function extractFile(args: string[]): Promise<void> {
   console.log(`  Using Claude Opus 4.6 with adaptive thinking...\n`);
 
   const buffer = fs.readFileSync(filePath);
-  const workbook = await parseExcelBuffer(buffer, file.originalName);
   const requirements = store.listRequirements(projectId);
   const notes = store.listNotes(projectId);
+  const fileType = getFileType(file.originalName);
 
   let result;
   try {
-    result = await extractRulesFromWorkbook({
-      projectId,
-      fileId,
-      workbook,
-      requirements: requirements.map((r) => ({ text: r.text, priority: r.priority })),
-      notes: notes.map((n) => ({ text: n.text, createdAt: n.createdAt })),
-    });
+    if (isExcelFile(file.originalName)) {
+      // Handle Excel files
+      const workbook = await parseExcelBuffer(buffer, file.originalName);
+      result = await extractRulesFromWorkbook({
+        projectId,
+        fileId,
+        workbook,
+        requirements: requirements.map((r) => ({ text: r.text, priority: r.priority })),
+        notes: notes.map((n) => ({ text: n.text, createdAt: n.createdAt })),
+      });
+    } else {
+      // Handle document files (PDF, DOCX, TXT, etc.)
+      const document = await parseDocumentBuffer(buffer, file.originalName);
+      // Import the extractor function that handles documents
+      const { extractRulesFromDocument } = await import('./excel/extractor.js');
+      result = await extractRulesFromDocument({
+        projectId,
+        fileId,
+        document,
+        requirements: requirements.map((r) => ({ text: r.text, priority: r.priority })),
+        notes: notes.map((n) => ({ text: n.text, createdAt: n.createdAt })),
+      });
+    }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`\n  ✗ AI extraction failed: ${msg}`);
