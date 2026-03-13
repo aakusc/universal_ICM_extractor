@@ -311,3 +311,100 @@ describe('extractRulesFromWorkbook', () => {
     expect(result.rules).toHaveLength(1);
   });
 });
+
+describe('parseAiResponse', () => {
+  it('parses valid JSON response', async () => {
+    const { parseAiResponse } = await import('../../src/excel/extractor.js');
+    const raw = JSON.stringify({
+      insights: 'Test insights',
+      rules: [{ id: 'r1', concept: 'rate-table', description: 'Test', parameters: {}, confidence: 0.9, sourceRef: { vendorRuleId: 'v1', vendorRuleType: 'flat', rawSnapshot: null } }],
+      captivateiqConfig: { dataWorksheets: [], formulaRecommendations: [] },
+    });
+    
+    const result = parseAiResponse(raw);
+    expect(result.insights).toBe('Test insights');
+    expect(result.rules).toHaveLength(1);
+    expect(result.rules[0].concept).toBe('rate-table');
+  });
+
+  it('handles JSON with markdown code fences', async () => {
+    const { parseAiResponse } = await import('../../src/excel/extractor.js');
+    const raw = `\`\`\`json
+{
+  "insights": "With fences",
+  "rules": [],
+  "captivateiqConfig": {}
+}
+\`\`\``;
+    
+    const result = parseAiResponse(raw);
+    expect(result.insights).toBe('With fences');
+  });
+
+  it('returns empty arrays for missing fields', async () => {
+    const { parseAiResponse } = await import('../../src/excel/extractor.js');
+    const raw = '{"insights": "Minimal"}';
+    
+    const result = parseAiResponse(raw);
+    expect(result.insights).toBe('Minimal');
+    // Missing fields return undefined, not empty arrays
+    expect(result.rules).toBeUndefined();
+  });
+
+  it('throws on malformed JSON', async () => {
+    const { parseAiResponse } = await import('../../src/excel/extractor.js');
+    const raw = 'not valid json at all';
+    
+    expect(() => parseAiResponse(raw)).toThrow('AI response did not contain a JSON object');
+  });
+});
+
+describe('extractRulesFromDocument', () => {
+  it('returns extraction result from document', async () => {
+    const { extractRulesFromDocument } = await import('../../src/excel/extractor.js');
+    
+    const baseDocInput = {
+      projectId: 'proj-1',
+      fileId: 'file-1',
+      document: {
+        filename: 'plan.pdf',
+        fileType: 'pdf' as const,
+        textContent: 'Compensation plan content',
+        pageOrLineCount: 5,
+        summary: 'PDF summary',
+      },
+      requirements: [{ text: 'Extract rate tables', priority: 'high' }],
+      notes: [],
+    };
+
+    mockAiResponse(validAiResponse);
+    
+    const result = await extractRulesFromDocument(baseDocInput);
+    expect(result.projectId).toBe('proj-1');
+    expect(result.fileId).toBe('file-1');
+    expect(result.insights).toBeTruthy();
+  });
+
+  it('works with no requirements', async () => {
+    const { extractRulesFromDocument } = await import('../../src/excel/extractor.js');
+    
+    const baseDocInput = {
+      projectId: 'proj-1',
+      fileId: 'file-1',
+      document: {
+        filename: 'plan.pdf',
+        fileType: 'pdf' as const,
+        textContent: 'Compensation plan content',
+        pageOrLineCount: 5,
+        summary: 'PDF summary',
+      },
+      requirements: [],
+      notes: [],
+    };
+
+    mockAiResponse(validAiResponse);
+    
+    const result = await extractRulesFromDocument(baseDocInput);
+    expect(result.rules).toHaveLength(1);
+  });
+});
