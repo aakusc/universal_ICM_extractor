@@ -21,6 +21,7 @@ import type { ParsedWorkbook } from '../project/types.js';
 import type { ExtractionResult, CaptivateIQBuildConfig } from '../project/types.js';
 import type { NormalizedRule } from '../types/normalized-schema.js';
 import { generateId } from '../project/store.js';
+import { logger, tryCatch } from '../logger.js';
 
 export interface ExtractorInput {
   projectId: string;
@@ -269,11 +270,15 @@ CRITICAL: Your entire response must be a single JSON object starting with { and 
  * Run Claude CLI and return the text output.
  */
 export function runClaudeCli(systemPrompt: string, userPrompt: string, model: string = 'claude-opus-4-6'): Promise<string> {
+  const ctx = logger.withContext({ model, promptSize: userPrompt.length });
+  
   return new Promise((resolve, reject) => {
     // Check for required API key before attempting to run
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      reject(new Error('ANTHROPIC_API_KEY is not set. Please configure it in your .env file.'));
+      const err = new Error('ANTHROPIC_API_KEY is not set. Please configure it in your .env file.');
+      ctx.error('Missing API key', err);
+      reject(err);
       return;
     }
 
@@ -305,12 +310,15 @@ export function runClaudeCli(systemPrompt: string, userPrompt: string, model: st
 
     // 5 minute timeout
     const timeout = setTimeout(() => {
+      const err = new Error('Claude CLI timed out after 8 minutes');
+      ctx.error('Request timeout', err);
       console.error('  [AI] Claude CLI timeout (8 min), killing...');
       child.kill('SIGTERM');
     }, 480_000);
 
     child.on('error', (err) => {
       clearTimeout(timeout);
+      ctx.error('Failed to spawn Claude CLI', err);
       reject(new Error(`Failed to spawn Claude CLI: ${err.message}`));
     });
 
@@ -322,12 +330,16 @@ export function runClaudeCli(systemPrompt: string, userPrompt: string, model: st
 
       if (code !== 0) {
         const preview = (out || errText).slice(0, 500);
+        const error = new Error(`Claude CLI failed with exit code ${code}`);
+        ctx.error('CLI exit error', error, { code, stderr: errText.slice(0, 300) });
         console.error(`  [AI] Claude CLI exit code ${code}, stderr: ${errText.slice(0, 300)}, stdout preview: ${out.slice(0, 200)}`);
         reject(new Error(`Claude CLI exited with code ${code}: ${preview}`));
         return;
       }
 
       if (!out) {
+        const error = new Error('Claude CLI returned empty output');
+        ctx.error('Empty response', error, { stderr: errText.slice(0, 300) });
         console.error(`  [AI] Claude CLI returned empty output. stderr: ${errText.slice(0, 300)}`);
         reject(new Error(`Claude CLI returned empty output. stderr: ${errText.slice(0, 300)}`));
         return;

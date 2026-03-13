@@ -15,6 +15,7 @@ import { generateBuildDocument } from '../generators/build-document.js';
 import { generateConsolidatedExcel } from '../excel/exporter.js';
 import { generateAllSourceSummaries } from './source-summary.js';
 import { analyzeCompleteness } from './completeness.js';
+import { logger, tryCatch } from '../logger.js';
 import {
   PASS1_SYSTEM_PROMPT, buildPass1UserPrompt,
   PASS2_SYSTEM_PROMPT, buildPass2UserPrompt,
@@ -107,36 +108,43 @@ async function extractFilePass1(
   fileId: string,
   workbook: ParsedWorkbook,
 ): Promise<FileExtractionResult> {
-  console.log(`  [pass1] Extracting: ${workbook.filename} (${workbook.sheetNames.length} sheets)`);
+  const ctx = logger.withContext({ projectId, fileId, filename: workbook.filename, pass: 'pass1' });
+  ctx.info(`Starting extraction: ${workbook.filename} (${workbook.sheetNames.length} sheets)`);
 
-  const userPrompt = buildPass1UserPrompt(workbook);
+  try {
+    const userPrompt = buildPass1UserPrompt(workbook);
 
-  const parsed = await callClaudeForJson<{
-    classification: FileClassification;
-    rules: NormalizedRule[];
-    field_audit?: Record<string, unknown>;
-    concerns?: unknown[];
-    missing_documents?: string[];
-    insights: string;
-  }>(PASS1_SYSTEM_PROMPT, userPrompt);
+    const parsed = await callClaudeForJson<{
+      classification: FileClassification;
+      rules: NormalizedRule[];
+      field_audit?: Record<string, unknown>;
+      concerns?: unknown[];
+      missing_documents?: string[];
+      insights: string;
+    }>(PASS1_SYSTEM_PROMPT, userPrompt);
 
-  const result: FileExtractionResult = {
-    id: store.generateId(),
-    projectId,
-    fileId,
-    fileName: workbook.filename,
-    extractedAt: new Date().toISOString(),
-    classification: parsed.classification ?? { fileType: 'unknown', summary: '', relevantSheets: [], irrelevantSheets: [] },
-    rules: parsed.rules ?? [],
-    field_audit: parsed.field_audit as any ?? undefined,
-    concerns: parsed.concerns as any ?? [],
-    missing_documents: parsed.missing_documents ?? [],
-    insights: parsed.insights ?? '',
-  };
+    const result: FileExtractionResult = {
+      id: store.generateId(),
+      projectId,
+      fileId,
+      fileName: workbook.filename,
+      extractedAt: new Date().toISOString(),
+      classification: parsed.classification ?? { fileType: 'unknown', summary: '', relevantSheets: [], irrelevantSheets: [] },
+      rules: parsed.rules ?? [],
+      field_audit: parsed.field_audit as any ?? undefined,
+      concerns: parsed.concerns as any ?? [],
+      missing_documents: parsed.missing_documents ?? [],
+      insights: parsed.insights ?? '',
+    };
 
-  store.saveFileExtractionResult(projectId, fileId, result);
-  console.log(`  [pass1] ✓ ${workbook.filename}: ${result.rules.length} rules (${result.classification.fileType})`);
-  return result;
+    store.saveFileExtractionResult(projectId, fileId, result);
+    ctx.info(`Extraction complete: ${result.rules.length} rules extracted`, { fileType: result.classification.fileType });
+    return result;
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error(String(err));
+    ctx.error(`Extraction failed for ${workbook.filename}`, error, { fileId, workbook: workbook.filename });
+    throw error;
+  }
 }
 
 export async function extractAllFilesPass1(
@@ -177,6 +185,8 @@ export async function extractAllFilesPass1(
 
   const promises = files.map(async (file, idx) => {
     await sem.acquire();
+    const fileCtx = logger.withContext({ projectId, fileId: file.fileId, filename: file.workbook.filename });
+    
     try {
       fileStatuses[idx].status = 'running';
       emitProgress();
@@ -195,6 +205,7 @@ export async function extractAllFilesPass1(
       emitProgress();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
+      fileCtx.error(`File extraction failed`, err, { error: msg });
       console.error(`  [pass1] ✗ ${file.workbook.filename}: ${msg}`);
       fileStatuses[idx].status = 'error';
       fileStatuses[idx].error = msg;
@@ -503,6 +514,9 @@ export async function runPipeline(
 ): Promise<PipelineOutput> {
   const { projectId, files, force } = input;
   const startedAt = new Date().toISOString();
+  const ctx = logger.withContext({ projectId, fileCount: files.length, force });
+
+  ctx.info('Pipeline starting', { files: files.map(f => f.workbook?.filename || f.fileId) });
 
   console.log(`[pipeline] ════════════════════════════════════════`);
   console.log(`[pipeline] Starting multi-pass pipeline: ${files.length} files`);
@@ -667,6 +681,8 @@ export async function runPipeline(
     return output;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    const error = err instanceof Error ? err : new Error(String(err));
+    ctx.error('Pipeline failed', error, { error: msg, phase: 'pipeline' });
     console.error(`[pipeline] FAILED: ${msg}`);
     updateStatus('error', msg, 0, msg);
     onEvent?.({ event: 'error', data: { message: msg, phase: 'error' } });
