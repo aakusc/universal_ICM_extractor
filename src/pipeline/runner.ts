@@ -204,8 +204,9 @@ export async function extractAllFilesPass1(
 
       emitProgress();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      fileCtx.error(`File extraction failed`, err, { error: msg });
+      const error = err instanceof Error ? err : new Error(String(err));
+      const msg = error.message;
+      fileCtx.error(`File extraction failed`, error, { error: msg });
       console.error(`  [pass1] ✗ ${file.workbook.filename}: ${msg}`);
       fileStatuses[idx].status = 'error';
       fileStatuses[idx].error = msg;
