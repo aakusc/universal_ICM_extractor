@@ -25,7 +25,7 @@ export abstract class BaseConnector implements IConnector {
       const status = await this.doConnect(auth);
       this.isConnected = status.connected;
       return status;
-    } catch (error) {
+    } catch (error: unknown) {
       this.isConnected = false;
       return {
         connected: false,

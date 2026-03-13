@@ -62,7 +62,7 @@ export class CaptivateIQConnector extends BaseConnector {
         authenticatedAs: String(orgName),
         apiVersion: 'v1',
       };
-    } catch (error) {
+    } catch (error: unknown) {
       // Fallback: try listing employees as a connectivity check
       try {
         await this.client.listEmployees();

@@ -30,7 +30,7 @@ export async function parseExcelBuffer(buffer: ArrayBuffer | Buffer, filename: s
   // ExcelJS load() has a type bug - use any to work around
   await (workbook.xlsx.load as any)(arrayBuffer);
 
-  const sheetNames = workbook.worksheets.map((ws: any) => ws.name);
+  const sheetNames = workbook.worksheets.map((ws: ExcelJS.Worksheet) => ws.name);
   
   const sheets: ParsedSheet[] = [];
   for (const sheetName of sheetNames) {

@@ -74,7 +74,7 @@ export class ConceptExtractor {
     try {
       const response = await this.callAiProvider(prompt);
       return this.parseResponse(response, rawRule);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`AI interpretation failed for rule ${rawRule.vendorRuleId}:`, error);
       return {
         concepts: [],
@@ -201,7 +201,7 @@ export class ConceptExtractor {
         parameters: parsed.parameters || {},
         confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.5,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to parse AI response:', response.substring(0, 200));
       return {
         concepts: [],

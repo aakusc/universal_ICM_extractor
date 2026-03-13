@@ -91,7 +91,7 @@ async function callClaudeForJson<T>(
     try {
       const parsed = parseAiResponse(raw) as T;
       return parsed;
-    } catch (err) {
+    } catch (err: unknown) {
       console.warn(`  [pipeline] JSON parse failed (attempt ${attempt + 1}/${maxRetries + 1}): ${err instanceof Error ? err.message : String(err)}`);
       if (attempt === maxRetries) {
         throw new Error(`Claude returned non-JSON after ${maxRetries + 1} attempts. Preview: ${raw.slice(0, 300)}`, { cause: err });
@@ -140,7 +140,7 @@ async function extractFilePass1(
     store.saveFileExtractionResult(projectId, fileId, result);
     ctx.info(`Extraction complete: ${result.rules.length} rules extracted`, { fileType: result.classification.fileType });
     return result;
-  } catch (err) {
+  } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err));
     ctx.error(`Extraction failed for ${workbook.filename}`, error, { fileId, workbook: workbook.filename });
     throw error;
@@ -203,7 +203,7 @@ export async function extractAllFilesPass1(
       });
 
       emitProgress();
-    } catch (err) {
+    } catch (err: unknown) {
       const error = err instanceof Error ? err : new Error(String(err));
       const msg = error.message;
       fileCtx.error(`File extraction failed`, error, { error: msg });
@@ -680,7 +680,7 @@ export async function runPipeline(
     console.log(`[pipeline] ════════════════════════════════════════`);
 
     return output;
-  } catch (err) {
+  } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     const error = err instanceof Error ? err : new Error(String(err));
     ctx.error('Pipeline failed', error, { error: msg, phase: 'pipeline' });

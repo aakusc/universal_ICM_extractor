@@ -69,7 +69,7 @@ export async function tryCatch<T>(
   try {
     const result = await fn();
     return [result, null];
-  } catch (err) {
+  } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err));
     logger.error(`Error in ${context}`, error, { context });
     return [null, error];
@@ -86,7 +86,7 @@ export function tryCatchSync<T>(
   try {
     const result = fn();
     return [result, null];
-  } catch (err) {
+  } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err));
     logger.error(`Error in ${context}`, error, { context });
     return [null, error];

@@ -8,8 +8,8 @@
  */
 
 import { runClaudeCli } from '../excel/extractor.js';
-import type { ValidationResult, SynthesisResult, FileExtractionResult, CompletenessResult } from './types.js';
-import type { CaptivateIQBuildConfig } from '../project/types.js';
+import type { ValidationResult, SynthesisResult, FileExtractionResult, CompletenessResult, FieldAuditEntry } from './types.js';
+import type { CaptivateIQBuildConfig, DataWorksheetConfig, AttributeWorksheetConfig } from '../project/types.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -224,7 +224,7 @@ function buildAnalysisPrompt(
   // File classification summary
   parts.push('### Files Processed');
   for (const fr of fileResults) {
-    parts.push('- ' + fr.fileName + ' [' + fr.classification.fileType + '] score=' + (fr.field_audit ? Object.values(fr.field_audit).filter((v: any) => v.status === 'FOUND').length : '?') + ' fields found');
+    parts.push('- ' + fr.fileName + ' [' + fr.classification.fileType + '] score=' + (fr.field_audit ? Object.values(fr.field_audit).filter((v: FieldAuditEntry) => v.status === 'FOUND').length : '?') + ' fields found');
   }
   parts.push('');
 
@@ -261,10 +261,10 @@ function buildAnalysisPrompt(
   if (cfg) {
     parts.push('### CaptivateIQ Configuration');
     if (cfg.dataWorksheets?.length) {
-      parts.push('Data Worksheets: ' + cfg.dataWorksheets.map((d: any) => d.name + ' (' + d.concept + ')').join(', '));
+      parts.push('Data Worksheets: ' + cfg.dataWorksheets.map((d: DataWorksheetConfig) => d.name + ' (' + d.concept + ')').join(', '));
     }
     if (cfg.attributeWorksheets?.length) {
-      parts.push('Attribute Worksheets: ' + cfg.attributeWorksheets.map((a: any) => a.name).join(', '));
+      parts.push('Attribute Worksheets: ' + cfg.attributeWorksheets.map((a: AttributeWorksheetConfig) => a.name).join(', '));
     }
     if (cfg.formulaRecommendations?.length) {
       parts.push('Formula Recommendations: ' + cfg.formulaRecommendations.length + ' formulas');

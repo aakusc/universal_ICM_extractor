@@ -28,8 +28,8 @@
  */
 
 import { workbookToPromptString } from '../excel/parser.js';
-import type { ParsedWorkbook } from '../project/types.js';
-import type { FileExtractionResult, SynthesisResult } from './types.js';
+import type { ParsedWorkbook, DataWorksheetConfig, AttributeWorksheetConfig, EmployeeAssumptionColumn, FormulaRecommendation } from '../project/types.js';
+import type { FileExtractionResult, SynthesisResult, FileConcern } from './types.js';
 
 // ─────────────────────────────────────────────────────────────
 // ICM COMPLETENESS FRAMEWORK
@@ -344,7 +344,7 @@ export function buildPass2UserPrompt(fileResults: FileExtractionResult[]): strin
 
     // Concerns summary
     const concerns = (fr as any).concerns ?? [];
-    const criticalConcerns = concerns.filter((c: any) => c.severity === 'critical' || c.severity === 'high');
+    const criticalConcerns = concerns.filter((c: FileConcern) => c.severity === 'critical' || c.severity === 'high');
     if (criticalConcerns.length > 0) {
       parts.push(`CRITICAL/HIGH CONCERNS (${criticalConcerns.length}):`);
       for (const c of criticalConcerns.slice(0, 5)) {
@@ -460,7 +460,7 @@ export function buildPass2BUserPrompt(
   parts.push('');
 
   // Per-file concerns already raised
-  const allPriorConcerns: any[] = [];
+  const allPriorConcerns: (FileConcern & { file: string })[] = [];
   for (const fr of fileResults) {
     const concerns = (fr as any).concerns ?? [];
     for (const c of concerns) {
@@ -547,10 +547,10 @@ export function buildPass3UserPrompt(
   const cfg = synthesis.captivateiqConfig;
   parts.push(`Plan: ${cfg.planStructure.planName} (${cfg.planStructure.periodType})`);
   parts.push(`Components: ${cfg.planStructure.payoutComponents.join(', ')}`);
-  parts.push('Data Worksheets: ' + cfg.dataWorksheets.map((d: any) => d.name + ' (' + d.concept + ')').join(', '));
-  parts.push('Employee Assumptions: ' + cfg.employeeAssumptionColumns.map((e: any) => e.name + ' (' + e.type + ')').join(', '));
-  parts.push('Attribute Worksheets: ' + cfg.attributeWorksheets.map((a: any) => a.name).join(', '));
-  parts.push('Formulas: ' + cfg.formulaRecommendations.map((f: any) => f.concept + ': ' + String(f.description).slice(0, 60)).join('; '));
+  parts.push('Data Worksheets: ' + cfg.dataWorksheets.map((d: DataWorksheetConfig) => d.name + ' (' + d.concept + ')').join(', '));
+  parts.push('Employee Assumptions: ' + cfg.employeeAssumptionColumns.map((e: EmployeeAssumptionColumn) => e.name + ' (' + e.type + ')').join(', '));
+  parts.push('Attribute Worksheets: ' + cfg.attributeWorksheets.map((a: AttributeWorksheetConfig) => a.name).join(', '));
+  parts.push('Formulas: ' + cfg.formulaRecommendations.map((f: FormulaRecommendation) => f.concept + ': ' + String(f.description).slice(0, 60)).join('; '));
   parts.push('');
 
   // Audit concerns (carry forward)

@@ -88,8 +88,8 @@ export async function fetchLiveData(client: CaptivateIQClient): Promise<LiveCIQD
       for (const ws of wsList) {
         worksheets.push({ ...ws, workbookName: wb.name });
       }
-    } catch (err) {
-      console.warn(`  [tester] Could not fetch worksheets for workbook "${wb.name}": ${err}`);
+    } catch (err: unknown) {
+      console.warn(`  [tester] Could not fetch worksheets for workbook "${wb.name}": ${err instanceof Error ? err.message : String(err)}`);
     }
   }
   console.log(`  [tester] Found: ${worksheets.length} total worksheets across ${workbooks.length} workbooks`);
@@ -100,8 +100,8 @@ export async function fetchLiveData(client: CaptivateIQClient): Promise<LiveCIQD
     try {
       const assumResp = await client.listEmployeeAssumptions({ planIds: [plans[0].id] });
       assumptions = assumResp.data;
-    } catch (err) {
-      console.warn(`  [tester] Could not fetch assumptions: ${err}`);
+    } catch (err: unknown) {
+      console.warn(`  [tester] Could not fetch assumptions: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 

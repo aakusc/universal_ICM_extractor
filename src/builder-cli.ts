@@ -192,7 +192,7 @@ async function uploadFile(args: string[]): Promise<void> {
     }
     store.markFileParsed(file.id);
     console.log(`\n  ✓ Uploaded and parsed: ${originalName} (${bytes(buffer.length)})`);
-  } catch (err) {
+  } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     store.markFileParsed(file.id, msg);
     console.log(`\n  ✓ Uploaded: ${originalName} (${bytes(buffer.length)})`);
@@ -261,7 +261,7 @@ async function extractFile(args: string[]): Promise<void> {
         notes: notes.map((n) => ({ text: n.text, createdAt: n.createdAt })),
       });
     }
-  } catch (err) {
+  } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`\n  ✗ AI extraction failed: ${msg}`);
     console.error(`    This may be due to a network error, API quota limit, or invalid API key.`);

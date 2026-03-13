@@ -43,7 +43,7 @@ function readStore(): StoreData {
   if (!fs.existsSync(STORE_FILE)) return emptyStore();
   try {
     return JSON.parse(fs.readFileSync(STORE_FILE, 'utf-8')) as StoreData;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] ⚠ store.json is corrupt — returning empty store. Data may appear missing.`, err);
     return emptyStore();
   }
@@ -294,7 +294,7 @@ export function getExtraction(projectId: string, fileId: string): ExtractionResu
   if (!fs.existsSync(ep)) return null;
   try {
     return JSON.parse(fs.readFileSync(ep, 'utf-8')) as ExtractionResult;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] ⚠ Corrupt extraction file: ${meta.id}.json (project=${projectId}, file=${fileId})`, err);
     return null;
   }
@@ -330,7 +330,7 @@ export function getGeneration(
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as CaptivateIQApiPayloads;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] ⚠ Corrupt generation file: ${projectId}-${fileId}.json`, err);
     return null;
   }
@@ -356,7 +356,7 @@ export function getProjectExtractions(projectId: string): ExtractionResult[] {
     }
     try {
       results.push(JSON.parse(fs.readFileSync(ep, 'utf-8')) as ExtractionResult);
-    } catch (err) {
+    } catch (err: unknown) {
       console.warn(`[store] ⚠ Corrupt extraction file: ${meta.id}.json (file=${meta.fileId})`, err);
       skipped++;
     }
@@ -396,7 +396,7 @@ export function getAggregatedGeneration(
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as SavedAggregation;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] ⚠ Corrupt aggregation file: ${projectId}-aggregated.json`, err);
     return null;
   }
@@ -414,7 +414,7 @@ export function getProfile(id: string): unknown | null {
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8'));
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn('[store] Corrupt profile file:', id, err);
     return null;
   }
@@ -476,7 +476,7 @@ export function loadFileExtractionResult(projectId: string, fileId: string): Fil
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as FileExtractionResult;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] ⚠ Corrupt pass1 file: ${fileId}.json`, err);
     return null;
   }
@@ -490,7 +490,7 @@ export function loadAllFileExtractionResults(projectId: string): FileExtractionR
     if (!file.endsWith('.json')) continue;
     try {
       results.push(JSON.parse(fs.readFileSync(path.join(dir, file), 'utf-8')) as FileExtractionResult);
-    } catch (err) {
+    } catch (err: unknown) {
       console.warn(`[store] ⚠ Corrupt pass1 file: ${file}`, err);
     }
   }
@@ -506,7 +506,7 @@ export function loadSynthesisResult(projectId: string): SynthesisResult | null {
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as SynthesisResult;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] ⚠ Corrupt pass2 file`, err);
     return null;
   }
@@ -521,7 +521,7 @@ export function loadValidationResult(projectId: string): ValidationResult | null
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as ValidationResult;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] ⚠ Corrupt pass3 file`, err);
     return null;
   }
@@ -536,7 +536,7 @@ export function loadPipelineStatus(projectId: string): PipelineStatus | null {
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as PipelineStatus;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] ⚠ Corrupt pipeline status file`, err);
     return null;
   }
@@ -561,7 +561,7 @@ export function loadCompletenessResult(projectId: string): CompletenessResult | 
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as CompletenessResult;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] Corrupt completeness file`, err);
     return null;
   }
@@ -579,7 +579,7 @@ export function loadPlanTestResult(projectId: string): PlanTestResult | null {
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8')) as PlanTestResult;
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn(`[store] Corrupt plan-test file`, err);
     return null;
   }
@@ -596,7 +596,7 @@ export function loadBrd(projectId: string): unknown | null {
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8'));
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn('[store] Corrupt brd file', err);
     return null;
   }
@@ -613,7 +613,7 @@ export function loadBrdAnalysis(projectId: string): unknown | null {
   if (!fs.existsSync(p)) return null;
   try {
     return JSON.parse(fs.readFileSync(p, 'utf-8'));
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn('[store] Corrupt brd-analysis file', err);
     return null;
   }

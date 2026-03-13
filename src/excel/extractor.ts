@@ -373,7 +373,7 @@ export function parseAiResponse(rawText: string): {
       const extracted = jsonText.slice(firstBrace, lastBrace + 1);
       try {
         return JSON.parse(extracted);
-      } catch (err2) {
+      } catch (err2: unknown) {
         console.error('[extractor] Could not parse extracted JSON block:', extracted.slice(0, 300));
         throw new Error(`AI response contained invalid JSON even after extraction: ${err2 instanceof Error ? err2.message : String(err2)}`, { cause: err2 });
       }
