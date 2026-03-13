@@ -408,3 +408,110 @@ describe('extractRulesFromDocument', () => {
     expect(result.rules).toHaveLength(1);
   });
 });
+
+describe('extractRulesFromAll (bulk mode)', () => {
+  const baseBulkInput = {
+    projectId: 'proj-bulk',
+    workbooks: [
+      {
+        fileId: 'wb-1',
+        workbook: mockWorkbook,
+      },
+    ],
+    documents: [
+      {
+        fileId: 'doc-1',
+        document: {
+          filename: 'plan.docx',
+          fileType: 'docx' as const,
+          textContent: 'Plan document text',
+          pageOrLineCount: 3,
+          summary: 'Doc summary',
+        },
+      },
+    ],
+    requirements: [{ text: 'Extract rules', priority: 'high' }],
+    notes: [{ text: 'Note 1', createdAt: '2026-01-01T00:00:00Z' }],
+  };
+
+  it('extracts rules from multiple files at once', async () => {
+    const { extractRulesFromAll } = await import('../../src/excel/extractor.js');
+    
+    mockCliResponse(JSON.stringify(validAiResponse));
+    
+    const result = await extractRulesFromAll(baseBulkInput);
+    expect(result.projectId).toBe('proj-bulk');
+    expect(result.fileId).toBe('bulk');
+    expect(result.rules).toHaveLength(1);
+  });
+
+  it('handles empty workbooks and documents', async () => {
+    const { extractRulesFromAll } = await import('../../src/excel/extractor.js');
+    
+    const emptyInput = {
+      projectId: 'proj-empty',
+      workbooks: [],
+      documents: [],
+      requirements: [],
+      notes: [],
+    };
+    
+    mockCliResponse(JSON.stringify(validAiResponse));
+    
+    const result = await extractRulesFromAll(emptyInput);
+    expect(result.workbook.filename).toBe('bulk-analysis-0-files');
+    expect(result.rules).toHaveLength(1);
+  });
+
+  it('uses first workbook as primary when multiple workbooks exist', async () => {
+    const { extractRulesFromAll } = await import('../../src/excel/extractor.js');
+    
+    const multiWbInput = {
+      ...baseBulkInput,
+      workbooks: [
+        {
+          fileId: 'wb-1',
+          workbook: { ...mockWorkbook, filename: 'first.xlsx' },
+        },
+        {
+          fileId: 'wb-2',
+          workbook: { ...mockWorkbook, filename: 'second.xlsx' },
+        },
+      ],
+    };
+    
+    mockCliResponse(JSON.stringify(validAiResponse));
+    
+    const result = await extractRulesFromAll(multiWbInput);
+    expect(result.workbook.filename).toBe('first.xlsx');
+  });
+
+  it('creates synthetic workbook when no workbooks provided', async () => {
+    const { extractRulesFromAll } = await import('../../src/excel/extractor.js');
+    
+    const docOnlyInput = {
+      projectId: 'proj-docs',
+      workbooks: [],
+      documents: [
+        {
+          fileId: 'doc-1',
+          document: {
+            filename: 'plan.pdf',
+            fileType: 'pdf' as const,
+            textContent: 'Content',
+            pageOrLineCount: 1,
+            summary: 'Summary',
+          },
+        },
+      ],
+      requirements: [],
+      notes: [],
+    };
+    
+    mockCliResponse(JSON.stringify(validAiResponse));
+    
+    const result = await extractRulesFromAll(docOnlyInput);
+    expect(result.workbook.sheetNames).toEqual([]);
+    expect(result.workbook.sheets).toEqual([]);
+  });
+});
