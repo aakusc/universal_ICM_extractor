@@ -5,6 +5,10 @@ import type { IConnector } from './types/connector.js';
 import { CaptivateIQConnector } from './connectors/captivateiq/connector.js';
 import * as fs from 'node:fs';
 import { runBuilderCli } from './builder-cli.js';
+import { runPipeline } from './pipeline/runner.js';
+import type { PipelineInput } from './pipeline/types.js';
+import { parseExcelBuffer } from './excel/parser.js';
+import { generateId } from './project/store.js';
 
 /**
  * CLI entry point for the Universal ICM Connector.
@@ -136,6 +140,50 @@ async function main(): Promise<void> {
       break;
     }
 
+    case 'batch': {
+      // Batch processing: run pipeline on multiple local Excel files
+      const filesArg = requireArg('files');
+      const filePaths = filesArg.split(',').map(f => f.trim());
+      const output = getArg('output') ?? './batch-result.json';
+      const projectId = getArg('project') ?? 'batch-' + Date.now();
+      const force = getArg('force') === 'true';
+
+      console.log(`[batch] Processing ${filePaths.length} files...`);
+      console.log(`[batch] Files: ${filePaths.join(', ')}`);
+      console.log(`[batch] Output: ${output}`);
+
+      // Parse each file
+      const parsedFiles = await Promise.all(
+        filePaths.map(async (filePath) => {
+          if (!fs.existsSync(filePath)) {
+            throw new Error(`File not found: ${filePath}`);
+          }
+          console.log(`[batch] Parsing: ${filePath}`);
+          const buffer = fs.readFileSync(filePath);
+          const workbook = await parseExcelBuffer(buffer, filePath);
+          const fileId = generateId();
+          return { fileId, workbook };
+        })
+      );
+
+      console.log(`[batch] Running pipeline on ${parsedFiles.length} files...`);
+
+      // Run the pipeline
+      const pipelineInput: PipelineInput = {
+        projectId,
+        files: parsedFiles,
+        force,
+      };
+
+      const result = await runPipeline(pipelineInput);
+
+      // Save output
+      fs.writeFileSync(output, JSON.stringify(result, null, 2));
+      console.log(`[batch] Complete → ${output}`);
+      console.log(`[batch] Extracted ${result.validation.validatedRules.length} rules, score: ${result.validation.overallScore}/100`);
+      break;
+    }
+
     default:
       console.log('Universal ICM Connector CLI');
       console.log('');
@@ -144,6 +192,10 @@ async function main(): Promise<void> {
       console.log('  list-plans --vendor <id>');
       console.log('  normalize  --input <path> [--output <path>]');
       console.log('  pipeline   --vendor <id> [--plan <id>] [--output <path>]');
+      console.log('');
+      console.log('Batch Processing (Local Files):');
+      console.log('  batch      --files <path1,path2,...> [--output <path>] [--project <id>] [--force]');
+      console.log('  Example:   batch --files file1.xlsx,file2.xlsx,file3.xlsx --output result.json');
       console.log('');
       console.log('Builder Commands (Excel → CaptivateIQ):');
       console.log('  builder    <command> [options]   (run "builder help" for details)');
