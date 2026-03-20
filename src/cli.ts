@@ -75,23 +75,6 @@ async function main(): Promise<void> {
       break;
     }
 
-    case 'normalize': {
-      const input = requireArg('input');
-      const output = getArg('output') ?? './normalized.json';
-
-      console.log(`Normalizing rules from ${input}...`);
-      console.log(`Output: ${output}`);
-
-      // TODO: Load raw rules and run through interpreter + normalizer
-      // const rawRules = JSON.parse(fs.readFileSync(input, 'utf-8'));
-      // const interpreter = new ConceptExtractor(getInterpreterConfig());
-      // const normalized = await interpreter.interpretRules(rawRules);
-      // fs.writeFileSync(output, JSON.stringify(normalized, null, 2));
-
-      console.log('Normalize command not yet implemented');
-      break;
-    }
-
     case 'pipeline': {
       const vendorRaw = requireArg('vendor');
       const vendor = vendorIdSchema.parse(vendorRaw) as VendorId;
@@ -190,7 +173,6 @@ async function main(): Promise<void> {
       console.log('Connector Commands:');
       console.log('  extract    --vendor <id> [--plan <id>] [--output <path>]');
       console.log('  list-plans --vendor <id>');
-      console.log('  normalize  --input <path> [--output <path>]');
       console.log('  pipeline   --vendor <id> [--plan <id>] [--output <path>]');
       console.log('');
       console.log('Batch Processing (Local Files):');

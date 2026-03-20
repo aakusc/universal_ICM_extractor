@@ -105,7 +105,7 @@ export class ConceptExtractor {
    * Call Anthropic Claude API.
    */
   private async callClaude(prompt: string): Promise<string> {
-    const model = this.config.model || 'claude-3-5-sonnet-20241022';
+    const model = this.config.model || 'claude-sonnet-4-6';
     
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',

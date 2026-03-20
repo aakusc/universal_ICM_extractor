@@ -8,7 +8,7 @@ import type { IAuthConfig, IConnectionStatus, IRawRule } from '../types/connecto
 import * as store from '../project/store.js';
 import type { Requirement } from '../project/types.js';
 import { parseExcelBuffer } from '../excel/parser.js';
-import { extractRulesFromWorkbook, extractRulesFromAll } from '../excel/extractor.js';
+import { extractRulesFromWorkbook, extractRulesFromAll, extractRulesFromDocument } from '../excel/extractor.js';
 import { generatePayloads } from '../generators/index.js';
 import { aggregateExtractions } from '../generators/aggregator.js';
 import { generateConsolidatedExcel } from '../excel/exporter.js';
@@ -116,6 +116,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+    // GET /api/health — service health check
+    if (url === '/api/health' && method === 'GET') {
+      json(res, 200, { status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+      return;
+    }
+
   try {
     // ── Connector endpoints (original) ────────────────────────
 
@@ -188,7 +194,16 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    let params = matchRoute(url, method, '/api/builder/projects/:id', 'PATCH');
+    // GET /api/builder/projects/:id — get single project
+    let params = matchRoute(url, method, '/api/builder/projects/:id', 'GET');
+    if (params) {
+      const project = store.getProject(params.id);
+      if (!project) { json(res, 404, { error: 'Project not found' }); return; }
+      json(res, 200, { project });
+      return;
+    }
+
+    params = matchRoute(url, method, '/api/builder/projects/:id', 'PATCH');
     if (params) {
       const body = (await parseJsonBody(req)) as { name?: string; description?: string };
       const updated = store.updateProject(params.id, body);
@@ -226,6 +241,10 @@ const server = http.createServer(async (req, res) => {
       if (!body.filename || !body.data) { json(res, 400, { error: 'filename and data (base64) required' }); return; }
 
       const buffer = Buffer.from(body.data, 'base64');
+      if (buffer.length > 50 * 1024 * 1024) {
+        json(res, 413, { error: 'File too large — maximum size is 50MB' });
+        return;
+      }
       const mimeType = body.mimeType || getMimeType(body.filename);
       const category = fileCategoryFromName(body.filename);
       const file = store.saveFile(projectId, body.filename, buffer, mimeType, category);
@@ -276,13 +295,20 @@ const server = http.createServer(async (req, res) => {
       if (!fs.existsSync(filePath)) { json(res, 404, { error: 'File blob not found on disk' }); return; }
 
       const buffer = fs.readFileSync(filePath);
-      const workbook = await parseExcelBuffer(buffer, fileRecord.originalName);
-
       const requirements = store.listRequirements(projectId);
       const notes = store.listNotes(projectId);
 
-      console.log(`[builder] Starting AI extraction: project=${projectId} file=${fileId}`);
-      const result = await extractRulesFromWorkbook({ projectId, fileId, workbook, requirements, notes });
+      let result: import('../project/types.js').ExtractionResult;
+      if (isExcelFile(fileRecord.originalName)) {
+        const workbook = await parseExcelBuffer(buffer, fileRecord.originalName);
+        console.log(`[builder] Starting AI extraction (Excel): project=${projectId} file=${fileId}`);
+        result = await extractRulesFromWorkbook({ projectId, fileId, workbook, requirements, notes });
+      } else {
+        const { extractRulesFromDocument } = await import('../excel/extractor.js');
+        const doc = await parseDocumentBuffer(buffer, fileRecord.originalName);
+        console.log(`[builder] Starting AI extraction (${doc.fileType}): project=${projectId} file=${fileId}`);
+        result = await extractRulesFromDocument({ projectId, fileId, document: doc, requirements, notes });
+      }
       store.saveExtraction(result);
 
       json(res, 200, {
@@ -378,6 +404,125 @@ const server = http.createServer(async (req, res) => {
     // ══════════════════════════════════════════════════════════════
     // ══ Multi-Pass Pipeline (SSE streaming)                     ══
     // ══════════════════════════════════════════════════════════════
+
+    // POST /api/builder/projects/:projectId/pipeline — run pipeline with SSE (project-scoped)
+    params = matchRoute(url, method, '/api/builder/projects/:projectId/pipeline', 'POST');
+    if (params) {
+      const { projectId } = params;
+      if (!store.getProject(projectId)) { json(res, 404, { error: 'Project not found' }); return; }
+
+      const body = (await parseJsonBody(req)) as { force?: boolean };
+
+      // SSE headers
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+      });
+
+      const sendEvent = (eventName: string, data: unknown) => {
+        try { res.write(`event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`); } catch { /* closed */ }
+      };
+
+      const onEvent = (event: PipelineEvent) => { sendEvent(event.event, event.data); };
+
+      try {
+        const projectFiles = store.listFiles(projectId);
+        if (projectFiles.length === 0) {
+          sendEvent('error', { message: 'No files uploaded', phase: 'error' });
+          res.end();
+          return;
+        }
+
+        const files: Array<{ fileId: string; workbook: import('../project/types.js').ParsedWorkbook }> = [];
+        for (const file of projectFiles) {
+          const fp = store.getFilePath(file.storedName);
+          if (!fs.existsSync(fp)) continue;
+          const buf = fs.readFileSync(fp);
+          if (isExcelFile(file.originalName)) {
+            try {
+              const wb = await parseExcelBuffer(buf, file.originalName);
+              files.push({ fileId: file.id, workbook: wb });
+            } catch (err) {
+              console.warn(`[pipeline] Failed to parse ${file.originalName}:`, err);
+            }
+          }
+        }
+
+        if (files.length === 0) {
+          sendEvent('error', { message: 'No parseable files found', phase: 'error' });
+          res.end();
+          return;
+        }
+
+        const result = await runPipeline({ projectId, files, force: body.force ?? false }, onEvent);
+
+        const project = store.getProject(projectId)!;
+        const extractionResult = {
+          id: store.generateId(),
+          projectId,
+          fileId: 'pipeline',
+          extractedAt: new Date().toISOString(),
+          workbook: files[0].workbook,
+          rules: result.validation.validatedRules,
+          insights: result.validation.insights,
+          captivateiqConfig: result.validation.captivateiqConfig,
+        };
+
+        const payloads = generatePayloads(result.validation.captivateiqConfig);
+        const buildDoc = generateBuildDocument(extractionResult as any, project.name);
+        const excelBuffer = await generateConsolidatedExcel(extractionResult as any, { projectName: project.name });
+
+        sendEvent('result', {
+          extraction: {
+            extractionId: extractionResult.id,
+            extractedAt: extractionResult.extractedAt,
+            ruleCount: result.validation.validatedRules.length,
+            insights: result.validation.insights,
+            captivateiqConfig: result.validation.captivateiqConfig,
+            rules: result.validation.validatedRules,
+          },
+          payloads,
+          buildDocument: buildDoc,
+          excelBase64: excelBuffer.toString('base64'),
+          excelFilename: `${project.name.replace(/[^a-zA-Z0-9]/g, '_')}_ICM_Analysis.xlsx`,
+          stats: {
+            filesProcessed: files.length,
+            excelFiles: files.length,
+            documentFiles: 0,
+            parseErrors: 0,
+            rulesExtracted: result.validation.validatedRules.length,
+          },
+          pipeline: {
+            fileResults: result.fileResults.map(fr => ({
+              fileId: fr.fileId,
+              fileName: fr.fileName,
+              classification: fr.classification,
+              ruleCount: fr.rules.length,
+            })),
+            synthesis: {
+              ruleCount: result.synthesis.rules.length,
+              conflictCount: result.synthesis.conflicts.length,
+              crossRefCount: result.synthesis.crossReferences.length,
+            },
+            validation: {
+              overallScore: result.validation.overallScore,
+              checksRun: result.validation.checks.length,
+              checksPassed: result.validation.checks.filter(c => c.passed).length,
+              flaggedRules: result.validation.flaggedRules.length,
+            },
+          },
+          completeness: result.completeness || null,
+        });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        sendEvent('error', { message: msg, phase: 'error' });
+      } finally {
+        res.end();
+      }
+      return;
+    }
 
     // POST /api/run-pipeline — run multi-pass extraction with SSE progress
     if (url === '/api/run-pipeline' && method === 'POST') {
@@ -520,6 +665,91 @@ const server = http.createServer(async (req, res) => {
       if (!pid) { json(res, 400, { error: 'projectId required' }); return; }
       const status = store.loadPipelineStatus(pid);
       json(res, 200, status ?? { phase: 'idle' });
+      return;
+    }
+
+    // GET /api/builder/projects/:projectId/completeness — fetch completeness results
+    params = matchRoute(url, method, '/api/builder/projects/:projectId/completeness', 'GET');
+    if (params) {
+      const completeness = store.loadCompletenessResult(params.projectId);
+      if (!completeness) { json(res, 404, { error: 'No completeness analysis yet — run pipeline first' }); return; }
+      json(res, 200, completeness);
+      return;
+    }
+
+    // GET /api/builder/projects/:projectId/pipeline/status — pipeline status for a specific project
+    params = matchRoute(url, method, '/api/builder/projects/:projectId/pipeline/status', 'GET');
+    if (params) {
+      const status = store.loadPipelineStatus(params.projectId);
+      json(res, 200, status ?? { phase: 'idle' });
+      return;
+    }
+
+    // POST /api/builder/projects/:projectId/extract-all — extract from ALL project files at once
+    params = matchRoute(url, method, '/api/builder/projects/:projectId/extract-all', 'POST');
+    if (params) {
+      const { projectId } = params;
+      const project = store.getProject(projectId);
+      if (!project) { json(res, 404, { error: 'Project not found' }); return; }
+
+      const projectFiles = store.listFiles(projectId);
+      if (projectFiles.length === 0) {
+        json(res, 400, { error: 'No files uploaded — upload files first' });
+        return;
+      }
+
+      const workbooks: Array<{ fileId: string; workbook: import('../project/types.js').ParsedWorkbook }> = [];
+      const documents: Array<{ fileId: string; document: import('../documents/parser.js').ParsedDocument }> = [];
+
+      for (const file of projectFiles) {
+        const fp = store.getFilePath(file.storedName);
+        if (!fs.existsSync(fp)) continue;
+        const buf = fs.readFileSync(fp);
+        if (isExcelFile(file.originalName)) {
+          try {
+            const wb = await parseExcelBuffer(buf, file.originalName);
+            workbooks.push({ fileId: file.id, workbook: wb });
+          } catch (err) { console.warn(`[extract-all] Failed to parse ${file.originalName}:`, err); }
+        } else {
+          try {
+            const doc = await parseDocumentBuffer(buf, file.originalName);
+            documents.push({ fileId: file.id, document: doc });
+          } catch (err) { console.warn(`[extract-all] Failed to parse ${file.originalName}:`, err); }
+        }
+      }
+
+      if (workbooks.length === 0 && documents.length === 0) {
+        json(res, 400, { error: 'No files could be parsed' });
+        return;
+      }
+
+      const requirements = store.listRequirements(projectId);
+      const notes = store.listNotes(projectId);
+
+      console.log(`[extract-all] Bulk extraction: ${workbooks.length} workbooks + ${documents.length} documents`);
+      const extraction = await extractRulesFromAll({ projectId, workbooks, documents, requirements, notes });
+      store.saveExtraction(extraction);
+
+      const payloads = generatePayloads(extraction.captivateiqConfig);
+      store.saveGeneration(projectId, 'bulk', payloads);
+
+      json(res, 200, {
+        extraction: {
+          extractionId: extraction.id,
+          extractedAt: extraction.extractedAt,
+          ruleCount: extraction.rules.length,
+          insights: extraction.insights,
+          captivateiqConfig: extraction.captivateiqConfig,
+          rules: extraction.rules,
+        },
+        payloads,
+        stats: {
+          filesProcessed: workbooks.length + documents.length,
+          excelFiles: workbooks.length,
+          documentFiles: documents.length,
+          rulesExtracted: extraction.rules.length,
+        },
+      });
       return;
     }
 
